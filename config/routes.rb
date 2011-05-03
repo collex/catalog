@@ -9,6 +9,14 @@ CollexCatalog::Application.routes.draw do
 
   get "home/index"
 
+  resources :search do
+	  collection do
+		  get 'autocomplete'
+		  get 'names'
+		  get 'totals'
+	  end
+  end
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

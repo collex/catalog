@@ -1,5 +1,9 @@
 class ArchivesController < ApplicationController
-	before_filter :must_be_logged_in
+#	before_filter :must_be_logged_in
+	before_filter :must_be_logged_in, :except => [:index]
+	before_filter(:only => :index) do |controller|
+		must_be_logged_in unless controller.request.format.xml?
+	end
 
   # GET /archives
   # GET /archives.xml

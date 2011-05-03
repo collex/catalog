@@ -1,7 +1,8 @@
 class CreateArchives < ActiveRecord::Migration
   def self.up
     create_table :archives do |t|
-      t.string :name
+		t.string :handle
+		t.string :name
       t.string :site_url
       t.string :thumbnail
       t.text :carousel_description

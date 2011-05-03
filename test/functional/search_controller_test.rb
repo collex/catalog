@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class SearchesControllerTest < ActionController::TestCase
+class SearchControllerTest < ActionController::TestCase
   setup do
     @search = searches(:one)
   end

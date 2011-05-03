@@ -13,6 +13,7 @@
 ActiveRecord::Schema.define(:version => 20110502220053) do
 
   create_table "archives", :force => true do |t|
+    t.string   "handle"
     t.string   "name"
     t.string   "site_url"
     t.string   "thumbnail"
@@ -24,6 +25,7 @@ ActiveRecord::Schema.define(:version => 20110502220053) do
 
   create_table "federations", :force => true do |t|
     t.string   "name"
+    t.string   "thumbnail"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

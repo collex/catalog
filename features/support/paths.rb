@@ -6,7 +6,10 @@ module NavigationHelpers
   # step definition in web_steps.rb
   #
   def path_to(page_name)
-    case page_name
+	# Split out format if page_name includes ' using '
+    # Example: When I go to the accounts page using json
+    page_name, format = page_name.split(' using ')
+	case page_name
 
 	when /the home\s?page/
 	  '/'
@@ -27,7 +30,7 @@ module NavigationHelpers
       begin
         page_name =~ /the (.*) page/
         path_components = $1.split(/\s+/)
-        self.send(path_components.push('path').join('_').to_sym)
+        self.send(path_components.push('path').join('_').to_sym, :format => format)
       rescue Object => e
         raise "Can't find mapping from \"#{page_name}\" to a path.\n" +
           "Now, go and add a mapping in #{__FILE__}"
