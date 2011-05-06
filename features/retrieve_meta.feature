@@ -11,6 +11,7 @@ Feature: Retrieve Meta Data
 		When I go to the genres page using xml
 		Then I should see "Architecture"
 		And I should see "Artifact"
+#TODO: Test the returned structure better than this
 
 	Scenario: Get Archives
 		Given I am not authenticated
@@ -22,6 +23,7 @@ Feature: Retrieve Meta Data
 		And I should see "http://www.letrs.indiana.edu/web/v/victbib"
 #		And I should see "<site-url>"
 #		And I should see "<carousel-image-url>"
+#TODO: Test the returned structure better than this
 
 	Scenario: Get Federations
 		Given I am not authenticated
@@ -30,4 +32,5 @@ Feature: Retrieve Meta Data
 		Then I should see "NINES"
 		And I should see "18thConnect"
 		And I should see "/images/nines.png"
+#TODO: Test the returned structure better than this
 

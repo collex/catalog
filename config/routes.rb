@@ -1,15 +1,21 @@
 CollexCatalog::Application.routes.draw do
-  resources :archives
+	#resources :controllers, :only => [:edit, :update]
+	resources :archives
 
   resources :federations
 
-  resources :genres
+	resources :genres
+
+	resources :exhibits
+
+	resources :locals
 
   devise_for :users
 
   get "home/index"
 
-  resources :search do
+	resources :search, :only => [:index, :show] do
+	#resources :search do
 	  collection do
 		  get 'autocomplete'
 		  get 'names'

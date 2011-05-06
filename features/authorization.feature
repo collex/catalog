@@ -35,3 +35,22 @@ Feature: Authorization
 		When I go to the federations page
 		Then I should be on the federations page
 
+	Scenario: Not logged in - Search
+		Given I am not authenticated
+		When I go to the search page
+		Then I should be on the search page
+
+	Scenario: Not logged in - Local
+		Given I am not authenticated
+		When I go to the locals page
+		Then I should be on the locals page
+
+	Scenario: Not logged in - Exhibit
+		Given I am not authenticated
+		When I go to the exhibits page
+		Then I should be on the exhibits page
+
+	Scenario: Not logged in - Home
+		Given I am not authenticated
+		When I go to the home page
+		Then I should be on the home page

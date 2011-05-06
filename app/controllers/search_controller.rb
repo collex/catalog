@@ -51,7 +51,7 @@ class SearchController < ApplicationController
 	# GET /searches/1.xml
 	def show
 		# TODO: Really make the call to get the document by uri here
-		@search = Search.find(params[:id])
+#		@search = Search.find(params[:id])
 
 		respond_to do |format|
 			format.html # show.html.erb
