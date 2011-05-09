@@ -1,0 +1,15 @@
+<%# params: (params => QueryFormat type object) %>
+<table>
+	<tr>
+		<th>Parameter</th>
+		<th>Name</th>
+		<th>Description</th>
+	</tr>
+	<% params.each { |key,val| %>
+		<tr>
+			<td><%= key %></td>
+			<td><%= val[:name] %></td>
+			<td><%= val[:description] %></td>
+		</tr>
+	<% } %>
+</table>

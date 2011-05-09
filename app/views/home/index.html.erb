@@ -2,7 +2,27 @@
 <p id="notice"><%= notice %></p>
 <p id="alert"><%= alert %></p>
 <p>This is a web service for searching the documents in Collex.</p>
-<p>To use, TBD</p>
+<p>To use, call this in one of the following ways. It is meant to be used as a web service, but you can also type the
+	values into your browser to interactively test your parameters. If you leave off the ".xml" in the following calls,
+	the results will be formatted better for a browser.
+</p>
+
+<h2>Totals:</h2>
+<p>Call /search/totals.xml</p>
+
+<h2>Search Queries:</h2>
+<p>Call /search.xml with the following parameters:</p>
+<%= render :partial => 'params', :locals => { :params => @query_params } %>
+
+<h2>Autocomplete Queries:</h2>
+<p>Call /search/autocomplete.xml with the following parameters:</p>
+<%= render :partial => 'params', :locals => { :params => @autocomplete_params } %>
+
+<h2>Names Faceting Queries:</h2>
+<p>Call /search/names.xml with the following parameters:</p>
+<%= render :partial => 'params', :locals => { :params => @names_params } %>
+
+<hr />
 <% if user_signed_in? %>
 	<%= link_to "Manage genres", genres_path %> | <%= link_to "Manage archives", archives_path %> | <%= link_to "Manage federations", federations_path %> | <%= link_to "Log out", destroy_user_session_path %>
 <% else %>
