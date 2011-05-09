@@ -8,19 +8,33 @@
 </p>
 
 <h2>Totals:</h2>
-<p>Call /search/totals.xml</p>
+<p>Call <%= example_link("/search/totals.xml") %> to get a list of all the federations and how many documents and archives they contain.</p>
 
 <h2>Search Queries:</h2>
 <p>Call /search.xml with the following parameters:</p>
 <%= render :partial => 'params', :locals => { :params => @query_params } %>
+<p>Example: Search for all mention of trees by Whitman <%= example_link("/search.xml?q=tree&aut=whitman") %></p>
 
 <h2>Autocomplete Queries:</h2>
 <p>Call /search/autocomplete.xml with the following parameters:</p>
 <%= render :partial => 'params', :locals => { :params => @autocomplete_params } %>
+<p>Example: Autocomplete tre by Whitman <%= example_link("/search/autocomplete.xml?field=content&frag=tre&aut=whitman") %></p>
 
 <h2>Names Faceting Queries:</h2>
 <p>Call /search/names.xml with the following parameters:</p>
 <%= render :partial => 'params', :locals => { :params => @names_params } %>
+<p>Example: All authors, publishers, and editors who mention trees and Whitman <%= example_link("/search/names.xml?field=content&frag=tre+whitman") %></p>
+
+<h2>URI Queries:</h2>
+<p>Call /search.xml with the following parameters:</p>
+<%= render :partial => 'params', :locals => { :params => @uri_params } %>
+<p>Example: A document by Whitman <%= example_link("/search.xml?id=http://www.whitmanarchive.org/criticism/reviews/leaves/leaves55/dailytimes") %></p>
+
+<h2>Meta Queries</h2>
+<p>You can also get information about the index with one of these calls:</p>
+<p><%= example_link("/archives.xml") %> : To get a list of all the possible archives</p>
+<p><%= example_link("/genres.xml") %> : To get a list of all the possible genres</p>
+<p><%= example_link("/federations.xml") %> : To get a list of all the possible federations</p>
 
 <hr />
 <% if user_signed_in? %>

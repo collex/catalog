@@ -1,0 +1,17 @@
+table.help {
+	border: 1px solid #cccccc;
+}
+
+table.help th {
+	text-align: left;
+	border: 1px solid #cccccc;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+table.help td {
+	border: 1px solid #cccccc;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
