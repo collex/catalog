@@ -209,3 +209,13 @@ end
 Then /^show me the page$/ do
   save_and_open_page
 end
+
+Then /^I should see the following xml:/ do |xml_output|
+  response = Hash.from_xml(page.body)
+  expected = Hash.from_xml(xml_output)
+  response.diff(expected).should == {}
+end
+
+Then /^the response status should be "([^"]*)"$/ do |arg1|
+	page.status_code.should == arg1.to_i
+end

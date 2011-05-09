@@ -1,8 +1,10 @@
 class ExhibitsController < ApplicationController
+	before_filter :must_be_logged_in
+
   # GET /exhibits
   # GET /exhibits.xml
   def index
-    @exhibits = Exhibit.all
+    @exhibits = [] # Exhibit.all
 
     respond_to do |format|
       format.html # index.html.erb

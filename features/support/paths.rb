@@ -20,6 +20,9 @@ module NavigationHelpers
 	when /the sign out link/
 	  destroy_user_session_path
 
+	when /the search page/
+	   "/search/index"
+
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
     #

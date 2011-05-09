@@ -29,7 +29,7 @@ When /^I restfully edit "([^"]*)" from "([^"]*)"$/ do |record, controller|
 end
 
 When /^I restfully create a "([^"]*)"$/ do |controller|
-	page.driver.post "/#{controller}/new"
+	page.driver.post "/#{controller}"
 end
 
 When /^I restfully update "([^"]*)" from "([^"]*)"$/ do |record, controller|

@@ -1,8 +1,10 @@
 class LocalsController < ApplicationController
+	before_filter :must_be_logged_in
+
   # GET /locals
   # GET /locals.xml
   def index
-    @locals = Local.all
+    @locals = [] # Local.all
 
     respond_to do |format|
       format.html # index.html.erb

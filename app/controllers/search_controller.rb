@@ -14,12 +14,13 @@ class SearchController < ApplicationController
 	# GET /searches/totals
 	# GET /searches/totals.xml
 	def totals
-		# TODO: Really make the call to get the totals here
-		results = [ { :name => 'NINES', :total_docs => 400, :total_archives => 12}, { :name => '18thConnect', :total_docs => 800, :total_archives => 24 } ]
+		is_test = Rails.env == 'test'
+		@totals = Solr.get_totals(is_test)
+#		results = [ { :name => 'NINES', :total_docs => 400, :total_archives => 12}, { :name => '18thConnect', :total_docs => 800, :total_archives => 24 } ]
 
 		respond_to do |format|
 			format.html # index.html.erb
-			format.xml  { render :xml => results }
+			format.xml  { render :xml => @totals }
 		end
 	end
 

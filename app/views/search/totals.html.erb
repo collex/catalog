@@ -1,0 +1,14 @@
+<table>
+	<tr>
+		<th>Federation</th>
+		<th>Number of Objects</th>
+		<th>Number of Archives</th>
+	</tr>
+<% @totals.each { |total| %>
+	<tr>
+		<td><%= total[:federation] %></td>
+		<td><%= total[:total] %></td>
+		<td><%= total[:sites] %></td>
+	</tr>
+<% } %>
+</table>

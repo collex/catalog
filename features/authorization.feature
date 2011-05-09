@@ -43,12 +43,12 @@ Feature: Authorization
 	Scenario: Not logged in - Local
 		Given I am not authenticated
 		When I go to the locals page
-		Then I should be on the locals page
+		Then I should be on the home page
 
 	Scenario: Not logged in - Exhibit
 		Given I am not authenticated
 		When I go to the exhibits page
-		Then I should be on the exhibits page
+		Then I should be on the home page
 
 	Scenario: Not logged in - Home
 		Given I am not authenticated

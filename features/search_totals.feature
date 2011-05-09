@@ -7,12 +7,32 @@ Feature: Search totals
 	Scenario: Get solr resources totals
 		Given I am not authenticated
 		When I go to the totals search index page using xml
-		Then I should see "NINES"
-		And I should see "400"
-		And I should see "12"
-		And I should see "18thConnect"
-		And I should see "800"
-		And I should see "24"
-#TODO: how do I better check the return of the xml object?
+		Then the response status should be "200"
+		And I should see the following xml:
+"""
+<?xml version="1.0" encoding="UTF-8"?>
+<objects type="array">
+  <object>
+    <federation>18thConnect</federation>
+    <total type="integer">586911</total>
+    <sites type="integer">3</sites>
+  </object>
+  <object>
+    <federation>NINES</federation>
+    <total type="integer">288952</total>
+    <sites type="integer">8</sites>
+  </object>
+</objects>
+"""
 
+	Scenario: Browse to the solr resources totals
+		Given I am not authenticated
+		When I go to the totals search index page
+		Then the response status should be "200"
+		And I should see "18thConnect"
+		And I should see "586911"
+		And I should see "3"
+		And I should see "NINES"
+		And I should see "288952"
+		And I should see "8"
 
