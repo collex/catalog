@@ -219,3 +219,17 @@ end
 Then /^the response status should be "([^"]*)"$/ do |arg1|
 	page.status_code.should == arg1.to_i
 end
+
+Then /^(?:|I )should see in this order "([^"]*)"$/ do |text|
+	order = Regexp.new(text.gsub(', ', '.*'), Regexp::MULTILINE)
+
+	raise "Did not find keywords in the requested order!" unless page.body =~ order
+end
+
+When /^I search with <([^>]*)>$/ do |arg1|
+  visit "/search?#{arg1}"
+end
+
+When /^I search with <([^>]*)> using xml$/ do |arg1|
+	visit "/search.xml?#{arg1}"
+end

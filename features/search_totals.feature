@@ -29,10 +29,5 @@ Feature: Search totals
 		Given I am not authenticated
 		When I go to the totals search index page
 		Then the response status should be "200"
-		And I should see "18thConnect"
-		And I should see "586911"
-		And I should see "3"
-		And I should see "NINES"
-		And I should see "288952"
-		And I should see "8"
+		And I should see in this order "18thConnect, 586911, 3, NINES, 288952, 8"
 

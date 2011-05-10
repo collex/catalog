@@ -120,6 +120,40 @@ class Solr
 		}
 		return totals
 	end
+
+	def search(options)
+		ret = @solr.post( 'select', :data => options )
+
+		# correct the character set for all fields
+		if ret && ret['response'] && ret['response']['docs']
+			ret['response']['docs'].each { |doc|
+				doc.each { |k,v|
+					if v.kind_of?(String)
+						doc[k] = v.force_encoding("UTF-8")
+					elsif v.kind_of?(Array)
+						v.each_with_index { |str, i|
+							if str.kind_of?(String)
+								v[i] = str.force_encoding("UTF-8")
+							end
+						}
+					end
+				}
+			}
+		end
+		# highlighting is returned as a hash of uri to a hash that is either empty or contains 'text' => Array of one string element.
+		# simplify this to return either nil or a string.
+		if ret && ret['highlighting']
+			ret['highlighting'].each { |uri,hsh|
+				if hsh.length == 0 || hsh['text'] == nil || hsh['text'].length == 0
+					ret['highlighting'][uri] = nil
+				else
+					str = hsh['text'].join("\n") # This should always return an array of size 1, but just in case, we won't throw away any items.
+					ret['response']['docs'][uri]['text'] = str.force_encoding("UTF-8")
+				end
+			}
+		end
+		return ret
+	end
 end
 
 ##########################################################################
