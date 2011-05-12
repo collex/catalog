@@ -46,6 +46,10 @@ class Solr
 	private
 	def select(options)
 		ret = @solr.post( 'select', :data => options )
+		uri = ret.request[:uri].to_s
+		arr = uri.split('/')
+		index = arr[arr.length-2]
+		puts "SOLR: [#{index}] #{ret.request[:data]}"
 
 #		# highlighting is returned as a hash of uri to a hash that is either empty or contains 'text' => Array of one string element.
 #		# simplify this to return either nil or a string.
@@ -70,6 +74,11 @@ class Solr
 		#options["facet.method"] = nil
 		options["facet.mincount"] = 1
 		options["facet.limit"] = -1
+		return options
+	end
+
+	def add_field_list_param(options, fields)
+		options[:fl] = fields.join(' ')
 		return options
 	end
 
@@ -122,7 +131,9 @@ class Solr
 	end
 
 	def search(options)
-		ret = @solr.post( 'select', :data => options )
+		options = add_facet_param(options, @facet_fields)
+		options = add_field_list_param(options, @field_list)
+		ret = select(options)
 
 		# correct the character set for all fields
 		if ret && ret['response'] && ret['response']['docs']
@@ -152,7 +163,30 @@ class Solr
 				end
 			}
 		end
-		return ret
+
+		# make the facets more convenient. They are returned as a hash, with each key being the facet type.
+		# Then the value is an array. The values of the array alternate between the name of the facet and the
+		# count of the number of objects that match it. There is also a nil value that needs to be ignored.
+		facets = {}
+		if ret && ret['facet_counts'] && ret['facet_counts']['facet_fields']
+			ret['facet_counts']['facet_fields'].each { |key,raw_list|
+				facet = []
+				name = ''
+				raw_list.each { |item|
+					if name == ''
+						name = item
+					else
+						if name != nil
+							facet.push({ :name => name, :count => item })
+						end
+						name = ''
+					end
+				}
+				facets[key] = facet
+			}
+
+		end
+		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
 	end
 end
 

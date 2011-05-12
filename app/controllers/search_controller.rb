@@ -2,12 +2,25 @@ class SearchController < ApplicationController
 	# GET /searches
 	# GET /searches.xml
 	def index
-		# TODO: Really make the call to get the search results here
-		results = [ { :uri => 'http://fake/001', :title => 'System Test' }, { :uri => 'http://fake/002', :title => 'Second Object' }]
+		query_params = QueryFormat.catalog_format()
+		begin
+			QueryFormat.transform_raw_parameters(params)
+			query = QueryFormat.create_solr_query(query_params, params)
+			is_test = Rails.env == 'test'
+			solr = Solr.factory_create(is_test)
+			@results = solr.search(query)
+			# TODO: Really make the call to get the search results here
+	#		@results = [ { :uri => 'http://fake/001', :title => 'System Test' }, { :uri => 'http://fake/002', :title => 'Second Object' }]
 
-		respond_to do |format|
-			format.html # index.html.erb
-			format.xml  { render :xml => results }
+			respond_to do |format|
+				format.html # index.html.erb
+				format.xml  { render :xml => @results }
+			end
+		rescue ArgumentError => e
+			respond_to do |format|
+				format.html { render :text => e.to_s, :status => :bad_request  }
+				format.xml  { render :xml => [ { :error => e.to_s}], :status => :bad_request }
+			end
 		end
 	end
 

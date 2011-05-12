@@ -1,16 +1,18 @@
-table.help {
+
+table.results {
 	border: 1px solid #cccccc;
 }
 
-table.help th {
+table.results th {
 	text-align: left;
 	border: 1px solid #cccccc;
 	padding-left: 4px;
 	padding-right: 4px;
 }
 
-table.help td {
+table.results td {
 	border: 1px solid #cccccc;
 	padding-left: 4px;
 	padding-right: 4px;
 }
+

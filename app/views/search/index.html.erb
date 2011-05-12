@@ -1,1 +1,34 @@
-<%# TODO: do html search %>
+<h1>Search Results</h1>
+<% columns = infer_search_columns(@results[:hits]) %>
+<div class="result_total">Total found: <%= @results[:total] %></div>
+<h2>Results</h2>
+<table class="results">
+	<tr>
+		<% columns.each { |col| %>
+		<th><%= col %></th>
+		<% } %>
+	</tr>
+	<% @results[:hits].each { |hit| %>
+	<tr>
+		<% columns.each { |col| %>
+		<td><%= hit[col] %></td>
+		<% } %>
+	</tr>
+	<% } %>
+</table>
+<h2>Facets</h2>
+<% @results[:facets].each { |facet_name, facet_list| %>
+<h3><%= facet_name %></h3>
+<table class="results">
+	<tr>
+		<th>Facet</th>
+		<th>Count</th>
+	</tr>
+	<% facet_list.each { |facet| %>
+	<tr>
+		<td><%= facet[:name] %></td>
+		<td><%= facet[:count] %></td>
+	</tr>
+	<% } %>
+</table>
+<% } %>

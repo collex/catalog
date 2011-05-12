@@ -16,6 +16,21 @@
 ##########################################################################
 
 class QueryFormat
+	def self.transform_raw_parameters(params)
+		# remove the parameters that are rails related and not set by the caller
+		params.delete('controller')
+		params.delete('action')
+		params.delete('format')
+
+		# add the closing quote to the needed fields
+		if params['q']
+			num_quotes = params['q'].count('"')
+			if num_quotes % 2 != 0
+				params['q'] = params['q'] + '"'
+			end
+		end
+	end
+
 	def self.term_info(typ)
 		verifications = {
 			:term => { :exp => /([+\-]("\w[\w?*]*( \w[\w?*]*)*"|\w[\w?*]*))/, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
@@ -24,7 +39,7 @@ class QueryFormat
 			:genre => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined genres" },
 			:federation => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined federations" },
 			:other_facet => { :exp => /([+\-](freeculture|fulltext|ocr))/, :friendly => "[+-] One of freeculture | fulltext | ocr" },
-			:sort => { :exp => /(relevancy|title|name|date) (asc|desc)/, :friendly => "One of relevancy | title | name | date followed by one of asc | desc" },
+			:sort => { :exp => /(relevancy|title|author|date) (asc|desc)/, :friendly => "One of relevancy | title | author | date followed by one of asc | desc" },
 			:starting_row => { :exp => /\d+/, :friendly => "The zero-based index of the results to start on." },
 			:max => { :exp => /\d+/, :friendly => "The page size, or the maximum number of results to return at once." },
 			:highlighting => { :exp => /(on|off)/, :friendly => "Whether to return highlighted text, if available. (Pass on or off)" },
@@ -117,36 +132,40 @@ class QueryFormat
 		return { 'q' => val }
 	end
 
+	def self.insert_field_name(field, val)
+		return "#{val[0]}#{field}:#{val[1..val.length]}"
+	end
+
 	def self.transform_title(val)
-		return { 'title' => val }
+		return { 'q' => self.insert_field_name("title", val) }
 	end
 
 	def self.transform_author(val)
-		return { 'role_AUT' => val }
+		return { 'q' => self.insert_field_name("role_AUT", val) }
 	end
 
 	def self.transform_editor(val)
-		return { 'role_EDR' => val }
+		return { 'q' => self.insert_field_name("role_EDR", val) }
 	end
 
 	def self.transform_publisher(val)
-		return { 'role_PBL' => val }
+		return { 'q' => self.insert_field_name("role_PBL", val) }
 	end
 
 	def self.transform_year(val)
-		return { 'year_sort' => val }
+		return { 'q' => self.insert_field_name("year_sort", val) }
 	end
 
 	def self.transform_archive(val)
-		return { 'archive' => val }
+		return { 'q' => self.insert_field_name("archive", val) }
 	end
 
 	def self.transform_genre(val)
-		return { 'genre' => val }
+		return { 'q' => self.insert_field_name("genre", val) }
 	end
 
 	def self.transform_federation(val)
-		return { 'federation' => val }
+		return { 'q' => self.insert_field_name("federation", val) }
 	end
 
 	def self.transform_other(val)
@@ -155,8 +174,7 @@ class QueryFormat
 
 	def self.transform_sort(val)
 		arr = val.split(' ')
-
-		return { 'sort' => arr[0], 'dir' => arr[1] }
+		return { 'sort' => "#{arr[0]}_sort #{arr[1]}" }
 	end
 
 	def self.transform_start(val)
@@ -164,7 +182,7 @@ class QueryFormat
 	end
 
 	def self.transform_max(val)
-		return { 'page_size' => val }
+		return { 'rows' => val }
 	end
 
 	def self.transform_highlight(val)
@@ -199,11 +217,11 @@ class QueryFormat
 		query = {}
 		params.each { |key,val|
 			definition = format[key]
-			raise "Unknown parameter: #{key}" if definition == nil
-			raise "Bad parameter: #{val}. Must match: #{definition[:exp].to_s}" if definition[:exp].match(val) == nil
+			raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
+			raise(ArgumentError, "Bad parameter: #{val}. Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
 			solr_hash = definition[:transformation].call(val)
 			#TODO-PER: what if the same key appears twice? Should they be added together?
-			query += solr_hash
+			query.merge!(solr_hash)
 		}
 		# add defaults
 		format.each { |key, definition|

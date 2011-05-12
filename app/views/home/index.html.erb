@@ -6,11 +6,20 @@
 	values into your browser to interactively test your parameters. If you leave off the ".xml" in the following calls,
 	the results will be formatted better for a browser.
 </p>
-
+<p>
+	TODO: The following questions on the format are unresolved:
+	<ul>
+		<li>The plus sign is used in a lot of places, but that needs to be escaped. It seems like that is a place that will annoy and trip up visitors.</li>
+		<li>The question mark and asterisk may also be an annoyance.</li>
+		<li>Should parentheses be allowed?</li>
+		<li>For multiple parameters, they should get specified like: +never-more, but the hyphen seems to work like quotes instead.</li>
+	</ul>
+</p>
 <h2>Totals:</h2>
 <p>Call <%= example_link("/search/totals.xml") %> to get a list of all the federations and how many documents and archives they contain.</p>
 
 <h2>Search Queries:</h2>
+<p>Note: All searches are case-insensitive and punctuation cannot be searched for.</p>
 <p>Call /search.xml with the following parameters:</p>
 <%= render :partial => 'params', :locals => { :params => @query_params } %>
 <p>Example: Search for all mention of "tree" by Whitman <%= example_link("/search.xml?q=tree&aut=whitman") %></p>

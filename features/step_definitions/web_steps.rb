@@ -210,13 +210,10 @@ Then /^show me the page$/ do
   save_and_open_page
 end
 
-Then /^I should see the following xml:/ do |xml_output|
-  response = Hash.from_xml(page.body)
-  expected = Hash.from_xml(xml_output)
-  response.diff(expected).should == {}
-end
-
 Then /^the response status should be "([^"]*)"$/ do |arg1|
+	if page.status_code != arg1.to_i
+		puts page.body
+	end
 	page.status_code.should == arg1.to_i
 end
 
@@ -227,9 +224,12 @@ Then /^(?:|I )should see in this order "([^"]*)"$/ do |text|
 end
 
 When /^I search with <([^>]*)>$/ do |arg1|
-  visit "/search?#{arg1}"
+	param = arg1.gsub("+", "%2b").gsub(' ', '+').gsub('"', "%22")
+	visit "/search?#{param}"
 end
 
 When /^I search with <([^>]*)> using xml$/ do |arg1|
-	visit "/search.xml?#{arg1}"
+	param = arg1.gsub("+", "%2b").gsub(' ', '+').gsub('"', "%22")
+	visit "/search.xml?#{param}"
 end
+
