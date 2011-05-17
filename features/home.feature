@@ -7,5 +7,3 @@ Feature: Show Home Page
 	Scenario: Home page as HTML
 		When I go to the home page
 		Then I should see "Collex Catalog"
-
-#TODO: Also test that there is help text on this page.

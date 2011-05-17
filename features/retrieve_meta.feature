@@ -9,28 +9,26 @@ Feature: Retrieve Meta Data
 		Given I am not authenticated
 		And the standard genres
 		When I go to the genres page using xml
-		Then I should see "Architecture"
-		And I should see "Artifact"
-#TODO: Test the returned structure better than this
+		Then the response status should be "200"
+		And the xml has the structure "xsd/meta_list.xsd"
+		And the xml list is "Architecture, Artifact"
 
 	Scenario: Get Archives
 		Given I am not authenticated
 		And the standard archives
 		When I go to the archives page using xml
-		Then I should see "victbib"
-		And I should see "poetess"
-		And I should see "bibliography of over 4,000 entries"
-		And I should see "http://www.letrs.indiana.edu/web/v/victbib"
-#		And I should see "<site-url>"
-#		And I should see "<carousel-image-url>"
-#TODO: Test the returned structure better than this
+		Then the response status should be "200"
+		And the xml has the structure "xsd/meta_list.xsd"
+		And the xml list is "victbib, poetess"
+		And the xml list item "victbib" "description" is "bibliography of over 4,000 entries"
+		And the xml list item "victbib" "site-url" is "http://www.letrs.indiana.edu/web/v/victbib"
+		And the xml list item "victbib" "carousel-image-url" is "http://www.letrs.indiana.edu/web/v/victbib"
 
 	Scenario: Get Federations
 		Given I am not authenticated
 		And the standard federations
 		When I go to the federations page using xml
-		Then I should see "NINES"
-		And I should see "18thConnect"
-		And I should see "/images/nines.png"
-#TODO: Test the returned structure better than this
-
+		Then the response status should be "200"
+		And the xml has the structure "xsd/meta_list.xsd"
+		And the xml list is "NINES, 18thConnect"
+		And the xml list item "NINES" "thumbnail" is "/images/nines.png"
