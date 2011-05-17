@@ -1,7 +1,8 @@
 <h1>Search Results</h1>
 <% columns = infer_search_columns(@results[:hits]) %>
 <div class="result_total">Total found: <%= @results[:total] %></div>
-<h2>Results</h2>
+<h2><div class="expander" data-target="search"></div>Results</h2>
+<div id="search" class="exp_target hidden">
 <table class="results">
 	<tr>
 		<% columns.each { |col| %>
@@ -16,9 +17,12 @@
 	</tr>
 	<% } %>
 </table>
-<h2>Facets</h2>
+</div>
+<h2><div class="expander" data-target="facets"></div>Facets</h2>
+<div id="facets" class="exp_target hidden">
 <% @results[:facets].each { |facet_name, facet_list| %>
-<h3><%= facet_name %></h3>
+<h3><div class="expander" data-target="<%= facet_name.gsub(/\W/, '') %>"></div><%= facet_name %></h3>
+<div id="<%= facet_name.gsub(/\W/, '') %>" class="exp_target hidden">
 <table class="results">
 	<tr>
 		<th>Facet</th>
@@ -31,4 +35,6 @@
 	</tr>
 	<% } %>
 </table>
+</div>
 <% } %>
+</div>

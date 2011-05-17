@@ -42,6 +42,19 @@ end
 
 # Recover from expected exceptions
 
+#Then /^I should be on the (.+?) page$/ do |page_name|
+#  request.request_uri.should == send("#{page_name.downcase.gsub(' ','_')}_path")
+#  response.should be_success
+#end
+
+Then /^I should be redirected to the (.+?) page$/ do |page_name|
+#TODO-PER: Can we detect that we redirected?
+#	request.headers['HTTP_REFERER'].should == nil
+#	request.headers['HTTP_REFERER'].should == request.request_uri
+
+	Then "I should be on the #{page_name} page"
+end
+
 Then /^when (.*) an error should occur$/ do |action|
 	lambda {When action}.should raise_error
 end
@@ -91,4 +104,21 @@ end
 
 Then /^all routes should exist in "([^"]*)"$/ do |controller|
 	Then "only the routes \"index,show,new,edit,create,update,delete\" should exist in \"#{controller}\""
+end
+
+Then /^all routes in "([^"]*)" should redirect to "([^"]*)"$/ do |controller, destination|
+	When "I restfully index a \"#{controller}\""
+	Then "I should be redirected to the #{destination} page"
+	When "I restfully show \"id\" from \"#{controller}\""
+	Then "I should be redirected to the #{destination} page"
+	When "I restfully new a \"#{controller}\""
+	Then "I should be redirected to the #{destination} page"
+	When "I restfully edit \"id\" from \"#{controller}\""
+	Then "I should be redirected to the #{destination} page"
+	When "I restfully create a \"#{controller}\""
+	Then "I should be redirected to the #{destination} page"
+	When "I restfully update \"id\" from \"#{controller}\""
+	Then "I should be redirected to the #{destination} page"
+	When "I restfully delete \"id\" from \"#{controller}\""
+	Then "I should be redirected to the #{destination} page"
 end
