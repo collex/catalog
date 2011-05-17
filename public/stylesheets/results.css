@@ -16,3 +16,27 @@ table.results td {
 	padding-right: 4px;
 }
 
+.expander {
+	background-image: url('../images/tree_btn.png');
+	background-repeat: no-repeat;
+	padding-right: 9px;
+	padding-bottom: 9px;
+	cursor: pointer;
+	margin-top: 4px;
+	margin-right: 8px;
+	float: left;
+}
+
+.contracter {
+	background-position: 0 -9px;
+}
+
+.hidden {
+	display: none;
+}
+
+.exp_target {
+	border-left: 1px solid #cccccc;
+	margin-left: 4px;
+	padding-left: 12px;
+}

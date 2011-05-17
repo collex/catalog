@@ -178,3 +178,18 @@ Feature: Normal search
 		And the xml has the structure "xsd/search_results.xsd"
 		And the xml search total is "288952"
 		And the xml hit "0" is "http://www.rossettiarchive.org/docs/2p-1863.1880.v2.rad#0.5.30.3"
+
+	Scenario: Do a solr search with special terms and common words
+		Given I am not authenticated
+		When I search with <q=+to+be+or+not+to+be> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml search total is "288952"
+		When I search with <q=+"to be or not to be"> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml search total is "288952"
+		When I search with <q=+rank+and+file> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml search total is "288952"
