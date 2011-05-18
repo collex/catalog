@@ -38,8 +38,8 @@ class QueryFormat
 			:archive => { :exp => /([+\-]\w[\w?*]*)/, :friendly => "[+-] One of the predefined archive abbreviations" },
 			:genre => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined genres" },
 			:federation => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined federations" },
-			:other_facet => { :exp => /([+\-](freeculture|fulltext|ocr))/, :friendly => "[+-] One of freeculture | fulltext | ocr" },
-			:sort => { :exp => /(relevancy|title|author|date) (asc|desc)/, :friendly => "One of relevancy | title | author | date followed by one of asc | desc" },
+			:other_facet => { :exp => /([+\-](freeculture|fulltext|ocr))/, :friendly => "[+-] One of freeculture, fulltext, or ocr" },
+			:sort => { :exp => /(relevancy|title|author|date) (asc|desc)/, :friendly => "One of relevancy, title, author, or date followed by one of asc or desc" },
 			:starting_row => { :exp => /\d+/, :friendly => "The zero-based index of the results to start on." },
 			:max => { :exp => /\d+/, :friendly => "The page size, or the maximum number of results to return at once." },
 			:highlighting => { :exp => /(on|off)/, :friendly => "Whether to return highlighted text, if available. (Pass on or off)" },
@@ -47,6 +47,21 @@ class QueryFormat
 		}
 
 		return verifications[typ]
+	end
+
+	def self.add_to_format(format)
+		format.each { |key,val|
+			typ = val[:param]
+			description = QueryFormat.term_info(typ)
+			format[key][:description] = description[:friendly]
+			format[key][:exp] = description[:exp]
+			if format[key][:default]
+				format[key][:description] += " [default=#{format[key][:default]}]"
+			else
+				format[key][:description] += " [default=not present]"
+			end
+		}
+		return format
 	end
 
 	def self.catalog_format()
@@ -64,15 +79,9 @@ class QueryFormat
 				'sort' => { :name => 'Sort', :param => :sort, :default => nil, :transformation => get_proc(:transform_sort) },
 				'start' => { :name => 'Starting Row', :param => :starting_row, :default => '0', :transformation => get_proc(:transform_start) },
 				'max' => { :name => 'Maximum Results', :param => :max, :default => '30', :transformation => get_proc(:transform_max) },
-				'hl' => { :name => 'Highlighting', :param => :highlighting, :default => nil, :transformation => get_proc(:transform_highlight) }
+				'hl' => { :name => 'Highlighting', :param => :highlighting, :default => 'off', :transformation => get_proc(:transform_highlight) }
 		}
-		format.each { |key,val|
-			typ = val[:param]
-			description = QueryFormat.term_info(typ)
-			format[key][:description] = description[:friendly]
-			format[key][:exp] = description[:exp]
-		}
-		return format
+		return self.add_to_format(format)
 	end
 
 	def self.autocomplete_format()
@@ -93,13 +102,7 @@ class QueryFormat
 				'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
 				'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) }
 		}
-		format.each { |key,val|
-			typ = val[:param]
-			description = QueryFormat.term_info(typ)
-			format[key][:description] = description[:friendly]
-			format[key][:exp] = description[:exp]
-		}
-		return format
+		return self.add_to_format(format)
 	end
 
 	def self.names_format()
@@ -115,13 +118,7 @@ class QueryFormat
 				'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
 				'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) }
 		}
-		format.each { |key,val|
-			typ = val[:param]
-			description = QueryFormat.term_info(typ)
-			format[key][:description] = description[:friendly]
-			format[key][:exp] = description[:exp]
-		}
-		return format
+		return self.add_to_format(format)
 	end
 
 	def self.get_proc( method_sym )

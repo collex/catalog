@@ -222,14 +222,3 @@ Then /^(?:|I )should see in this order "([^"]*)"$/ do |text|
 
 	raise "Did not find keywords in the requested order!" unless page.body =~ order
 end
-
-When /^I search with <([^>]*)>$/ do |arg1|
-	param = arg1.gsub("+", "%2b").gsub(' ', '+').gsub('"', "%22")
-	visit "/search?#{param}"
-end
-
-When /^I search with <([^>]*)> using xml$/ do |arg1|
-	param = arg1.gsub("+", "%2b").gsub(' ', '+').gsub('"', "%22")
-	visit "/search.xml?#{param}"
-end
-
