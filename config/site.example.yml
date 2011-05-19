@@ -9,6 +9,9 @@
 ### EMAIL
 ##########################
 
+admin:
+  email: vicky@performantsoftware.com
+
 # For getting automatic emails when an error occurs
 # exception_recipients: List of all emails that should receive the notification
 # sender_address: Who the notification email will be from

@@ -39,7 +39,7 @@ class QueryFormat
 			:genre => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined genres" },
 			:federation => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined federations" },
 			:other_facet => { :exp => /([+\-](freeculture|fulltext|ocr))/, :friendly => "[+-] One of freeculture, fulltext, or ocr" },
-			:sort => { :exp => /(relevancy|title|author|date) (asc|desc)/, :friendly => "One of relevancy, title, author, or date followed by one of asc or desc" },
+			:sort => { :exp => /(title|author|date) (asc|desc)/, :friendly => "One of title, author, or date followed by one of asc or desc" },
 			:starting_row => { :exp => /\d+/, :friendly => "The zero-based index of the results to start on." },
 			:max => { :exp => /\d+/, :friendly => "The page size, or the maximum number of results to return at once." },
 			:highlighting => { :exp => /(on|off)/, :friendly => "Whether to return highlighted text, if available. (Pass on or off)" },

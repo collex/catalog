@@ -18,15 +18,15 @@ Then /^I should see the following xml:/ do |xml_output|
   response.diff(expected).should == {}
 end
 
-def validate(document_text, schema_path, root_element='')
+def validation(document_text, schema_path, root_element='')
 	schema = Nokogiri::XML::Schema(File.read(schema_path))
 	document = Nokogiri::XML(document_text)
-	err = schema.validate(document.xpath("//#{root_element}").to_s)
+	err = schema.validation(document.xpath("//#{root_element}").to_s)
 	return err
 end
 
 Then /^the xml has the structure "([^"]*)"$/ do |schema_path|
-	err = validate(page.body, "#{Rails.root}/features/#{schema_path}", 'objects')
+	err = validation(page.body, "#{Rails.root}/features/#{schema_path}", 'objects')
 	if err.length > 0
 		errs = []
 		err.each { |e|

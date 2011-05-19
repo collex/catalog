@@ -1,23 +1,29 @@
-<h1>Listing genres</h1>
+<h1>All Genres</h1>
 
-<table>
+<table class="results">
   <tr>
     <th>Name</th>
+<% if user_signed_in? %>
     <th></th>
     <th></th>
     <th></th>
+<% end %>
   </tr>
 
 <% @genres.each do |genre| %>
   <tr>
     <td><%= genre.name %></td>
+<% if user_signed_in? %>
     <td><%= link_to 'Show', genre %></td>
     <td><%= link_to 'Edit', edit_genre_path(genre) %></td>
     <td><%= link_to 'Destroy', genre, :confirm => 'Are you sure?', :method => :delete %></td>
+<% end %>
   </tr>
 <% end %>
 </table>
 
+<% if user_signed_in? %>
 <br />
 
 <%= link_to 'New Genre', new_genre_path %>
+<% end %>

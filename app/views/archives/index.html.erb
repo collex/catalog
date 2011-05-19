@@ -1,15 +1,17 @@
-<h1>Listing archives</h1>
+<h1>All Archives</h1>
 
-<table>
+<table class="results">
   <tr>
     <th>Name</th>
     <th>Site url</th>
     <th>Thumbnail</th>
     <th>Carousel description</th>
     <th>Carousel image url</th>
+<% if user_signed_in? %>
     <th></th>
     <th></th>
     <th></th>
+<% end %>
   </tr>
 
 <% @archives.each do |archive| %>
@@ -19,13 +21,17 @@
     <td><%= archive.thumbnail %></td>
     <td><%= archive.carousel_description %></td>
     <td><%= archive.carousel_image_url %></td>
+<% if user_signed_in? %>
     <td><%= link_to 'Show', archive %></td>
     <td><%= link_to 'Edit', edit_archive_path(archive) %></td>
     <td><%= link_to 'Destroy', archive, :confirm => 'Are you sure?', :method => :delete %></td>
+<% end %>
   </tr>
 <% end %>
 </table>
 
+<% if user_signed_in? %>
 <br />
 
 <%= link_to 'New Archive', new_archive_path %>
+<% end %>

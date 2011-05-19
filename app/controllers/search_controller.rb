@@ -21,6 +21,13 @@ class SearchController < ApplicationController
 				format.html { render :text => e.to_s, :status => :bad_request  }
 				format.xml  { render :xml => [ { :error => e.to_s}], :status => :bad_request }
 			end
+		rescue RSolr::Error::Http => e
+			msg = e.to_s
+			msg = msg[0..msg.index('Backtrace')-1] if msg.include?('Backtrace')
+			respond_to do |format|
+				format.html { render :text => msg, :status => :bad_request  }
+				format.xml  { render :xml => [ { :error => msg}], :status => :internal_server_error }
+			end
 		end
 	end
 
@@ -53,7 +60,7 @@ class SearchController < ApplicationController
 	# GET /searches/names.xml
 	def names
 		# TODO: Really make the call to get the names here
-		results = [  ]
+		results = { 'role_AUT' => [], 'role_EDT' => [], 'role_PBL' => [] }
 
 		respond_to do |format|
 			format.html # index.html.erb
