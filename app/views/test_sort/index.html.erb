@@ -1,0 +1,43 @@
+<h1>Test Sort Results</h1>
+<form action="/test_sort" method="get">
+	<table class="results">
+		<tr>
+			<td>Constraint string:</td>
+			<td><input name="sort[constraints]" type="text" value="<%= @p['constraints'] %>" /></td>
+		</tr>
+		<tr>
+			<td>Number of results:</td>
+			<td><input name="sort[rows]" type="text" value="<%= @p['rows'] %>" /></td>
+		</tr>
+		<tr>
+			<td>Sort by:</td>
+			<td><%= make_select("sort[sort]", [ "Title", "Date", "Name" ], @p['sort']) %></td>
+		</tr>
+		<tr>
+			<td>Direction:</td>
+			<td><%= make_select("sort[dir]", [ [ 'asc', "Ascending"], [ "desc", "Descending" ] ], @p['dir']) %></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td><button type="submit">Submit</button></td>
+		</tr>
+	</table>
+</form>
+<% columns = infer_search_columns(@results[:hits]) %>
+<div class="result_total">Total found: <%= number_with_delimiter(@results[:total]) %></div>
+<div id="search">
+<table class="results">
+	<tr>
+		<% columns.each { |col| %>
+		<th><%= col %></th>
+		<% } %>
+	</tr>
+	<% @results[:hits].each { |hit| %>
+	<tr>
+		<% columns.each { |col| %>
+		<td><%= hit[col] %></td>
+		<% } %>
+	</tr>
+	<% } %>
+</table>
+</div>

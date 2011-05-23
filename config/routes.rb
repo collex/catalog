@@ -2,7 +2,7 @@ CollexCatalog::Application.routes.draw do
 	#resources :controllers, :only => [:edit, :update]
 	resources :archives
 
-  resources :federations
+	resources :federations
 
 	resources :genres
 
@@ -10,18 +10,19 @@ CollexCatalog::Application.routes.draw do
 
 	resources :locals
 
-  devise_for :users
+	devise_for :users
 
-  get "home/index"
+	get "home/index"
 
 	resources :search, :only => [:index, :show] do
-	#resources :search do
-	  collection do
-		  get 'autocomplete'
-		  get 'names'
-		  get 'totals'
-	  end
-  end
+		collection do
+			get 'autocomplete'
+			get 'names'
+			get 'totals'
+		end
+	end
+
+	resources :test_sort, :only => [:index]
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

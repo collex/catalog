@@ -130,9 +130,10 @@ class Solr
 		return totals
 	end
 
-	def search(options)
-		options = add_facet_param(options, @facet_fields)
-		options = add_field_list_param(options, @field_list)
+	def search(options, overrides = {})
+		options = add_facet_param(options, @facet_fields) if overrides[:no_facets] == nil
+		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
+		options = add_field_list_param(options, fields)
 		ret = select(options)
 
 		# correct the character set for all fields
@@ -188,6 +189,7 @@ class Solr
 		end
 		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
 	end
+
 end
 
 ##########################################################################

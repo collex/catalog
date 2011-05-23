@@ -40,3 +40,4 @@ project_manager_email: 'manager example com'
 solr:
   url: "http://localhost:8983/solr"
   core_prefix: "localhost:8983/solr"
+  path: "/fullpath/solr_3.1"
