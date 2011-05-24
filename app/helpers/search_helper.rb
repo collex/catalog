@@ -12,4 +12,9 @@ module SearchHelper
 		}
 		return ret
 	end
+
+	def get_xml_path(url)
+		return url.sub('?', '.xml?') if url.include?('?')
+		return url + '.xml'
+	end
 end

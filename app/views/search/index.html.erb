@@ -1,6 +1,7 @@
 <h1>Search Results</h1>
 <% columns = infer_search_columns(@results[:hits]) %>
 <div class="result_total">Total found: <%= number_with_delimiter(@results[:total]) %></div>
+<a href="<%= get_xml_path(request.fullpath) %>">See these results as XML</a>
 <h2><div class="expander" data-target="search"></div>Results</h2>
 <div id="search" class="exp_target hidden">
 <table class="results">

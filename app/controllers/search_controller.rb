@@ -73,6 +73,7 @@ class SearchController < ApplicationController
 	def show
 		# TODO: Really make the call to get the document by uri here
 #		@search = Search.find(params[:id])
+		@id = params[:id]
 
 		respond_to do |format|
 			format.html # show.html.erb
