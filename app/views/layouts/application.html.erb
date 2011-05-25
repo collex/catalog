@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title><%= SITE_NAME_TITLE %></title>
+	<link href='http://fonts.googleapis.com/css?family=Nunito' rel='stylesheet' type='text/css'>
+	<title><%= SITE_NAME_TITLE %></title>
   <%= stylesheet_link_tag :all %>
 	<script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
 	<%= javascript_include_tag :defaults %>
@@ -10,8 +11,8 @@
 </head>
 <body>
 <div class="banner">
-	<div class="title">Collex Catalog</div>
-	<div class="tag_line">a web service for searching the documents in Collex</div>
+	<div class="title">Arc Catalog</div>
+	<div class="tag_line">a web service for searching the documents collected by Arc</div>
 </div>
 <div class="content">
 <%= yield %>

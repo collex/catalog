@@ -46,4 +46,15 @@ YUI().use('node', function(Y) {
      Y.on("click", function(e) {
         select(e.target);
     }, "ul.nav a");
+
+	// If there is already a tag defined, go right to it.
+	var stripped_url = document.location.toString().split("#");
+	if (stripped_url.length > 1) {
+		var anchor_value = '#' + stripped_url[1];
+		var el = Y.one("a[href=" + anchor_value + "]");
+		select(el);
+	} else {
+		var first = Y.one("ul.nav li:first-child a");
+		select(first);
+	}
 });

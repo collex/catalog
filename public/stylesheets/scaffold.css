@@ -10,18 +10,18 @@ body {
 }
 
 .banner {
-	background-color: #001e51;
-	height: 140px;
+	background: url('/images/banner_bg_pattern.jpg') repeat-x;
+	height: 116px;
 	border-bottom: 2px solid white;
 }
 
 .banner .title {
-	font-family: geneva, sans-serif;
+	font-family: 'Nunito', arial, serif;;
 	font-size: 52px;
 	float: left;
 	color: white;
 	margin-left: 20px;
-	margin-top: 30px;
+	margin-top: 20px;
 }
 
 .banner .tag_line {
@@ -30,13 +30,13 @@ body {
 	font-style: italic;
 	font-size: 20px;
 	color: #8b9a49;
-	padding-top: 56px;
+	padding-top: 46px;
 	padding-right: 20px;
 }
 
 .content {
     left: 50%;
-    margin: 30px 0 50px -512px;
+    margin: 12px 0 50px -512px;
     position: absolute;
     width: 1024px;
 }
@@ -44,14 +44,22 @@ body {
 ul.nav {
 	list-style-type: none;
 	background-color: #4b6c9c;
-	height: 76px;
-	margin: auto;
+	background-image: url("/images/nav_highlight_middle.png");
+	background-repeat: repeat-x;
+	height: 60px;
 	border: 2px solid #001e51;
 	margin-bottom: 16px;
+	border-radius: 20px;
+	padding-left: 16px;
 }
 
 ul.nav li {
 	float: left;
+	background: url("/images/nav_divider.jpg") no-repeat scroll 0 transparent;
+}
+
+ul.nav li:first-child {
+	background-image: none;
 }
 
 ul.nav li.selected {
@@ -59,10 +67,10 @@ ul.nav li.selected {
 }
 
 ul.nav a {
-	padding-right: 32px;
-	padding-left: 32px;
+	padding-right: 30px;
+	padding-left: 30px;
 	display: block;
-	line-height: 76px;
+	line-height: 60px;
 	text-decoration: none;
 	font-family: verdana, arial, helvetica, sans-serif;
 	font-size: 18px;
@@ -71,13 +79,20 @@ ul.nav a {
 
 ul.nav a:hover {
 	color: #8b9a49;
-	background-color: #4b6c9c;
+	background-color: inherit;
+	text-decoration: underline;
+}
+
+ul.nav li.selected a:hover {
+	color: black;
 }
 
 .tab_content {
-	border: 2px solid #8b9a49;
+	border: 3px solid #8b9a49;
 	background-color: white;
-	padding: 40px 50px;
+	padding: 30px 50px;
+	border-radius: 20px;
+	box-shadow: 4px 2px 4px 1px rgba(0, 0, 0, 0.2);
 }
 
 h3 {
@@ -88,6 +103,38 @@ h3 {
 
 .individual_tab {
 	font-size: 18px;
+}
+
+.individual_tab p {
+	margin-bottom: 8px;
+}
+
+.admin {
+	left: 50%;
+	margin: 12px 0 50px -250px;
+	position: absolute;
+	width: 500px;
+	text-align: center;
+}
+
+.admin a {
+	color: #4b6c9c;
+	text-decoration: none;
+}
+
+.admin a:hover {
+	color: #8b9a49;
+	text-decoration: underline;
+}
+
+a.example_link {
+	color: #4b6c9c;
+	text-decoration: none;
+}
+
+a.example_link:hover {
+	color: #8b9a49;
+	text-decoration: underline;
 }
 
 /*body, p, ol, ul, td {

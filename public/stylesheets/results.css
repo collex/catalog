@@ -8,14 +8,12 @@ table.results {
 table.results th {
 	text-align: left;
 	border: 1px solid #cccccc;
-	padding-left: 4px;
-	padding-right: 4px;
+	padding: 4px;
 }
 
 table.results td {
 	border: 1px solid #cccccc;
-	padding-left: 4px;
-	padding-right: 4px;
+	padding: 4px;
 }
 
 .expander {

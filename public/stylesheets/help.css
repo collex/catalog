@@ -7,12 +7,10 @@ table.help {
 table.help th {
 	text-align: left;
 	border: 1px solid #cccccc;
-	padding-left: 4px;
-	padding-right: 4px;
+	padding: 4px;
 }
 
 table.help td {
 	border: 1px solid #cccccc;
-	padding-left: 4px;
-	padding-right: 4px;
+	padding: 4px;
 }
