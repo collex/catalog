@@ -1,6 +1,8 @@
 
 table.results {
 	border: 1px solid #cccccc;
+	margin-top: 16px;
+	margin-bottom: 16px;
 }
 
 table.results th {

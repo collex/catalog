@@ -1,4 +1,6 @@
+<%= link_to "<- Home", home_index_path %>
 <h1>Totals</h1>
+<div class="tab_content">
 <a href="<%= get_xml_path(request.fullpath) %>">See these results as XML</a>
 <table class="results">
 	<tr>
@@ -14,3 +16,4 @@
 	</tr>
 <% } %>
 </table>
+</div>
