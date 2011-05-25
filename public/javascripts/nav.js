@@ -55,6 +55,7 @@ YUI().use('node', function(Y) {
 		select(el);
 	} else {
 		var first = Y.one("ul.nav li:first-child a");
-		select(first);
+		if (first)
+			select(first);
 	}
 });

@@ -9,10 +9,14 @@ body {
 	padding: 0px;
 }
 
+.banner_outer {
+	border-bottom: 1px solid #001e51;
+}
+
 .banner {
 	background: url('/images/banner_bg_pattern.jpg') repeat-x;
 	height: 116px;
-	border-bottom: 2px solid white;
+	border-bottom: 1px solid white;
 }
 
 .banner .title {
@@ -41,14 +45,19 @@ body {
     width: 1024px;
 }
 
+.nav_outer {
+	border: 2px solid #001e51;
+	border-radius: 20px;
+	margin-bottom: 16px;
+}
+
 ul.nav {
 	list-style-type: none;
 	background-color: #4b6c9c;
 	background-image: url("/images/nav_highlight_middle.png");
 	background-repeat: repeat-x;
 	height: 60px;
-	border: 2px solid #001e51;
-	margin-bottom: 16px;
+	border: 1px solid white;
 	border-radius: 20px;
 	padding-left: 16px;
 }
