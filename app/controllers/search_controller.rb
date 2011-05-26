@@ -48,11 +48,11 @@ class SearchController < ApplicationController
 	# GET /searches/autocomplete.xml
 	def autocomplete
 		# TODO: Really make the call to get the autocomplete here
-		results = [  ]
+		@results = [  ]
 
 		respond_to do |format|
 			format.html # index.html.erb
-			format.xml  { render :xml => results }
+			format.xml  { render :xml => @results }
 		end
 	end
 

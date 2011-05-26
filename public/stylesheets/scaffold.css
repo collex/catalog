@@ -104,7 +104,14 @@ ul.nav li.selected a:hover {
 	box-shadow: 4px 2px 4px 1px rgba(0, 0, 0, 0.2);
 }
 
+h2 {
+	font-family: verdana, arial, helvetica, sans-serif;
+	padding-bottom: 8px;
+	color: #8b9a49;
+}
+
 h3 {
+	font-family: verdana, arial, helvetica, sans-serif;
 	padding-top: 16px;
 	padding-bottom: 8px;
 	color: #8b9a49;
@@ -116,6 +123,21 @@ h3 {
 
 .individual_tab p {
 	margin-bottom: 8px;
+}
+
+.home_link {
+	margin-bottom: 8px;
+}
+
+.home_link a {
+	color: #001e51;
+	text-decoration: none;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-weight: bold;
+}
+
+.home_link a:hover {
+	text-decoration: underline;
 }
 
 .admin {
@@ -142,6 +164,16 @@ a.example_link {
 }
 
 a.example_link:hover {
+	color: #8b9a49;
+	text-decoration: underline;
+}
+
+.xml_path {
+	color: #4b6c9c;
+	text-decoration: none;
+}
+
+.xml_path:hover {
 	color: #8b9a49;
 	text-decoration: underline;
 }

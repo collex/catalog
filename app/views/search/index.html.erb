@@ -1,9 +1,10 @@
-<%= link_to "<- Home", home_index_path %>
-<h1>Search Results</h1>
+<%= make_home_path %>
 <div class="tab_content">
+	<p id="notice"><%= notice %></p>
+	<h2>Search Results</h2>
 <% columns = infer_search_columns(@results[:hits]) %>
 <div class="result_total">Total found: <%= number_with_delimiter(@results[:total]) %></div>
-<a href="<%= get_xml_path(request.fullpath) %>">See these results as XML</a>
+<%= make_xml_path(request.fullpath) %>
 <h2><div class="expander" data-target="search"></div>Results</h2>
 <div id="search" class="exp_target hidden">
 <table class="results">
