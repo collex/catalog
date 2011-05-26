@@ -8,6 +8,8 @@ table.help th {
 	text-align: left;
 	border: 1px solid #cccccc;
 	padding: 4px;
+	font-family: verdana, arial, helvetica, sans-serif;
+	color: #8b9a49;
 }
 
 table.help td {

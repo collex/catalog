@@ -68,19 +68,34 @@ class SearchController < ApplicationController
 		end
 	end
 
-	# GET /searches/1
-	# GET /searches/1.xml
-	def show
+	# GET /searches/details
+	# GET /searches/details.xml
+	def details
+		uri = params[:uri]
+
 		# TODO: Really make the call to get the document by uri here
 #		@search = Search.find(params[:id])
-		@id = params[:id]
+		@id = uri
+		results = { 'role_AUT' => [], 'role_EDT' => [], 'role_PBL' => [] }
 
 		respond_to do |format|
 			format.html # show.html.erb
-			format.xml  { render :xml => @search }
+			format.xml  { render :xml => results }
 		end
 	end
 
+#	# GET /searches/1
+#	# GET /searches/1.xml
+#	def show
+##		@search = Search.find(params[:id])
+#		@id = params[:id]
+#
+#		respond_to do |format|
+#			format.html # show.html.erb
+#			format.xml  { render :xml => @search }
+#		end
+#	end
+#
 	# GET /searches/new
 	# GET /searches/new.xml
 #	def new

@@ -47,15 +47,33 @@ YUI().use('node', function(Y) {
         select(e.target);
     }, "ul.nav a");
 
-	// If there is already a tag defined, go right to it.
-	var stripped_url = document.location.toString().split("#");
-	if (stripped_url.length > 1) {
-		var anchor_value = '#' + stripped_url[1];
-		var el = Y.one("a[href=" + anchor_value + "]");
-		select(el);
-	} else {
-		var first = Y.one("ul.nav li:first-child a");
-		if (first)
-			select(first);
+	var recentHash = "THIS DOES NOT MATCH";
+	function initializeStateFromURL() {
+		// Just do something if the hash has changed.
+		var initialTab = window.location.hash;
+		if (initialTab === recentHash)
+			return; // Nothing's changed since last polled.
+		recentHash = initialTab;
+
+		// In the normal case, the hash will match one of our tabs. Find that tab.
+		var elToSelect;
+		if (initialTab !== '')
+			elToSelect = Y.one("a[href=" + initialTab + "]");
+
+		// If the hash didn't match, in the normal case it was empty, but anyway, just attempt to select
+		// the first tab.
+		if (elToSelect === undefined)
+			elToSelect = Y.one("ul.nav li:first-child a");
+
+		// If we managed to find a tab to select, select it now.
+		if (elToSelect)
+			select(elToSelect);
 	}
+
+	Y.on("domready", function () {
+		// If there is already a tag defined, go right to it.
+		initializeStateFromURL();
+		// then check for a back or forward button being clicked every second.
+		setInterval(initializeStateFromURL, 1000);
+	});
 });

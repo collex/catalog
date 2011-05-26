@@ -7,7 +7,7 @@
 	<li><a href="#search">Search</a></li>
 	<li><a href="#autocomplete">Autocomplete</a></li>
 	<li><a href="#names">Names Faceting</a></li>
-	<li><a href="#uri">URI</a></li>
+	<li><a href="#uri">Details</a></li>
 	<li><a href="#meta">Meta</a></li>
 </ul>
 </div>
@@ -86,12 +86,12 @@
 
 <div id="tab_uri" class="individual_tab hidden">
 	<h3>Querying for a particular object.</h3>
-	<p>This is designed to get a specific object if you already know what the object is. Usually it would be used if you had already done a search in the past.
+	<p>This is designed to get all the fields for a specific object if you already know what the object is. Usually it would be used if you had already done a search in the past.
 		You can save the uri from the first search, and retrieve the details later using this call.
 	</p>
-	<p>Call /search.xml with the following parameters:</p>
+	<p>Call /search/details.xml with the following parameters:</p>
 	<%= render :partial => 'params', :locals => { :params => @uri_params } %>
-	<p>Example: A document by Whitman: <%= example_link("/search/http%3a%2f%2fwww%2ewhitmanarchive%2eorg%2fcriticism%2freviews%2fleaves%2fleaves55%2fdailytimes") %></p>
+	<p>Example: A document by Whitman: <%= example_link("/search/details.xml?uri=http%3a%2f%2fwww%2ewhitmanarchive%2eorg%2fcriticism%2freviews%2fleaves%2fleaves55%2fdailytimes") %></p>
 </div>
 
 <div id="tab_meta" class="individual_tab hidden">

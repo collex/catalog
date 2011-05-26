@@ -5,7 +5,8 @@
 
 <table class="results">
   <tr>
-    <th>Name</th>
+	  <th>Name</th>
+	  <th>Thumbnail</th>
 <% if user_signed_in? %>
     <th></th>
     <th></th>
@@ -15,7 +16,8 @@
 
 <% @federations.each do |federation| %>
   <tr>
-    <td><%= federation.name %></td>
+	  <td><%= federation.name %></td>
+	  <td><%= federation.thumbnail %></td>
 <% if user_signed_in? %>
     <td><%= link_to 'Show', federation %></td>
     <td><%= link_to 'Edit', edit_federation_path(federation) %></td>

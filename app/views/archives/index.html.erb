@@ -5,7 +5,8 @@
 
 <table class="results">
   <tr>
-    <th>Name</th>
+	  <th>Handle</th>
+	  <th>Name</th>
     <th>Site url</th>
     <th>Thumbnail</th>
     <th>Carousel description</th>
@@ -19,7 +20,8 @@
 
 <% @archives.each do |archive| %>
   <tr>
-    <td><%= archive.name %></td>
+	  <td><%= archive.handle %></td>
+	  <td><%= archive.name %></td>
     <td><%= archive.site_url %></td>
     <td><%= archive.thumbnail %></td>
     <td><%= archive.carousel_description %></td>

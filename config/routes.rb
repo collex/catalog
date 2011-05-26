@@ -14,11 +14,12 @@ CollexCatalog::Application.routes.draw do
 
 	get "home/index"
 
-	resources :search, :only => [:index, :show] do
+	resources :search, :only => [:index] do
 		collection do
 			get 'autocomplete'
 			get 'names'
 			get 'totals'
+			get 'details'
 		end
 	end
 
