@@ -21,7 +21,7 @@ module NavigationHelpers
 	  destroy_user_session_path
 
 	when /the search page/
-	   "/search/index"
+	   "/search"
 
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:

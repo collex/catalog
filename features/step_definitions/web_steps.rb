@@ -220,5 +220,5 @@ end
 Then /^(?:|I )should see in this order "([^"]*)"$/ do |text|
 	order = Regexp.new(text.gsub(', ', '.*'), Regexp::MULTILINE)
 
-	raise "Did not find keywords in the requested order!" unless page.body =~ order
+	raise "Did not find keywords in the requested order!\n#{page.body}" unless page.body =~ order
 end

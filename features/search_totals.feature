@@ -11,18 +11,18 @@ Feature: Search totals
 		And I should see the following xml:
 """
 <?xml version="1.0" encoding="UTF-8"?>
-<objects type="array">
-  <object>
-    <federation>18thConnect</federation>
-    <total type="integer">586911</total>
-    <sites type="integer">3</sites>
-  </object>
-  <object>
-    <federation>NINES</federation>
-    <total type="integer">288952</total>
-    <sites type="integer">8</sites>
-  </object>
-</objects>
+<totals>
+	<federation>
+		<name>18thConnect</name>
+		<total>586911</total>
+		<sites>3</sites>
+	</federation>
+	<federation>
+		<name>NINES</name>
+		<total>288952</total>
+		<sites>8</sites>
+	</federation>
+</totals>
 """
 
 	Scenario: Browse to the solr resources totals

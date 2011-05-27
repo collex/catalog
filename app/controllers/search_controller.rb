@@ -40,7 +40,7 @@ class SearchController < ApplicationController
 
 		respond_to do |format|
 			format.html # index.html.erb
-			format.xml  { render :xml => @totals }
+			format.xml  # index.xml.builder
 		end
 	end
 
