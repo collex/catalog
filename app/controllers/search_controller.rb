@@ -48,7 +48,7 @@ class SearchController < ApplicationController
 	# GET /searches/autocomplete.xml
 	def autocomplete
 		# TODO: Really make the call to get the autocomplete here
-		@results = [  ]
+		@results = [ { :name => 'tree', :count => '100' }, { :name => 'treebeard', :count => '5' }, { :name => 'treetop', :count => '34' } ]
 
 		respond_to do |format|
 			format.html # index.html.erb
@@ -60,7 +60,9 @@ class SearchController < ApplicationController
 	# GET /searches/names.xml
 	def names
 		# TODO: Really make the call to get the names here
-		results = { 'role_AUT' => [], 'role_EDT' => [], 'role_PBL' => [] }
+		results = { 'author' => [ { :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' } ],
+					'editor' => [{ :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' }],
+					'publisher' => [{ :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' }] }
 
 		respond_to do |format|
 			format.html # index.html.erb

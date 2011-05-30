@@ -46,8 +46,7 @@ Then /^the xml has the structure "([^"]*)"$/ do |schema_path|
 		err.each { |e|
 			errs.push(e.message)
 		}
-		puts errs.join("\n")
-		assert false
+		assert errs.join("\n")
 	end
 end
 
@@ -87,3 +86,81 @@ Then /^the xml "([^"]*)" facet "([^"]*)" is "([^"]*)"$/ do |type, facet, count|
 	}
 	assert_equal count.to_i, total
 end
+
+Then /^the xml list is "([^"]*)"$/ do |list|
+	response = get_xml(page)
+	results = []
+	response.each {|item, value|
+		value.each { |item2, value2|
+			results.push(item2['name'])
+		}
+	}
+	assert_equal list, results.join(',')
+end
+
+Then /^the xml list item "([^"]*)" "([^"]*)" is "([^"]*)"$/ do |match_item, match_subitem, match|
+	response = get_xml(page)
+	found = false
+	response.each {|top, all|
+		all.each { |item, value|
+			if item['name'] == match_item
+				assert_equal match, item[match_subitem]
+				found = true
+				break
+			end
+		}
+	}
+	if !found
+		assert false, "The requested item is not found."
+	end
+end
+
+Then /^the xml autocomplete list is "([^"]*)"$/ do |list|
+	response = get_xml(page)
+	results = []
+	response.each {|item, value|
+		value.each { |item2, value2|
+			results.push(item2['name'])
+			results.push(item2['count'])
+		}
+	}
+	assert_equal list, results.join(',')
+end
+
+Then /^the xml "([^"]*)" list is "([^"]*)"$/ do |type, match|
+	response = get_xml(page)
+	found = false
+	response.each {|top, all|
+		all.each { |item, value|
+			if item == type
+				results = []
+				value.each { |val|
+					results.push(val['name'])
+					results.push(val['count'])
+				}
+				assert_equal match, results.join(',')
+				found = true
+				break
+			end
+		}
+	}
+	if !found
+		assert false, "The requested item is not found."
+	end
+end
+
+Then /^the xml "([^"]*)" element array is "([^"]*)"$/ do |keyword, list|
+	response = get_xml(page)
+	results = []
+	response.each {|item, value|
+		value.each { |item2, value2|
+			value2.each { |value3|
+				if value3[keyword] != nil
+					results.push(value3[keyword])
+				end
+			}
+		}
+	}
+	assert_equal list, results.join(',')
+end
+

@@ -23,6 +23,9 @@ module NavigationHelpers
 	when /the search page/
 	   "/search"
 
+	when /the show ([^\s]+) ([^\s]+) page/
+		"/#{$1}/#{$2}"
+
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
     #

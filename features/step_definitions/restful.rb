@@ -47,12 +47,17 @@ end
 #  response.should be_success
 #end
 
-Then /^I should be redirected to the (.+?) page$/ do |page_name|
-#TODO-PER: Can we detect that we redirected?
-#	request.headers['HTTP_REFERER'].should == nil
-#	request.headers['HTTP_REFERER'].should == request.request_uri
-
-	Then "I should be on the #{page_name} page"
+Then /^I should be redirected from "([^"]*)" to the (.+?) page$/ do |source, page_name|
+	desired_path = path_to(page_name)
+	current_path = URI.parse(current_url).path
+	if desired_path != current_path
+		reg = page.html.match(/You are being <a href="http:\/\/example\.org(.+)">redirected<\/a>/)
+		found_path =  reg && reg.length > 1 ? reg[1] : "UNKNOWN"
+		if desired_path != found_path
+			puts "Redirecting from #{source}"
+		end
+		assert_equal desired_path, found_path
+	end
 end
 
 Then /^when (.*) an error should occur$/ do |action|
@@ -108,17 +113,50 @@ end
 
 Then /^all routes in "([^"]*)" should redirect to "([^"]*)"$/ do |controller, destination|
 	When "I restfully index a \"#{controller}\""
-	Then "I should be redirected to the #{destination} page"
+	Then "I should be redirected from \"index\" to the #{destination} page"
 	When "I restfully show \"id\" from \"#{controller}\""
-	Then "I should be redirected to the #{destination} page"
+	Then "I should be redirected from \"show\" to the #{destination} page"
 	When "I restfully new a \"#{controller}\""
-	Then "I should be redirected to the #{destination} page"
+	Then "I should be redirected from \"new\" to the #{destination} page"
 	When "I restfully edit \"id\" from \"#{controller}\""
-	Then "I should be redirected to the #{destination} page"
+	Then "I should be redirected from \"edit\" to the #{destination} page"
 	When "I restfully create a \"#{controller}\""
-	Then "I should be redirected to the #{destination} page"
+	Then "I should be redirected from \"create\" to the #{destination} page"
 	When "I restfully update \"id\" from \"#{controller}\""
-	Then "I should be redirected to the #{destination} page"
+	Then "I should be redirected from \"update\" to the #{destination} page"
 	When "I restfully delete \"id\" from \"#{controller}\""
-	Then "I should be redirected to the #{destination} page"
+	Then "I should be redirected from \"delete\" to the #{destination} page"
+end
+
+Then /^all routes in "([^"]*)" except "([^"]*)" should redirect to "([^"]*)"$/ do |controller, exceptions, destination|
+	exceptions = exceptions.split(',')
+
+	if !exceptions.include?('index')
+		When "I restfully index a \"#{controller}\""
+		Then "I should be redirected from \"index\" to the #{destination} page"
+	end
+	if !exceptions.include?('show')
+		When "I restfully show \"id\" from \"#{controller}\""
+		Then "I should be redirected from \"show\" to the #{destination} page"
+	end
+	if !exceptions.include?('new')
+		When "I restfully new a \"#{controller}\""
+		Then "I should be redirected from \"new\" to the #{destination} page"
+	end
+	if !exceptions.include?('edit')
+		When "I restfully edit \"id\" from \"#{controller}\""
+		Then "I should be redirected from \"edit\" to the #{destination} page"
+	end
+	if !exceptions.include?('create')
+		When "I restfully create a \"#{controller}\""
+		Then "I should be redirected from \"create\" to the #{destination} page"
+	end
+	if !exceptions.include?('update')
+		When "I restfully update \"id\" from \"#{controller}\""
+		Then "I should be redirected from \"update\" to the #{destination} page"
+	end
+	if !exceptions.include?('delete')
+		When "I restfully delete \"id\" from \"#{controller}\""
+		Then "I should be redirected from \"delete\" to the #{destination} page"
+	end
 end

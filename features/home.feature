@@ -6,4 +6,4 @@ Feature: Show Home Page
 
 	Scenario: Home page as HTML
 		When I go to the home page
-		Then I should see "Collex Catalog"
+		Then I should see "Arc Catalog"

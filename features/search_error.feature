@@ -6,20 +6,19 @@ Feature: Search with bad parameters
 
 	Scenario: Call with an unrecognized parameter
 		Given I am not authenticated
-		When I search with "q=+tree&xyy=7"
+		When I search with <q=+tree&xyy=7>
 		Then the response status should be "400"
-		And I should see "xyy is not a recognized parameter"
+		And I should see "Unknown parameter: xyy"
 
 	Scenario: Call with unparseable parameter
 		Given I am not authenticated
-		When I search with "q=tree"
+		When I search with <q=tree>
 		Then the response status should be "400"
-		And I should see "syntax error in parameter q"
-		And I should see "must begin with + or -"
+		And I should see "Bad parameter: tree."
 
 	Scenario: Call with the same parameter twice
 		Given I am not authenticated
-		When I search with "q=+tree&q=-hog"
+		When I search with <q=+tree&q=-hog>
 		Then the response status should be "400"
 		And I should see "syntax error in parameter q"
 		And I should see "The parameter q appears twice."

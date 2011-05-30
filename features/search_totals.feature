@@ -8,26 +8,14 @@ Feature: Search totals
 		Given I am not authenticated
 		When I go to the totals search index page using xml
 		Then the response status should be "200"
-		And I should see the following xml:
-"""
-<?xml version="1.0" encoding="UTF-8"?>
-<totals>
-	<federation>
-		<name>18thConnect</name>
-		<total>586911</total>
-		<sites>3</sites>
-	</federation>
-	<federation>
-		<name>NINES</name>
-		<total>288952</total>
-		<sites>8</sites>
-	</federation>
-</totals>
-"""
+		And the xml has the structure "xsd/totals.xsd"
+		And the xml "name" element array is "18thConnect,NINES"
+		And the xml "total" element array is "673462,963720"
+		And the xml "sites" element array is "15,105"
 
 	Scenario: Browse to the solr resources totals
 		Given I am not authenticated
 		When I go to the totals search index page
 		Then the response status should be "200"
-		And I should see in this order "18thConnect, 586911, 3, NINES, 288952, 8"
+		And I should see in this order "18thConnect, 673,462, 15, NINES, 963,720, 105"
 

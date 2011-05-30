@@ -18,7 +18,7 @@ end
 
 When /^I ([^\s]*) with <([^>]*)> using xml$/ do |verb,obj|
 	verb = "search/#{verb}" if verb != 'search'
-	param = obj.gsub("+", "%2b").gsub(' ', '+').gsub('"', "%22")
+	param = CGI.escape(obj) #obj.gsub("+", "%2b").gsub(' ', '+').gsub('"', "%22")
 	visit "/#{verb}.xml?#{param}"
 end
 

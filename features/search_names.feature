@@ -9,11 +9,15 @@ Feature: Search for names
 		When I names with <q=tree&y=1844> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/names_results.xsd"
-		And the xml name list is "tree,100,treebeard,5,treetop,34"
+		And the xml "author" list is "elliot,100,whitman,5,poe,34"
+		And the xml "editor" list is "elliot,100,whitman,5,poe,34"
+		And the xml "publisher" list is "elliot,100,whitman,5,poe,34"
 
 	Scenario: Do a large name retrieval
 		Given I am not authenticated
 		When I names with <q=tree> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/names_results.xsd"
-		And the xml name list is "tree,100,treebeard,5,treetop,34"
+		And the xml "author" list is "elliot,100,whitman,5,poe,34"
+		And the xml "editor" list is "elliot,100,whitman,5,poe,34"
+		And the xml "publisher" list is "elliot,100,whitman,5,poe,34"

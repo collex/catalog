@@ -76,8 +76,8 @@ ul.nav li.selected {
 }
 
 ul.nav a {
-	padding-right: 30px;
-	padding-left: 30px;
+	padding-right: 29px;
+	padding-left: 29px;
 	display: block;
 	line-height: 60px;
 	text-decoration: none;
@@ -176,6 +176,14 @@ a.example_link:hover {
 .xml_path:hover {
 	color: #8b9a49;
 	text-decoration: underline;
+}
+
+.code {
+	background-color: #eeeeee;
+	font-family:monospace,monospace;
+	font-size:1em;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 /*body, p, ol, ul, td {
