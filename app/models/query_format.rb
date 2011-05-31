@@ -217,8 +217,11 @@ class QueryFormat
 			raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
 			raise(ArgumentError, "Bad parameter: #{val}. Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
 			solr_hash = definition[:transformation].call(val)
-			#TODO-PER: what if the same key appears twice? Should they be added together?
-			query.merge!(solr_hash)
+			dup_params = []
+			query.merge!(solr_hash) {|key, oldval, newval| dup_params.push(key) }
+			if dup_params.length > 0
+				raise(ArgumentError, "The parameter #{dup_params.join(',')} appears twice.")
+			end
 		}
 		# add defaults
 		format.each { |key, definition|

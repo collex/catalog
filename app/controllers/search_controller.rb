@@ -48,11 +48,11 @@ class SearchController < ApplicationController
 	# GET /searches/autocomplete.xml
 	def autocomplete
 		# TODO: Really make the call to get the autocomplete here
-		@results = [ { :name => 'tree', :count => '100' }, { :name => 'treebeard', :count => '5' }, { :name => 'treetop', :count => '34' } ]
+		@results = [ { :item => 'tree', :occurrences => '100' }, { :item => 'treebeard', :occurrences => '5' }, { :item => 'treetop', :occurrences => '34' } ]
 
 		respond_to do |format|
 			format.html # index.html.erb
-			format.xml  { render :xml => @results }
+			format.xml  # index.xml.builder
 		end
 	end
 

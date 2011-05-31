@@ -32,21 +32,27 @@ Then /^I should see the following xml:/ do |xml_output|
   response.diff(expected).should == {}
 end
 
-def validation(document_text, schema_path, root_element='')
+def validation(document_text, schema_path)
 	schema = Nokogiri::XML::Schema(File.read(schema_path))
+	# TODO-PER: There is probably a better way to do this, but we get back an xml doc that is wrapped in
+	# HTML, so just remove the parts we don't want. The format is: <!DOCTYPE ... ><?xml ...><html><body><THE REAL STUFF></body></html>
+	arr = document_text.split("<?xml")
+	document_text = "<?xml" + arr[1]
+	document_text = document_text.gsub("<html><body>", "").gsub("</body></html>", "")
 	document = Nokogiri::XML(document_text)
-	err = schema.validate(document.xpath("//#{root_element}").to_s)
+
+	err = []
+	schema.validate(document).each do |error|
+	  err.push(error.message)
+	end
+
 	return err
 end
 
 Then /^the xml has the structure "([^"]*)"$/ do |schema_path|
-	err = validation(page.body, "#{Rails.root}/features/#{schema_path}", 'objects')
+	err = validation(page.body, "#{Rails.root}/features/#{schema_path}")
 	if err.length > 0
-		errs = []
-		err.each { |e|
-			errs.push(e.message)
-		}
-		assert errs.join("\n")
+		assert false, err.join("\n")
 	end
 end
 
@@ -118,11 +124,10 @@ end
 Then /^the xml autocomplete list is "([^"]*)"$/ do |list|
 	response = get_xml(page)
 	results = []
-	response.each {|item, value|
-		value.each { |item2, value2|
-			results.push(item2['name'])
-			results.push(item2['count'])
-		}
+	response = response['autocomplete']['result']
+	response.each {|result|
+		results.push(result['item'])
+		results.push(result['occurrences'])
 	}
 	assert_equal list, results.join(',')
 end

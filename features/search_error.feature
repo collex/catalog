@@ -20,5 +20,4 @@ Feature: Search with bad parameters
 		Given I am not authenticated
 		When I search with <q=+tree&q=-hog>
 		Then the response status should be "400"
-		And I should see "syntax error in parameter q"
 		And I should see "The parameter q appears twice."
