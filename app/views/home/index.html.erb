@@ -68,17 +68,17 @@
 </div>
 
 <div id="tab_autocomplete" class="individual_tab hidden">
-	<h3>Searching to Facilitate Autocompletion</h3>
+	<h3>Searching to Facilitate Auto-completion</h3>
 	<p>A query can be submitted character by character to allow you to prompt the user for queries that will succeed.
 		You can specify the number of items that you want to present, and the results will contain the number of hits
 		that the queries will generate.
 	</p>
-	<p>This is designed to be used to implement autocomplete functionality. Either the entire index can be searched with auto complete
+	<p>This is designed to be used to implement auto-complete functionality. Either the entire index can be searched with auto-complete
 		or you may search just a portion of the index by including other parameters.
 	</p>
 	<p>Call <span class="code">/search/autocomplete.xml</span> with the following parameters:</p>
 	<%= render :partial => 'params', :locals => { :params => @autocomplete_params } %>
-	<p>Example: Autocomplete "tre" by Williams: <%= example_link("/search/autocomplete.xml?frag=tre&aut=%2bWilliams") %></p>
+	<p>Example: Auto-complete "tre" (top 25 results): <%= example_link("/search/autocomplete.xml?frag=tre&max=25") %></p>
 </div>
 
 <div id="tab_names" class="individual_tab hidden">

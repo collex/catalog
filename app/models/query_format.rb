@@ -34,6 +34,7 @@ class QueryFormat
 	def self.term_info(typ)
 		verifications = {
 			:term => { :exp => /([+\-]("\w[\w?*]*( \w[\w?*]*)*"|\w[\w?*]*))/, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
+			:frag => { :exp => /(("\w[\w?*]*( \w[\w?*]*)*"|\w[\w?*]*))/, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
 			:year => { :exp => /([+\-]\d\d\d\d)/, :friendly => "[+-] A four digit date" },
 			:archive => { :exp => /([+\-]\w[\w?*]*)/, :friendly => "[+-] One of the predefined archive abbreviations" },
 			:genre => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined genres" },
@@ -87,7 +88,7 @@ class QueryFormat
 	def self.autocomplete_format()
 		format = {
 				'field' => { :name => 'Field', :param => :field, :default => 'content', :transformation => get_proc(:transform_field) },
-				'frag' => { :name => 'Fragment to Match', :param => :term, :default => nil, :transformation => get_proc(:transform_frag) },
+				'frag' => { :name => 'Fragment to Match', :param => :frag, :default => nil, :transformation => get_proc(:transform_frag) },
 				'max' => { :name => 'Maximum matches to return', :param => :max, :default => '15', :transformation => get_proc(:transform_max_matches) },
 #TODO:PER do we need this or is this always done?				'clean' => { :name => 'Query', :param => :term },
 

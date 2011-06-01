@@ -9,8 +9,6 @@ class SearchController < ApplicationController
 			is_test = Rails.env == 'test'
 			solr = Solr.factory_create(is_test)
 			@results = solr.search(query)
-			# TODO: Really make the call to get the search results here
-	#		@results = [ { :uri => 'http://fake/001', :title => 'System Test' }, { :uri => 'http://fake/002', :title => 'Second Object' }]
 
 			respond_to do |format|
 				format.html # index.html.erb
@@ -47,12 +45,37 @@ class SearchController < ApplicationController
 	# GET /searches/autocomplete
 	# GET /searches/autocomplete.xml
 	def autocomplete
-		# TODO: Really make the call to get the autocomplete here
-		@results = [ { :item => 'tree', :occurrences => '100' }, { :item => 'treebeard', :occurrences => '5' }, { :item => 'treetop', :occurrences => '34' } ]
+		query_params = QueryFormat.autocomplete_format()
+		begin
+			QueryFormat.transform_raw_parameters(params)
+			query = QueryFormat.create_solr_query(query_params, params)
+			is_test = Rails.env == 'test'
+			solr = Solr.factory_create(is_test)
+			max = query['max'].to_i
+			query.delete('max')
+			words = solr.auto_complete(query)
+			words.sort! { |a,b| b[:count] <=> a[:count] }
+			words = words[0..(max-1)]
+			@results = words.map { |word|
+				{ :item => word[:name], :occurrences => word[:count] }
+			}
 
-		respond_to do |format|
-			format.html # index.html.erb
-			format.xml  # index.xml.builder
+			respond_to do |format|
+				format.html # index.html.erb
+				format.xml
+			end
+		rescue ArgumentError => e
+			respond_to do |format|
+				format.html { render :text => e.to_s, :status => :bad_request  }
+				format.xml  { render :xml => [ { :error => e.to_s}], :status => :bad_request }
+			end
+		rescue RSolr::Error::Http => e
+			msg = e.to_s
+			msg = msg[0..msg.index('Backtrace')-1] if msg.include?('Backtrace')
+			respond_to do |format|
+				format.html { render :text => msg, :status => :bad_request  }
+				format.xml  { render :xml => [ { :error => msg}], :status => :internal_server_error }
+			end
 		end
 	end
 

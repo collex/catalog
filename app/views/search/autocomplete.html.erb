@@ -3,6 +3,16 @@
 	<p id="notice"><%= notice %></p>
 	<h2>Autocomplete</h2>
 	<%= make_xml_path(request.fullpath) %>
-	<div>Results: <%= @results.join(",") %></div>
-	TODO
+	<table class="results">
+		<tr>
+			<th>Suggestion</th>
+			<th>Number of Occurrences</th>
+		</tr>
+	<% @results.each { |item| %>
+		<tr>
+			<td><%= item[:item] %></td>
+			<td><%= number_with_delimiter(item[:occurrences]) %></td>
+		</tr>
+	<% } %>
+	</table>
 </div>

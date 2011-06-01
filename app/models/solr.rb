@@ -45,6 +45,7 @@ class Solr
 
 	private
 	def select(options)
+		options['version'] = '2.2'
 		ret = @solr.post( 'select', :data => options )
 		uri = ret.request[:uri].to_s
 		arr = uri.split('/')
@@ -66,14 +67,18 @@ class Solr
 		return ret
 	end
 
-	def add_facet_param(options, fields)
+	def add_facet_param(options, fields, prefix = nil)
 		options[:facet] = true
 		options["facet.field"] = fields
-		#options["facet.prefix"] = options[:facets][:prefix]
-		options["facet.missing"] = true
-		#options["facet.method"] = nil
 		options["facet.mincount"] = 1
 		options["facet.limit"] = -1
+		if prefix
+			options["facet.method"] = 'enum'
+			options["facet.prefix"] = prefix
+			options["facet.missing"] = false
+		else
+			options["facet.missing"] = true
+		end
 		return options
 	end
 
@@ -165,6 +170,25 @@ class Solr
 			}
 		end
 
+		facets = facets_to_hash(ret)
+
+		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
+	end
+
+	def auto_complete(options)	# called for autocomplete
+		facet = options['field']
+		prefix = options['fragment']
+		options.delete('field')
+		options.delete('fragment')
+
+		options[:start] = 0
+		options[:rows] = 0
+		options = add_facet_param(options, [facet], prefix)
+		response = select(options)
+		return facets_to_hash(response)[facet]
+	end
+
+	def facets_to_hash(ret)
 		# make the facets more convenient. They are returned as a hash, with each key being the facet type.
 		# Then the value is an array. The values of the array alternate between the name of the facet and the
 		# count of the number of objects that match it. There is also a nil value that needs to be ignored.
@@ -185,9 +209,8 @@ class Solr
 				}
 				facets[key] = facet
 			}
-
 		end
-		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
+		return facets
 	end
 
 end
@@ -313,14 +336,6 @@ class CollexEngine
   def num_sites	# called for each entry point to get the number for the footer.
     warm_num_doc_cache()
     return @num_sites
-  end
-
-  def auto_complete(facet, constraints, prefix)	# called for autocomplete
-    query, filter_queries = solrize_constraints(constraints)
-	response = solr_select(:start => 0, :rows => 0, :shards => @cores,
-            :q => query, :fq => filter_queries,
-            :facets => {:fields => [facet], :mincount => 1, :missing => false, :limit => -1, :prefix => prefix, :method => 'enum'})
-    facets_to_hash(response['facet_counts']['facet_fields'])[facet]
   end
 
 	def tank_citations(query)
