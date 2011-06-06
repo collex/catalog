@@ -83,13 +83,33 @@ class SearchController < ApplicationController
 	# GET /searches/names.xml
 	def names
 		# TODO: Really make the call to get the names here
-		results = { 'author' => [ { :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' } ],
-					'editor' => [{ :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' }],
-					'publisher' => [{ :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' }] }
+#		results = { 'author' => [ { :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' } ],
+#					'editor' => [{ :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' }],
+#					'publisher' => [{ :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' }] }
+		query_params = QueryFormat.names_format()
+		begin
+			QueryFormat.transform_raw_parameters(params)
+			query = QueryFormat.create_solr_query(query_params, params)
+			is_test = Rails.env == 'test'
+			solr = Solr.factory_create(is_test)
+			@results = solr.names(query)
 
-		respond_to do |format|
-			format.html # index.html.erb
-			format.xml  { render :xml => results }
+			respond_to do |format|
+				format.html # index.html.erb
+				format.xml
+			end
+		rescue ArgumentError => e
+			respond_to do |format|
+				format.html { render :text => e.to_s, :status => :bad_request  }
+				format.xml  { render :xml => [ { :error => e.to_s}], :status => :bad_request }
+			end
+		rescue RSolr::Error::Http => e
+			msg = e.to_s
+			msg = msg[0..msg.index('Backtrace')-1] if msg.include?('Backtrace')
+			respond_to do |format|
+				format.html { render :text => msg, :status => :bad_request  }
+				format.xml  { render :xml => [ { :error => msg}], :status => :internal_server_error }
+			end
 		end
 	end
 

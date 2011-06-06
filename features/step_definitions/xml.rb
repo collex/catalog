@@ -32,13 +32,17 @@ Then /^I should see the following xml:/ do |xml_output|
   response.diff(expected).should == {}
 end
 
-def validation(document_text, schema_path)
-	schema = Nokogiri::XML::Schema(File.read(schema_path))
+def strip_weird_html(xml)
 	# TODO-PER: There is probably a better way to do this, but we get back an xml doc that is wrapped in
 	# HTML, so just remove the parts we don't want. The format is: <!DOCTYPE ... ><?xml ...><html><body><THE REAL STUFF></body></html>
-	arr = document_text.split("<?xml")
-	document_text = "<?xml" + arr[1]
-	document_text = document_text.gsub("<html><body>", "").gsub("</body></html>", "")
+	arr = xml.split("<?xml")
+	xml = "<?xml" + arr[1]
+	return xml.gsub("<html><body>", "").gsub("</body></html>", "")
+end
+
+def validation(document_text, schema_path)
+	schema = Nokogiri::XML::Schema(File.read(schema_path))
+	document_text = strip_weird_html(document_text)
 	document = Nokogiri::XML(document_text)
 
 	err = []
@@ -52,6 +56,7 @@ end
 Then /^the xml has the structure "([^"]*)"$/ do |schema_path|
 	err = validation(page.body, "#{Rails.root}/features/#{schema_path}")
 	if err.length > 0
+		puts strip_weird_html(page.body)
 		assert false, err.join("\n")
 	end
 end
@@ -124,12 +129,16 @@ end
 Then /^the xml autocomplete list is "([^"]*)"$/ do |list|
 	response = get_xml(page)
 	results = []
-	response = response['autocomplete']['result']
-	response.each {|result|
-		results.push(result['item'])
-		results.push(result['occurrences'])
-	}
-	assert_equal list, results.join(',')
+	if list == ""
+		assert_nil response['autocomplete']
+	else
+		response = response['autocomplete']['result']
+		response.each {|result|
+			results.push(result['item'])
+			results.push(result['occurrences'])
+		}
+		assert_equal list, results.join(',')
+	end
 end
 
 Then /^the xml "([^"]*)" list is "([^"]*)"$/ do |type, match|

@@ -139,15 +139,15 @@ class QueryFormat
 	end
 
 	def self.transform_author(val)
-		return { 'q' => self.insert_field_name("role_AUT", val) }
+		return { 'q' => self.insert_field_name("author", val) }
 	end
 
 	def self.transform_editor(val)
-		return { 'q' => self.insert_field_name("role_EDR", val) }
+		return { 'q' => self.insert_field_name("editor", val) }
 	end
 
 	def self.transform_publisher(val)
-		return { 'q' => self.insert_field_name("role_PBL", val) }
+		return { 'q' => self.insert_field_name("publisher", val) }
 	end
 
 	def self.transform_year(val)
@@ -167,7 +167,10 @@ class QueryFormat
 	end
 
 	def self.transform_other(val)
-		return { 'TODO' => val }
+		mapper = { 'freeculture' => 'freeculture', 'fulltext' => 'has_full_text', 'ocr' => 'is_ocr' }
+		qualifier = val[0]
+		facet = mapper[val[1..val.length]]
+		return { 'q' => "#{qualifier}#{facet}:true" }
 	end
 
 	def self.transform_sort(val)
@@ -218,11 +221,9 @@ class QueryFormat
 			raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
 			raise(ArgumentError, "Bad parameter: #{val}. Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
 			solr_hash = definition[:transformation].call(val)
-			dup_params = []
-			query.merge!(solr_hash) {|key, oldval, newval| dup_params.push(key) }
-			if dup_params.length > 0
-				raise(ArgumentError, "The parameter #{dup_params.join(',')} appears twice.")
-			end
+			query.merge!(solr_hash) {|key, oldval, newval|
+				oldval + " AND " + newval
+			}
 		}
 		# add defaults
 		format.each { |key, definition|

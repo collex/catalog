@@ -20,10 +20,10 @@ class ApplicationController < ActionController::Base
 			if p[one[0]] == nil
 				p[one[0]] = one[1]
 			else
-				msg = "The parameter #{one[0]} appears twice."
+				msg = "The parameter #{one[0]} appears twice in #{qs}."
 				respond_to do |format|
 					format.html { render :text => msg, :status => :bad_request  }
-					format.xml  { render :xml => [ { :error => msg }], :status => :internal_server_error }
+					format.xml  { render :xml => [ { :error => msg }], :status => :bad_request }
 				end
 			end
 		}

@@ -188,6 +188,11 @@ class Solr
 		return facets_to_hash(response)[facet]
 	end
 
+	def names(options)	# called for the names entry point
+#		facet.missing=false&facet=true&facet.mincount=1&facet.limit=-1&wt=ruby&defType=edismax&version=2.2&rows=0&fl=role_AUT+role_EDT+role_PBL&start=0&q=*:*&facet.field=role_AUT&facet.field=role_EDT&facet.field=role_PBL&fq=federation:NINES&fq=genre:"Architecture"
+		response = select(options)
+	end
+
 	def facets_to_hash(ret)
 		# make the facets more convenient. They are returned as a hash, with each key being the facet type.
 		# Then the value is an array. The values of the array alternate between the name of the facet and the

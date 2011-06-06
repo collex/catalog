@@ -6,7 +6,7 @@ Feature: Search for names
 
 	Scenario: Do a simple name retrieval
 		Given I am not authenticated
-		When I names with <q=tree&y=1844> using xml
+		When I names with <q=+tree&y=+1844> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/names_results.xsd"
 		And the xml "author" list is "elliot,100,whitman,5,poe,34"
@@ -15,7 +15,7 @@ Feature: Search for names
 
 	Scenario: Do a large name retrieval
 		Given I am not authenticated
-		When I names with <q=tree> using xml
+		When I names with <q=+tree> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/names_results.xsd"
 		And the xml "author" list is "elliot,100,whitman,5,poe,34"

@@ -2,6 +2,47 @@
 <div class="tab_content">
 	<p id="notice"><%= notice %></p>
 	<%= make_xml_path(request.fullpath) %>
-	<div>Names: </div>
-	TODO
+	<h1>Names:</h1>
+
+	<h2>Authors</h2>
+	<table class="results">
+		<tr>
+			<th>Name</th>
+			<th>Number of Occurrences</th>
+		</tr>
+	<% @results[:authors].each { |item| %>
+		<tr>
+			<td><%= item[:item] %></td>
+			<td><%= number_with_delimiter(item[:occurrences]) %></td>
+		</tr>
+	<% } %>
+	</table>
+
+	<h2>Editors</h2>
+	<table class="results">
+		<tr>
+			<th>Name</th>
+			<th>Number of Occurrences</th>
+		</tr>
+	<% @results[:editors].each { |item| %>
+		<tr>
+			<td><%= item[:item] %></td>
+			<td><%= number_with_delimiter(item[:occurrences]) %></td>
+		</tr>
+	<% } %>
+	</table>
+
+	<h2>Publishers</h2>
+	<table class="results">
+		<tr>
+			<th>Name</th>
+			<th>Number of Occurrences</th>
+		</tr>
+	<% @results[:publishers].each { |item| %>
+		<tr>
+			<td><%= item[:item] %></td>
+			<td><%= number_with_delimiter(item[:occurrences]) %></td>
+		</tr>
+	<% } %>
+	</table>
 </div>
