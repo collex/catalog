@@ -63,39 +63,39 @@ end
 
 Then /^the xml search total is "([^"]*)"$/ do |arg1|
 	response = get_xml(page)
-	assert_equal arg1.to_i, response['hash']['total']
+	assert_equal arg1, response['search']['total']
 end
 
 Then /^the xml number of hits is "([^"]*)"$/ do |arg1|
 	response = get_xml(page)
-	assert_equal arg1.to_i, response['hash']['hits'].length
+	assert_equal arg1.to_i, response['search']['results']['result'].length
 end
 
 Then /^the xml hit "([^"]*)" is "([^"]*)"$/ do |index, uri|
 	response = get_xml(page)
-	assert_equal uri, response['hash']['hits'][index.to_i]['uri']
+	assert_equal uri, response['search']['results']['result'][index.to_i]['uri'].strip()
 end
 
 Then /^the xml number of facets is "([^"]*)"$/ do |arg1|
 	response = get_xml(page)
-	assert_equal arg1.to_i, response['hash']['facets'].length
+	assert_equal arg1.to_i, response['search']['facets'].length
 end
 
 Then /^the xml number of "([^"]*)" facets is "([^"]*)"$/ do |facet, count|
 	response = get_xml(page)
-	assert_equal count.to_i, response['hash']['facets'][facet].length
+	assert_equal count.to_i, response['search']['facets'][facet]['facet'].length
 end
 
 Then /^the xml "([^"]*)" facet "([^"]*)" is "([^"]*)"$/ do |type, facet, count|
 	response = get_xml(page)
-	facets = response['hash']['facets'][type]
+	facets = response['search']['facets'][type]['facet']
 	total = -1
 	facets.each { |fac|
 		if fac['name'] == facet
 			total = fac['count']
 		end
 	}
-	assert_equal count.to_i, total
+	assert_equal count, total.to_s
 end
 
 Then /^the xml list is "([^"]*)"$/ do |list|

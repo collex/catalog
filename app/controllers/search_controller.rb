@@ -12,7 +12,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
-				format.xml  { render :xml => @results }
+				format.xml
 			end
 		rescue ArgumentError => e
 			respond_to do |format|

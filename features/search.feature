@@ -169,16 +169,16 @@ Feature: Normal search
 		When I search with <q=+tree&t=-tree&aut=+John&ed=-quincy&pub=-york&y=-1850&a=-rossetti&g=+Poetry&f=+NINES&o=+fulltext&sort=author desc&start=1&max=5&hl=on> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "963720"
+		And the xml search total is "54"
 		And the xml number of hits is "5"
 		And the xml number of facets is "6"
-		And the xml number of "genre" facets is "35"
-		And the xml hit "0" is "http://muse.jhu.edu/content/nines/journals/new_literary_history/v032/32.2zylko.html"
+		And the xml number of "genre" facets is "3"
+		And the xml hit "0" is "http://alex_st/1000148885"
 		When I search with <q=+tree&t=-tree&aut=+John&ed=-quincy&pub=-york&y=-1850&a=-rossetti&g=+Poetry&f=+NINES&o=+fulltext&sort=title asc&start=1&max=5&hl=on> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "963720"
-		And the xml hit "0" is "http://pm.nlx.com/xtf/view?docId=dickens_c/dickens_c.01.xml;chunk.id=div.dickens.v1.22"
+		And the xml search total is "54"
+		And the xml hit "0" is "http://asp6new.alexanderstreet.com/romr/1000889336"
 
 	Scenario: Do a solr search with special terms and common words
 		Given I am not authenticated

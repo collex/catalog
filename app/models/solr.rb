@@ -46,6 +46,7 @@ class Solr
 	private
 	def select(options)
 		options['version'] = '2.2'
+		options['defType'] = 'edismax'
 		ret = @solr.post( 'select', :data => options )
 		uri = ret.request[:uri].to_s
 		arr = uri.split('/')
@@ -160,12 +161,11 @@ class Solr
 		# highlighting is returned as a hash of uri to a hash that is either empty or contains 'text' => Array of one string element.
 		# simplify this to return either nil or a string.
 		if ret && ret['highlighting']
-			ret['highlighting'].each { |uri,hsh|
-				if hsh.length == 0 || hsh['text'] == nil || hsh['text'].length == 0
-					ret['highlighting'][uri] = nil
-				else
-					str = hsh['text'].join("\n") # This should always return an array of size 1, but just in case, we won't throw away any items.
-					ret['response']['docs'][uri]['text'] = str.force_encoding("UTF-8")
+			ret['response']['docs'].each { |hit|
+				highlight = ret['highlighting'][hit['uri']]
+				if highlight
+					str = highlight['text'].join("\n") # This should always return an array of size 1, but just in case, we won't throw away any items.
+					hit['text'] = str.force_encoding("UTF-8")
 				end
 			}
 		end
@@ -191,6 +191,7 @@ class Solr
 	def names(options)	# called for the names entry point
 #		facet.missing=false&facet=true&facet.mincount=1&facet.limit=-1&wt=ruby&defType=edismax&version=2.2&rows=0&fl=role_AUT+role_EDT+role_PBL&start=0&q=*:*&facet.field=role_AUT&facet.field=role_EDT&facet.field=role_PBL&fq=federation:NINES&fq=genre:"Architecture"
 		response = select(options)
+		return facets_to_hash(response)
 	end
 
 	def facets_to_hash(ret)
