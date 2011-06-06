@@ -18,6 +18,7 @@ Feature: Search with bad parameters
 
 	Scenario: Call with the same parameter twice
 		Given I am not authenticated
-		When I search with <q=+tree&q=-hog>
+		# TODO: I really wanted to search for q=+tree&q=-hog but capybara strips out the first one
+		When I search with <q[]=+tree&q[]=-hog>
 		Then the response status should be "400"
-		And I should see "The parameter q appears twice."
+		And I should see "The parameter q[] appears twice"

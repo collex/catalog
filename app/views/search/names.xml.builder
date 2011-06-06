@@ -1,27 +1,27 @@
 xml.instruct!
 xml.names do
-@results[:author].each do |result|
+xml.authors do
+@results['role_AUT'].each do |result|
 	xml.author do
-		xml.result do
-			xml.item result[:item]
-			xml.occurrences result[:occurrences]
-		end
+		xml.name result[:name]
+		xml.occurrences result[:count]
 	end
 end
-@results[:editor].each do |result|
+end
+xml.editors do
+@results['role_EDT'].each do |result|
 	xml.editor do
-		xml.result do
-			xml.item result[:item]
-			xml.occurrences result[:occurrences]
-		end
+		xml.name result[:name]
+		xml.occurrences result[:count]
 	end
 end
-@results[:publisher].each do |result|
-	xml.author do
-		xml.result do
-			xml.item result[:item]
-			xml.occurrences result[:occurrences]
-		end
+end
+xml.publishers do
+@results['role_PBL'].each do |result|
+	xml.publisher do
+		xml.name result[:name]
+		xml.occurrences result[:count]
 	end
+end
 end
 end

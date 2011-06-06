@@ -1,12 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="names">
-	  <xs:complexType>
-		  <xs:sequence>
-			  <xs:element name="authors" type="xs:token" maxOccurs="unbounded" />
-			  <xs:element name="editors" type="xs:token" maxOccurs="unbounded" />
-			  <xs:element name="publishers" type="xs:token" maxOccurs="unbounded" />
-		  </xs:sequence>
-	  </xs:complexType>
-  </xs:element>
+	<xs:element name="names">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="authors">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="author" type="items" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="editors">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="editor" type="items" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="publishers">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="publisher" type="items" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="items">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="occurrences" type="xs:nonNegativeInteger" />
+		</xs:sequence>
+	</xs:complexType>
+
 </xs:schema>

@@ -199,7 +199,7 @@ class QueryFormat
 	end
 
 	def self.transform_frag(val)
-		return { 'fragment' => val }
+		return { 'fragment' => val.gsub(/[^\w ]/, '') }
 	end
 
 	def self.transform_max_matches(val)

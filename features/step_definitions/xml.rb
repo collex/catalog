@@ -103,7 +103,9 @@ Then /^the xml list is "([^"]*)"$/ do |list|
 	results = []
 	response.each {|item, value|
 		value.each { |item2, value2|
-			results.push(item2['name'])
+			value2.each { |item3|
+				results.push(item3['name'])
+			}
 		}
 	}
 	assert_equal list, results.join(',')
@@ -114,11 +116,13 @@ Then /^the xml list item "([^"]*)" "([^"]*)" is "([^"]*)"$/ do |match_item, matc
 	found = false
 	response.each {|top, all|
 		all.each { |item, value|
-			if item['name'] == match_item
-				assert_equal match, item[match_subitem]
-				found = true
-				break
-			end
+			value.each { |item2|
+				if item2['name'] == match_item
+					assert_equal match, item2[match_subitem]
+					found = true
+					break
+				end
+			}
 		}
 	}
 	if !found
@@ -141,25 +145,36 @@ Then /^the xml autocomplete list is "([^"]*)"$/ do |list|
 	end
 end
 
-Then /^the xml "([^"]*)" list is "([^"]*)"$/ do |type, match|
+Then /^the xml "([^"]*)" list ((is)|(starts with)) "([^"]*)"$/ do |type, verb, arg1, arg2, match|
 	response = get_xml(page)
-	found = false
-	response.each {|top, all|
-		all.each { |item, value|
-			if item == type
-				results = []
-				value.each { |val|
-					results.push(val['name'])
-					results.push(val['count'])
-				}
-				assert_equal match, results.join(',')
-				found = true
-				break
-			end
+	if match == ""
+		assert_nil response['names'][type]
+	else
+		match = match.gsub("&quot;", '"')
+		found = false
+		response.each {|top, all|
+			all.each { |item, value|
+				if item == type
+					results = []
+					value.each { |key, val|
+						val.each { |val2|
+							results.push(val2['name'])
+							results.push(val2['occurrences'])
+						}
+					}
+					if verb == 'is'
+						assert_equal match, results.join(',')
+					else
+						assert_equal match, results.join(',')[0..(match.length-1)]
+					end
+					found = true
+					break
+				end
+			}
 		}
-	}
-	if !found
-		assert false, "The requested item is not found."
+		if !found
+			assert false, "The requested item is not found."
+		end
 	end
 end
 

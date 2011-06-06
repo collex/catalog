@@ -23,14 +23,14 @@ Feature: Auto completion
 		When I autocomplete with <frag="tree> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,23981,trees,17913,treetops,414,treeless,173,treed,126,treetop,117,treet,73,treesthe,60,treetrunk,56,treethe,53,treetrunks,49,treea,46,treesand,44,treecutting,44,treelined,37,treen,34,treefelling,33,treeand,31,treefrogs,30,treelike,27,treeshaded,26,treetoad,26,treesa,25,treefrog,24,treeplanting,23,treets,20,treeing,17,treei,17,treestump,17,treeferns,16"
+		And the xml autocomplete list is "tree,23981,trees,17913,treetops,414,treeless,173,treed,126,treetop,117,treet,73,treesthe,60,treetrunk,56,treethe,53,treetrunks,49,treea,46,treesand,44,treecutting,44,treelined,37"
 
 	Scenario: Do an autocomplete with punctuation
 		Given I am not authenticated
 		When I autocomplete with <frag=etc.> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,100,treebeard,5,treetop,34"
+		And the xml autocomplete list is "etc,42137,etching,761,etchings,685,etched,639,etcher,161,etch,131,etceteras,110,etcetera,102,etcand,95,etcetc,82,etcthe,55,etches,53,etcbut,51,etci,50,etchers,42"
 
 
 	Scenario: Do an autocomplete with two non-contiguous words
@@ -38,14 +38,14 @@ Feature: Auto completion
 		When I autocomplete with <frag=passage time> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,100,treebeard,5,treetop,34"
+		And the xml autocomplete list is ""
 
 	Scenario: Do an autocomplete with two consecutive words
 		Given I am not authenticated
 		When I autocomplete with <frag=same time> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,100,treebeard,5,treetop,34"
+		And the xml autocomplete list is ""
 
 	Scenario: Do an autocomplete with other terms already in the search
 		Given I am not authenticated

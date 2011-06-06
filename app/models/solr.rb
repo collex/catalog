@@ -69,13 +69,17 @@ class Solr
 	end
 
 	def add_facet_param(options, fields, prefix = nil)
+		# the three ways to call this are, regular search, where the prefix is nil,
+		# name search, where the prefix is "", and autocomplete, where the prefix is passed in.
 		options[:facet] = true
 		options["facet.field"] = fields
 		options["facet.mincount"] = 1
 		options["facet.limit"] = -1
 		if prefix
-			options["facet.method"] = 'enum'
-			options["facet.prefix"] = prefix
+			if prefix != ""
+				options["facet.method"] = 'enum'
+				options["facet.prefix"] = prefix
+			end
 			options["facet.missing"] = false
 		else
 			options["facet.missing"] = true
@@ -189,7 +193,10 @@ class Solr
 	end
 
 	def names(options)	# called for the names entry point
-#		facet.missing=false&facet=true&facet.mincount=1&facet.limit=-1&wt=ruby&defType=edismax&version=2.2&rows=0&fl=role_AUT+role_EDT+role_PBL&start=0&q=*:*&facet.field=role_AUT&facet.field=role_EDT&facet.field=role_PBL&fq=federation:NINES&fq=genre:"Architecture"
+		options[:start] = 0
+		options[:rows] = 0
+		options[:fl] = "role_AUT role_EDT role_PBL"
+		add_facet_param(options, [ "role_AUT", "role_EDT", "role_PBL" ], "")
 		response = select(options)
 		return facets_to_hash(response)
 	end

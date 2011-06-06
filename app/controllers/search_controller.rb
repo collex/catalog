@@ -82,10 +82,6 @@ class SearchController < ApplicationController
 	# GET /searches/names
 	# GET /searches/names.xml
 	def names
-		# TODO: Really make the call to get the names here
-#		results = { 'author' => [ { :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' } ],
-#					'editor' => [{ :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' }],
-#					'publisher' => [{ :name => 'elliot', :count => '100' }, { :name => 'whitman', :count => '5' }, { :name => 'poe', :count => '34' }] }
 		query_params = QueryFormat.names_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
@@ -125,7 +121,7 @@ class SearchController < ApplicationController
 
 		respond_to do |format|
 			format.html # show.html.erb
-			format.xml  { render :xml => results }
+			format.xml
 		end
 	end
 
