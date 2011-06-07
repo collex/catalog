@@ -12,19 +12,19 @@
 									<xs:all>
 										<xs:element name="uri" type="xs:token"/>
 										<xs:element name="title" type="xs:token" minOccurs="0"/>
-										<xs:element name="federation" type="xs:token" minOccurs="0"/>
+										<xs:element name="federation" type="arrayType" minOccurs="0"/>
 										<xs:element name="archive" type="xs:token" minOccurs="0"/>
-										<xs:element name="genre" type="xs:token" minOccurs="0"/>
-										<xs:element name="source" type="xs:token" minOccurs="0"/>
+										<xs:element name="genre" type="arrayType" minOccurs="0"/>
+										<xs:element name="source" type="arrayType" minOccurs="0"/>
 										<xs:element name="url" type="xs:token" minOccurs="0"/>
-										<xs:element name="role_edt" type="xs:token" minOccurs="0"/>
-										<xs:element name="role_pbl" type="xs:token" minOccurs="0"/>
-										<xs:element name="role_aut" type="xs:token" minOccurs="0"/>
-										<xs:element name="role_art" type="xs:token" minOccurs="0"/>
-										<xs:element name="date_label" type="xs:token" minOccurs="0"/>
+										<xs:element name="role_edt" type="arrayType" minOccurs="0"/>
+										<xs:element name="role_pbl" type="arrayType" minOccurs="0"/>
+										<xs:element name="role_aut" type="arrayType" minOccurs="0"/>
+										<xs:element name="role_art" type="arrayType" minOccurs="0"/>
+										<xs:element name="date_label" type="arrayType" minOccurs="0"/>
 										<xs:element name="source_xml" type="xs:token" minOccurs="0"/>
 										<xs:element name="thumbnail" type="xs:token" minOccurs="0"/>
-										<xs:element name="alternative" type="xs:token" minOccurs="0"/>
+										<xs:element name="alternative" type="arrayType" minOccurs="0"/>
 										<xs:element name="image" type="xs:token" minOccurs="0"/>
 										<xs:element name="text" type="xs:string" minOccurs="0"/>
 										<xs:element name="freeculture" type="xs:boolean" minOccurs="0"/>
@@ -51,6 +51,7 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+
 	<xs:complexType name="facetType">
 		<xs:sequence>
 			<xs:element name="facet" minOccurs="0" maxOccurs="unbounded">
@@ -61,6 +62,12 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="arrayType">
+		<xs:sequence>
+			<xs:element name="value" type="xs:token" minOccurs="0" maxOccurs="unbounded" />
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

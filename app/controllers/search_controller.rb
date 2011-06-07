@@ -88,16 +88,22 @@ class SearchController < ApplicationController
 	# GET /searches/details
 	# GET /searches/details.xml
 	def details
-		uri = params[:uri]
+		query_params = QueryFormat.details_format()
+		begin
+			QueryFormat.transform_raw_parameters(params)
+			query = QueryFormat.create_solr_query(query_params, params)
+			is_test = Rails.env == 'test'
+			solr = Solr.factory_create(is_test)
+			@document = solr.details(query)
 
-		# TODO: Really make the call to get the document by uri here
-#		@search = Search.find(params[:id])
-		@id = uri
-		results = { 'role_AUT' => [], 'role_EDT' => [], 'role_PBL' => [] }
-
-		respond_to do |format|
-			format.html # show.html.erb
-			format.xml
+			respond_to do |format|
+				format.html # index.html.erb
+				format.xml
+			end
+		rescue ArgumentError => e
+			render_error(e.to_s)
+		rescue RSolr::Error::Http => e
+			render_error(e.to_s, :internal_server_error)
 		end
 	end
 

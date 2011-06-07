@@ -44,7 +44,8 @@ class QueryFormat
 			:starting_row => { :exp => /\d+/, :friendly => "The zero-based index of the results to start on." },
 			:max => { :exp => /\d+/, :friendly => "The page size, or the maximum number of results to return at once." },
 			:highlighting => { :exp => /(on|off)/, :friendly => "Whether to return highlighted text, if available. (Pass on or off)" },
-			:field => { :exp => /(author|title|editor|publisher|content)/, :friendly => "Which field to autocomplete. (One of author, title, editor, publisher, content)" }
+			:field => { :exp => /(author|title|editor|publisher|content)/, :friendly => "Which field to autocomplete. (One of author, title, editor, publisher, content)" },
+			:uri => { :exp => /^([A-Za-z0-9+.-]+):\/\/.+$/, :friendly => "The URI of the object to return."}
 		}
 
 		return verifications[typ]
@@ -118,6 +119,13 @@ class QueryFormat
 				'g' => { :name => 'Genre', :param => :genre, :default => nil, :transformation => get_proc(:transform_genre) },
 				'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
 				'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) }
+		}
+		return self.add_to_format(format)
+	end
+
+	def self.details_format()
+		format = {
+				'uri' => { :name => 'URI', :param => :uri, :default => nil, :transformation => get_proc(:transform_uri) }
 		}
 		return self.add_to_format(format)
 	end
@@ -205,6 +213,10 @@ class QueryFormat
 	def self.transform_max_matches(val)
 		#TODO: This should be filtered out before sending to solr
 		return { 'max' => val }
+	end
+
+	def self.transform_uri(val)
+		return { 'q' => "uri:#{val}" }
 	end
 
 	def self.create_solr_query(format, params)

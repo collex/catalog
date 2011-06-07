@@ -68,12 +68,23 @@ end
 
 Then /^the xml number of hits is "([^"]*)"$/ do |arg1|
 	response = get_xml(page)
-	assert_equal arg1.to_i, response['search']['results']['result'].length
+	# If there is only one element, then the structure created is different, so we need to see if an array was returned.
+	num = response['search']['results']['result'].kind_of?(Array) ? response['search']['results']['result'].length : 1
+	assert_equal arg1.to_i, num
 end
 
 Then /^the xml hit "([^"]*)" is "([^"]*)"$/ do |index, uri|
 	response = get_xml(page)
 	assert_equal uri, response['search']['results']['result'][index.to_i]['uri'].strip()
+end
+
+Then /^the xml xpath "([^"]*)" is "([^"]*)"$/ do |path, value|
+	response = get_xml(page)
+	arr = path.split('/')
+	arr.each { |key|
+		response = response[key]
+	}
+	assert_equal value, response.strip()
 end
 
 Then /^the xml number of facets is "([^"]*)"$/ do |arg1|

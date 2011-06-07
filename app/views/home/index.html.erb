@@ -13,7 +13,7 @@
 </div>
 <div class="tab_content">
 <div id="tab_overview" class="individual_tab hidden">
-	<h3>Arc Catalog</h3>
+	<h2>Arc Catalog</h2>
 	<p>The Arc Catalog is a collection of documents that can be searched through.</p>
 	<p>To use, call this in one of the ways indicated. It is designed to be used as a web service, but you can also type the
 		values into your browser to interactively test your parameters. If you leave off the ".xml" in the following calls,
@@ -24,10 +24,23 @@
 		to be escaped using a % and the hex code of the character. For instance, a plus sign should be encoded as <span class="code">%2B</span>.
 	</p>
 
-	<h3>API: The following questions on the format are unresolved:</h3>
+	<h2>There are still the following issues to deal with:</h2>
+	<h3>solr</h3>
+	<ul>
+		<li>solr needs to be upgraded to version 3.2. This looks like a minor bug fix release, so should be easy.</li>
+		<li>A couple of fields are wrong in the schema. Mostly they return multi-values when they should be single values, but there could also be some filter errors.</li>
+		<li>Need to add a timestamp for original creation date and modified date.</li>
+	</ul>
+	<h3>Output format</h3>
 	<ul>
 		<li>Create a new search type for OAI-type queries.</li>
-		<li>Study OAI: Should that change the parameters of our regular search?</li>
+		<li>Create an output for RDF</li>
+		<li>What output formats should be allowed? Currently, if no format is specified, HTML is returned. XML can be specified as a format.
+			We probably want to expand that to also include RDF, and possibly JSON and RUBY.
+		</li>
+	</ul>
+	<h3>Input format</h3>
+	<ul>
 		<li>UTF-8 characters need to be escaped, so a query looks like: <span class="code">q=%2BBront%C3%AB</span> instead of the more natural: <span class="code">q=%2BBrontë</span> </li>
 		<li>The plus sign is used in a lot of places, but that needs to be escaped. It seems like that is a place that will annoy and trip up visitors.</li>
 		<li>The question mark and asterisk may also be an annoyance in the same way.</li>
@@ -36,18 +49,17 @@
 		<li>Where should validation be done? Should the format of the q parameter be tight so that the client site must parse the
 			user's input, or should anything be let through, and we just monitor the return from solr and let solr validate?
 		</li>
+		<li>should queries without plus and minus to be allowed like they are in solr to mean "not required, but raises relevancy"?</li>
+		<li>Need to also support POST for the same operations.</li>
+	</ul>
+	<h3>Other</h3>
+	<ul>
+		<li>The name search can easily generate a really expensive solr operation. Is there a way to limit it?</li>
 		<li>What type of statistics should be kept on the searches that are performed? All searches can be stored in the db by date, with requesting IP and date.
 			The actual requesting user is not passed, so the IP would be the installation. If the end user should be logged, then it needs to be passed as a parameter.
 			Or, all <em>unique</em> searches could be kept, with a count of how many times they have been called, and perhaps the date of the first call and the date of the most
 			recent call.
 		</li>
-		<li>The output structure for the XML has not been determined. The default format from the automatic conversion in rails seems clunky.
-			Some research needs to be done to see if there is an XML format that would seem most natural to a scholar.
-		</li>
-		<li>What output formats should be allowed? Currently, if no format is specified, HTML is returned. XML can be specified as a format.
-			We probably want to expand that to also include RDF, and possibly JSON and RUBY.
-		</li>
-		<li>should queries without plus and minus to be allowed like they are in solr to mean "not required, but raises relevancy"?</li>
 		<li>Do we need the scaffold for the genres at all? The list of possible names can be retrieved from solr.</li>
 	</ul>
 </div>

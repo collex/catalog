@@ -5,7 +5,15 @@ xml.search do
 		@results[:hits].each do |result|
 			xml.result do
 				result.each do |key,value|
-					xml.tag!(key) { xml.text! value.to_s }
+					xml.tag!(key) {
+						if value.kind_of?(Array)
+							value.each { |val|
+								xml.value val
+							}
+						else
+							xml.text! value.to_s
+						end
+					}
 				end
 			end
 		end

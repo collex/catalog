@@ -140,15 +140,10 @@ class Solr
 		return totals
 	end
 
-	def search(options, overrides = {})
-		options = add_facet_param(options, @facet_fields) if overrides[:no_facets] == nil
-		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
-		options = add_field_list_param(options, fields)
-		ret = select(options)
-
+	def massage_hits(response)
 		# correct the character set for all fields
-		if ret && ret['response'] && ret['response']['docs']
-			ret['response']['docs'].each { |doc|
+		if response && response['response'] && response['response']['docs']
+			response['response']['docs'].each { |doc|
 				doc.each { |k,v|
 					if v.kind_of?(String)
 						doc[k] = v.force_encoding("UTF-8")
@@ -162,6 +157,25 @@ class Solr
 				}
 			}
 		end
+
+		# Correct the fields that are erroneously returned as multi from solr.
+		# TODO-PER: This should be corrected in the schema, then the following can disappear.
+		if response && response['response'] && response['response']['docs']
+			response['response']['docs'].each { |doc|
+				doc['title'] = doc['title'].join("") if doc['title']
+				doc['url'] = doc['url'].join("") if doc['url']
+			}
+		end
+	end
+
+	def search(options, overrides = {})
+		options = add_facet_param(options, @facet_fields) if overrides[:no_facets] == nil
+		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
+		options = add_field_list_param(options, fields)
+		ret = select(options)
+
+		massage_hits(ret)
+
 		# highlighting is returned as a hash of uri to a hash that is either empty or contains 'text' => Array of one string element.
 		# simplify this to return either nil or a string.
 		if ret && ret['highlighting']
@@ -199,6 +213,19 @@ class Solr
 		add_facet_param(options, [ "role_AUT", "role_EDT", "role_PBL" ], "")
 		response = select(options)
 		return facets_to_hash(response)
+	end
+
+	def details(options, overrides = {})
+		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
+		options = add_field_list_param(options, fields)
+		response = select(options)
+		if response && response['response'] && response['response']['docs'] && response['response']['docs'].length > 0
+			massage_hits(response)
+
+			return response['response']['docs'][0]
+		else
+			return nil
+		end
 	end
 
 	def facets_to_hash(ret)

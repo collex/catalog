@@ -11,4 +11,6 @@ Feature: retrieve object's details
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
 		And the xml number of hits is "1"
-		And test all the details
+		And the xml xpath "search/results/result/uri" is "http://asp6new.alexanderstreet.com/romr/1000889336"
+		And the xml xpath "search/results/result/archive" is "romr"
+		And the xml xpath "search/results/result/role_aut/value" is "Prince, John Critchley, 1808-1866"

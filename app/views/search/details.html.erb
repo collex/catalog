@@ -4,6 +4,17 @@
 	<h2>Document Details</h2>
 	<%= make_xml_path(request.fullpath) %>
 
-	<div>ID: <%= @id %></div>
-	TODO
+	<table class="results">
+		<tr>
+			<th>Field</th>
+			<th>Value</th>
+		</tr>
+	<% @document.each { |key,val| %>
+		<tr>
+			<td><%= key %></td>
+			<td><%= val.kind_of?(Array) ? raw(val.join("<br />")) : val %></td>
+		</tr>
+	<% } %>
+	</table>
+
 </div>
