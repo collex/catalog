@@ -15,17 +15,9 @@ class SearchController < ApplicationController
 				format.xml
 			end
 		rescue ArgumentError => e
-			respond_to do |format|
-				format.html { render :text => e.to_s, :status => :bad_request  }
-				format.xml  { render :xml => [ { :error => e.to_s}], :status => :bad_request }
-			end
+			render_error(e.to_s)
 		rescue RSolr::Error::Http => e
-			msg = e.to_s
-			msg = msg[0..msg.index('Backtrace')-1] if msg.include?('Backtrace')
-			respond_to do |format|
-				format.html { render :text => msg, :status => :bad_request  }
-				format.xml  { render :xml => [ { :error => msg}], :status => :internal_server_error }
-			end
+			render_error(e.to_s, :internal_server_error)
 		end
 	end
 
@@ -65,17 +57,9 @@ class SearchController < ApplicationController
 				format.xml
 			end
 		rescue ArgumentError => e
-			respond_to do |format|
-				format.html { render :text => e.to_s, :status => :bad_request  }
-				format.xml  { render :xml => [ { :error => e.to_s}], :status => :bad_request }
-			end
+			render_error(e.to_s)
 		rescue RSolr::Error::Http => e
-			msg = e.to_s
-			msg = msg[0..msg.index('Backtrace')-1] if msg.include?('Backtrace')
-			respond_to do |format|
-				format.html { render :text => msg, :status => :bad_request  }
-				format.xml  { render :xml => [ { :error => msg}], :status => :internal_server_error }
-			end
+			render_error(e.to_s, :internal_server_error)
 		end
 	end
 
@@ -95,17 +79,9 @@ class SearchController < ApplicationController
 				format.xml
 			end
 		rescue ArgumentError => e
-			respond_to do |format|
-				format.html { render :text => e.to_s, :status => :bad_request  }
-				format.xml  { render :xml => [ { :error => e.to_s}], :status => :bad_request }
-			end
+			render_error(e.to_s)
 		rescue RSolr::Error::Http => e
-			msg = e.to_s
-			msg = msg[0..msg.index('Backtrace')-1] if msg.include?('Backtrace')
-			respond_to do |format|
-				format.html { render :text => msg, :status => :bad_request  }
-				format.xml  { render :xml => [ { :error => msg}], :status => :internal_server_error }
-			end
+			render_error(e.to_s, :internal_server_error)
 		end
 	end
 
@@ -125,75 +101,4 @@ class SearchController < ApplicationController
 		end
 	end
 
-#	# GET /searches/1
-#	# GET /searches/1.xml
-#	def show
-##		@search = Search.find(params[:id])
-#		@id = params[:id]
-#
-#		respond_to do |format|
-#			format.html # show.html.erb
-#			format.xml  { render :xml => @search }
-#		end
-#	end
-#
-	# GET /searches/new
-	# GET /searches/new.xml
-#	def new
-#		@search = Search.new
-#
-#		respond_to do |format|
-#			format.html # new.html.erb
-#			format.xml  { render :xml => @search }
-#		end
-#	end
-#
-#	# GET /searches/1/edit
-#	def edit
-#		@search = Search.find(params[:id])
-#	end
-#
-#	# POST /searches
-#	# POST /searches.xml
-#	def create
-#		@search = Search.new(params[:search])
-#
-#		respond_to do |format|
-#			if @search.save
-#				format.html { redirect_to(@search, :notice => 'Search was successfully created.') }
-#				format.xml  { render :xml => @search, :status => :created, :location => @search }
-#			else
-#				format.html { render :action => "new" }
-#				format.xml  { render :xml => @search.errors, :status => :unprocessable_entity }
-#			end
-#		end
-#	end
-#
-#	# PUT /searches/1
-#	# PUT /searches/1.xml
-#	def update
-#		@search = Search.find(params[:id])
-#
-#		respond_to do |format|
-#			if @search.update_attributes(params[:search])
-#				format.html { redirect_to(@search, :notice => 'Search was successfully updated.') }
-#				format.xml  { head :ok }
-#			else
-#				format.html { render :action => "edit" }
-#				format.xml  { render :xml => @search.errors, :status => :unprocessable_entity }
-#			end
-#		end
-#	end
-#
-#	# DELETE /searches/1
-#	# DELETE /searches/1.xml
-#	def destroy
-#		@search = Search.find(params[:id])
-#		@search.destroy
-#
-#		respond_to do |format|
-#			format.html { redirect_to(searches_url) }
-#			format.xml  { head :ok }
-#		end
-#	end
 end

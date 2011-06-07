@@ -1,0 +1,8 @@
+<%= make_home_path %>
+<div class="tab_content">
+	<p id="notice"><%= notice %></p>
+	<h2>Error</h2>
+	<div class="error_msg"><%= @error_msg %></div>
+	<div>Requested URL: <span class="error_info"><%= @original_request %></span></div>
+	<div>Response status: <span class="error_info"><%= @status.to_s %></span></div>
+</div>

@@ -186,6 +186,18 @@ a.example_link:hover {
     padding-right: 4px;
 }
 
+.error_msg {
+	color: red;
+	font-weight: bold;
+	font-size: 1.2em;
+	padding-bottom: 12px;
+	padding-top: 12px;
+}
+
+.error_info {
+	font-weight: bold;
+}
+
 /*body, p, ol, ul, td {
   font-family: verdana, arial, helvetica, sans-serif;
   font-size:   13px;
