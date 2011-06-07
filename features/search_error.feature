@@ -22,3 +22,9 @@ Feature: Search with bad parameters
 		When I search with <q[]=+tree&q[]=-hog>
 		Then the response status should be "400"
 		And I should see 'The parameter "q[]" appears twice'
+
+	Scenario: No highlighting returned
+		Given I am not authenticated
+		When I search with <f=+NINES&hl=on&start=0&max=30>
+		Then the response status should be "200"
+		And I should see "Total found: 963,720"

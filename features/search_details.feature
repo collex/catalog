@@ -18,14 +18,14 @@ Feature: retrieve object's details
 	Scenario: Pass in a bad URI
 		Given I am not authenticated
 		When I details with <uri=not a uri> using xml
-		Then the response status should be "500"
-		And the xml xpath "/error/message" is "bad path"
+		Then the response status should be "400"
+		And the xml xpath "error/message" is "Bad parameter: not a uri. Must match: (?-mix:^([A-Za-z0-9+.-]+):\/\/.+$)"
 
 	Scenario: Object not found
 		Given I am not authenticated
 		When I details with <uri=http://XXXXXXXX> using xml
-		Then the response status should be "400"
-		And the xml xpath "/error/message" is "not found"
+		Then the response status should be "500"
+		And the xml xpath "error/message" is <Cannot find the object "http://XXXXXXXX">
 
 	Scenario: Display an object's details
 		Given I am not authenticated

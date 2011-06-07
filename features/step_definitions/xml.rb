@@ -87,6 +87,15 @@ Then /^the xml xpath "([^"]*)" is "([^"]*)"$/ do |path, value|
 	assert_equal value, response.strip()
 end
 
+Then /^the xml xpath "([^"]*)" is <([^>]*)>$/ do |path, value|
+	response = get_xml(page)
+	arr = path.split('/')
+	arr.each { |key|
+		response = response[key]
+	}
+	assert_equal value, response.strip()
+end
+
 Then /^the xml number of facets is "([^"]*)"$/ do |arg1|
 	response = get_xml(page)
 	assert_equal arg1.to_i, response['search']['facets'].length

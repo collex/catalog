@@ -27,4 +27,12 @@ namespace :solr do
 		puts "~~~~~~~~~~~ Starting solr on #{port}..."
 		cmd_line("cd #{SOLR_PATH} && java -Djetty.port=#{port} -DSTOP.PORT=8079 -DSTOP.KEY=c0113x -Xmx#{sz}m -jar start.jar 2> #{Rails.root}/log/solr.log &")
 	end
+
+	desc "Stop the solr java app"
+	task :stop  => :environment do
+		puts "~~~~~~~~~~~ Stopping solr..."
+		port = get_solr_port()
+		cmd_line("cd #{SOLR_PATH} && #{JAVA_PATH}java -Djetty.port=#{port} -DSTOP.PORT=8079 -DSTOP.KEY=c0113x -jar start.jar --stop")
+		puts "Finished."
+	end
 end
