@@ -13,6 +13,21 @@ Feature: Search for names
 		And the xml "editors" list is ""
 		And the xml "publishers" list is "A. J. Rockefellar,2,Atwill, 201 Broadway,1,Burgess, Stringer & Co.,1,Carey & Hart,1,Chapman and Hall, 1844. xiv,1,Darton & Clark,1,Edward P. Williams,2,F. Gleason,2,Harper and Brothers,1,Henry Colburn,1,Lee & Walker, 120 Walnut St.,1,Lee and Walker,,1,Louis A. Godey,1,New York:Fowler and Wells,c1844,1,Peabody,1,R. G. Berford,2,Vizetelly Brothers and Co.,2,William Curry, Jun. and Company,1,[s. n.],1,published at the 'Yankee' Office,3,s.l.:s.n.,1844?,1"
 
+	Scenario: Do a name retrieval that doesn't return any results
+		Given I am not authenticated
+		When I names with <q=+tree+xxxyyyzz> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/names_results.xsd"
+		And the xml "authors" list is ""
+		And the xml "editors" list is ""
+		And the xml "publishers" list is ""
+
+	Scenario: Display a simple name retrieval
+		Given I am not authenticated
+		When I names with <q=+tree&y=+1844>
+		Then the response status should be "200"
+		And I should see "Willis Gaylord, 1808-1841"
+
 	Scenario: Do a large name retrieval
 		Given I am not authenticated
 		When I names with <q=+tree> using xml

@@ -10,10 +10,10 @@
 			<th>Name</th>
 			<th>Number of Occurrences</th>
 		</tr>
-	<% @results[:authors].each { |item| %>
+	<% @results['role_AUT'].each { |item| %>
 		<tr>
-			<td><%= item[:item] %></td>
-			<td><%= number_with_delimiter(item[:occurrences]) %></td>
+			<td><%= item[:name] %></td>
+			<td><%= number_with_delimiter(item[:count]) %></td>
 		</tr>
 	<% } %>
 	</table>
@@ -24,10 +24,10 @@
 			<th>Name</th>
 			<th>Number of Occurrences</th>
 		</tr>
-	<% @results[:editors].each { |item| %>
+	<% @results['role_EDT'].each { |item| %>
 		<tr>
-			<td><%= item[:item] %></td>
-			<td><%= number_with_delimiter(item[:occurrences]) %></td>
+			<td><%= item[:name] %></td>
+			<td><%= number_with_delimiter(item[:count]) %></td>
 		</tr>
 	<% } %>
 	</table>
@@ -38,10 +38,10 @@
 			<th>Name</th>
 			<th>Number of Occurrences</th>
 		</tr>
-	<% @results[:publishers].each { |item| %>
+	<% @results['role_PBL'].each { |item| %>
 		<tr>
-			<td><%= item[:item] %></td>
-			<td><%= number_with_delimiter(item[:occurrences]) %></td>
+			<td><%= item[:name] %></td>
+			<td><%= number_with_delimiter(item[:count]) %></td>
 		</tr>
 	<% } %>
 	</table>
