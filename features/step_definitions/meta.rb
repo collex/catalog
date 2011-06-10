@@ -37,7 +37,7 @@ Given /^the standard archives$/ do
 end
 
 Given /^the standard federations$/ do
-	create_rec(Federation, 1, {:name => 'NINES', :thumbnail => '/images/nines.png' })
-	create_rec(Federation, 2, {:name => '18thConnect', :thumbnail => '/images/18th_connect.png' })
+	create_rec(Federation, 1, {:name => 'NINES', :thumbnail => '/images/nines.png', :ip => '9.9.9.9', :site => 'nines.org' })
+	create_rec(Federation, 2, {:name => '18thConnect', :thumbnail => '/images/18th_connect.png', :ip => '18.18.18.18', :site => '18thConnect.org' })
 end
 

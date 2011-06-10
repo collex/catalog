@@ -21,18 +21,20 @@ class ApplicationController < ActionController::Base
 	end
 
 	def dup_params()
-		# we need to look at the original query string to see if there are any duplicate parameters.
-		# Rails will filter this out so we won't see them if we just look at params[]
-		qs = request.query_string
-		arr = qs.split('&')
-		p = {}
-		arr.each { |q|
-			one = q.split('=')
-			if p[one[0]] == nil
-				p[one[0]] = one[1]
-			else
-				render_error("The parameter \"#{one[0]}\" appears twice in \"#{qs}.\"")
-			end
-		}
+		if !self.kind_of?(ExhibitsController)
+			# we need to look at the original query string to see if there are any duplicate parameters.
+			# Rails will filter this out so we won't see them if we just look at params[]
+			qs = request.query_string
+			arr = qs.split('&')
+			p = {}
+			arr.each { |q|
+				one = q.split('=')
+				if p[one[0]] == nil
+					p[one[0]] = one[1]
+				else
+					render_error("The parameter \"#{one[0]}\" appears twice in \"#{qs}.\"")
+				end
+			}
+		end
 	end
 end

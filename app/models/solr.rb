@@ -19,7 +19,14 @@ require 'rsolr'
 # documentation at: http://github.com/mwmitchell/rsolr
 
 class SolrException < StandardError
-	
+	def initialize(msg, status = :internal_server_error)
+		@status = status
+		super(msg)
+	end
+
+	def status()
+		return @status
+	end
 end
 
 class Solr
@@ -234,7 +241,7 @@ class Solr
 
 			return response['response']['docs'][0]
 		else
-			raise SolrException.new("Cannot find the object \"#{options['q'].sub('uri:','')}\"")
+			raise SolrException.new("Cannot find the object \"#{options['q'].sub('uri:','')}\"", :not_found)
 		end
 	end
 
@@ -263,6 +270,60 @@ class Solr
 		return facets
 	end
 
+	def add_object(fields, relevancy, commit_now, is_retry = false) # called by Exhibit to index exhibits
+		# this takes a hash that contains a set of fields expressed as symbols, i.e. { :uri => 'something' }
+		begin
+			if relevancy
+				@solr.add(fields) do |doc|
+					doc.attrs[:boost] = relevancy # boost the document
+				end
+				add_xml = @solr.xml.add(fields, {}) do |doc|
+					doc.attrs[:boost] = relevancy
+				end
+				@solr.update(:data => add_xml)
+			else
+				@solr.add(fields)
+			end
+		rescue Exception => e
+			puts("ADD OBJECT: Continuing after exception: #{e}")
+			puts("URI: #{fields['uri']}")
+			puts("#{fields.to_s}")
+			if is_retry == false
+				add_object(fields, relevancy, commit_now, true)
+			else
+				raise SolrException.new(e.to_s)
+			end
+		end
+		begin
+			if commit_now
+				@solr.commit()
+			end
+		rescue Exception => e
+			raise SolrException.new(e.to_s)
+		end
+	end
+
+	def remove_archive(archive, commit_now)
+		begin
+			@solr.delete_by_query("+archive:#{archive}")
+			if commit_now
+				@solr.commit()
+			end
+		rescue Exception => e
+			raise SolrException.new(e.to_s)
+		end
+	end
+
+	def remove_object(uri, commit_now)
+		begin
+			@solr.delete_by_query("+uri:#{uri}")
+			if commit_now
+				@solr.commit()
+			end
+		rescue Exception => e
+			raise SolrException.new(e.to_s)
+		end
+	end
 end
 
 ##########################################################################

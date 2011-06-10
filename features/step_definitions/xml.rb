@@ -69,7 +69,11 @@ end
 Then /^the xml number of hits is "([^"]*)"$/ do |arg1|
 	response = get_xml(page)
 	# If there is only one element, then the structure created is different, so we need to see if an array was returned.
-	num = response['search']['results']['result'].kind_of?(Array) ? response['search']['results']['result'].length : 1
+	if response['search'] && response['search']['results'] && response['search']['results']['result']
+		num = response['search']['results']['result'].kind_of?(Array) ? response['search']['results']['result'].length : 1
+	else
+		num = 0
+	end
 	assert_equal arg1.to_i, num
 end
 
@@ -84,6 +88,7 @@ Then /^the xml xpath "([^"]*)" is "([^"]*)"$/ do |path, value|
 	arr.each { |key|
 		response = response[key]
 	}
+	response = response.join(',') if response.kind_of?(Array)
 	assert_equal value, response.strip()
 end
 

@@ -8,7 +8,9 @@
 	  <tr>
 		  <th>Name</th>
 		  <th>Thumbnail</th>
+		  <th>Site</th>
 	<% if user_signed_in? %>
+		  <th>IP</th>
 		<th></th>
 		<th></th>
 		<th></th>
@@ -19,7 +21,9 @@
 	  <tr>
 		  <td><%= federation.name %></td>
 		  <td><%= federation.thumbnail %></td>
+		  <td><%= federation.site %></td>
 	<% if user_signed_in? %>
+		  <td><%= federation.ip %></td>
 		<td><%= link_to 'Show', federation %>&nbsp;
 		<%= link_to 'Edit', edit_federation_path(federation) %>&nbsp;
 		<%= link_to 'Destroy', federation, :confirm => 'Are you sure?', :method => :delete %></td>

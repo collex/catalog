@@ -17,7 +17,7 @@ class SearchController < ApplicationController
 		rescue ArgumentError => e
 			render_error(e.to_s)
 		rescue SolrException => e
-			render_error(e.to_s, :internal_server_error)
+			render_error(e.to_s, e.status())
 		end
 	end
 
@@ -59,7 +59,7 @@ class SearchController < ApplicationController
 		rescue ArgumentError => e
 			render_error(e.to_s)
 		rescue SolrException => e
-			render_error(e.to_s, :internal_server_error)
+			render_error(e.to_s, e.status())
 		end
 	end
 
@@ -81,7 +81,7 @@ class SearchController < ApplicationController
 		rescue ArgumentError => e
 			render_error(e.to_s)
 		rescue SolrException => e
-			render_error(e.to_s, :internal_server_error)
+			render_error(e.to_s, e.status())
 		end
 	end
 
@@ -103,7 +103,7 @@ class SearchController < ApplicationController
 		rescue ArgumentError => e
 			render_error(e.to_s)
 		rescue SolrException => e
-			render_error(e.to_s, :internal_server_error)
+			render_error(e.to_s, e.status())
 		end
 	end
 

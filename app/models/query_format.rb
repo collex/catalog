@@ -37,15 +37,21 @@ class QueryFormat
 			:frag => { :exp => /(("\w[\w?*]*( \w[\w?*]*)*"|\w[\w?*]*))/, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
 			:year => { :exp => /([+\-]\d\d\d\d)/, :friendly => "[+-] A four digit date" },
 			:archive => { :exp => /([+\-]\w[\w?*]*)/, :friendly => "[+-] One of the predefined archive abbreviations" },
-			:genre => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined genres" },
+			:genre => { :exp => /([+\-]\w[ \w?*]*)+/, :friendly => "[+-] One or more of the predefined genres" },
+			:genre2 => { :exp => /(\w[ \w?*]*)+/, :friendly => "One or more of the predefined genres" },
 			:federation => { :exp => /([+\-]\w[\w?*]*)+/, :friendly => "[+-] One or more of the predefined federations" },
 			:other_facet => { :exp => /([+\-](freeculture|fulltext|ocr))/, :friendly => "[+-] One of freeculture, fulltext, or ocr" },
-			:sort => { :exp => /(title|author|date) (asc|desc)/, :friendly => "One of title, author, or date followed by one of asc or desc" },
+			:sort => { :exp => /(title|author|year) (asc|desc)/, :friendly => "One of title, author, or year followed by one of asc or desc" },
 			:starting_row => { :exp => /\d+/, :friendly => "The zero-based index of the results to start on." },
 			:max => { :exp => /\d+/, :friendly => "The page size, or the maximum number of results to return at once." },
 			:highlighting => { :exp => /(on|off)/, :friendly => "Whether to return highlighted text, if available. (Pass on or off)" },
 			:field => { :exp => /(author|title|editor|publisher|content)/, :friendly => "Which field to autocomplete. (One of author, title, editor, publisher, content)" },
-			:uri => { :exp => /^([A-Za-z0-9+.-]+):\/\/.+$/, :friendly => "The URI of the object to return."}
+			:uri => { :exp => /^([A-Za-z0-9+.-]+):\/\/.+$/, :friendly => "The URI of the object to return."},
+			:id => { :exp => /^[0-9]+$/, :friendly => "The unique integer ID of the object."},
+			:commit => { :exp => /^(immediate|delayed)$/, :friendly => "Whether to commit the change now, or wait for the background task to commit. (immediate or delayed)"},
+			:exhibit_type => { :exp => /^(partial|whole)$/, :friendly => "Whether the object is the entire work or just a page of it."},
+			:string => { :exp => /^.+$/, :friendly => "Any string."},
+			:boolean => { :exp => /^(true|false)$/, :friendly => "true or false."}
 		}
 
 		return verifications[typ]
@@ -79,7 +85,7 @@ class QueryFormat
 				'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
 				'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) },
 				'sort' => { :name => 'Sort', :param => :sort, :default => nil, :transformation => get_proc(:transform_sort) },
-				'start' => { :name => 'Starting Row', :param => :starting_row, :default => '0', :transformation => get_proc(:transform_start) },
+				'start' => { :name => 'Starting Row', :param => :starting_row, :default => '0', :transformation => get_proc(:transform_field) },
 				'max' => { :name => 'Maximum Results', :param => :max, :default => '30', :transformation => get_proc(:transform_max) },
 				'hl' => { :name => 'Highlighting', :param => :highlighting, :default => 'off', :transformation => get_proc(:transform_highlight) }
 		}
@@ -130,71 +136,107 @@ class QueryFormat
 		return self.add_to_format(format)
 	end
 
+	def self.exhibit_format()
+		format = {
+			'id' => { :name => 'ID', :param => :id, :default => nil, :transformation => get_proc(:transform_id) },
+			'commit' => { :name => 'Commit?', :param => :commit, :default => nil, :transformation => get_proc(:transform_nil) },
+			'type' => { :name => 'Type', :param => :exhibit_type, :default => nil, :transformation => get_proc(:transform_nil) },
+			'page' => { :name => 'Page number', :param => :id, :default => nil, :transformation => get_proc(:transform_nil) },
+			'federation' => { :name => 'federation', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+
+			# Multivalued fields
+			'alternative' => { :name => 'alternative', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'date_label' => { :name => 'date_label', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'genre' => { :name => 'genre', :param => :genre2, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'role_AUT' => { :name => 'Author', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'role_PBL' => { :name => 'Publisher', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'role_ART' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'role_EDT' => { :name => 'Editor', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'role_TRL' => { :name => 'Translator', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'role_EGR' => { :name => 'Engraver', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'role_ETR' => { :name => 'Etcher', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'role_CRE' => { :name => 'Creator', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			'year' => { :name => 'year', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+
+			# single valued fields
+			'image' => { :name => 'image', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'text' => { :name => 'text', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'thumbnail' => { :name => 'thumbnail', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'title' => { :name => 'title', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'url' => { :name => 'url', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+
+			# boolean fields
+			'has_full_text' => { :name => 'has_full_text', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
+			'is_ocr' => { :name => 'is_ocr', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
+			'freeculture' => { :name => 'freeculture', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
+			'typewright' => { :name => 'typewright', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) }
+		}
+		return self.add_to_format(format)
+	end
+
 	def self.get_proc( method_sym )
 	  self.method( method_sym ).to_proc
 	end
 
-	def self.transform_query(val)
+	def self.transform_query(key,val)
 		return { 'q' => val }
 	end
 
 	def self.insert_field_name(field, val)
-		return "#{val[0]}#{field}:#{val[1..val.length]}"
+		str = val[1..val.length]
+		str = "\"#{str}\"" if str.include?(' ')
+		return "#{val[0]}#{field}:#{str}"
 	end
 
-	def self.transform_title(val)
+	def self.transform_title(key,val)
 		return { 'q' => self.insert_field_name("title", val) }
 	end
 
-	def self.transform_author(val)
+	def self.transform_author(key,val)
 		return { 'q' => self.insert_field_name("author", val) }
 	end
 
-	def self.transform_editor(val)
+	def self.transform_editor(key,val)
 		return { 'q' => self.insert_field_name("editor", val) }
 	end
 
-	def self.transform_publisher(val)
+	def self.transform_publisher(key,val)
 		return { 'q' => self.insert_field_name("publisher", val) }
 	end
 
-	def self.transform_year(val)
+	def self.transform_year(key,val)
 		return { 'q' => self.insert_field_name("year_sort", val) }
 	end
 
-	def self.transform_archive(val)
+	def self.transform_archive(key,val)
 		return { 'q' => self.insert_field_name("archive", val) }
 	end
 
-	def self.transform_genre(val)
+	def self.transform_genre(key,val)
 		return { 'q' => self.insert_field_name("genre", val) }
 	end
 
-	def self.transform_federation(val)
+	def self.transform_federation(key,val)
 		return { 'q' => self.insert_field_name("federation", val) }
 	end
 
-	def self.transform_other(val)
+	def self.transform_other(key,val)
 		mapper = { 'freeculture' => 'freeculture', 'fulltext' => 'has_full_text', 'ocr' => 'is_ocr' }
 		qualifier = val[0]
 		facet = mapper[val[1..val.length]]
 		return { 'q' => "#{qualifier}#{facet}:true" }
 	end
 
-	def self.transform_sort(val)
+	def self.transform_sort(key,val)
 		arr = val.split(' ')
 		return { 'sort' => "#{arr[0]}_sort #{arr[1]}" }
 	end
 
-	def self.transform_start(val)
-		return { 'start' => val }
-	end
-
-	def self.transform_max(val)
+	def self.transform_max(key,val)
 		return { 'rows' => val }
 	end
 
-	def self.transform_highlight(val)
+	def self.transform_highlight(key,val)
 		if val == 'on'
 			return { 'hl.fl' => 'text', 'hl.fragsize' => 600, 'hl.maxAnalyzedChars' => 512000, 'hl' => true, 'hl.useFastVectorHighlighter' => true }
 		else
@@ -202,20 +244,35 @@ class QueryFormat
 		end
 	end
 
-	def self.transform_field(val)
-		return { 'field' => val }
+	def self.transform_field(key,val)
+		return { key => val }
 	end
 
-	def self.transform_frag(val)
+	def self.transform_nil(key,val)
+		return { }
+	end
+
+	def self.id_to_uri(id)
+		return "http://$[FEDERATION_SITE]$/peer-reviewed-exhibit/#{id}"
+	end
+
+	def self.id_to_archive(id)
+		return "exhibit_$[FEDERATION_NAME]$_#{id}"
+	end
+
+	def self.transform_id(key,val)
+		return { :uri => "#{self.id_to_uri(val)}$[PAGE_NUM]$", :archive => self.id_to_archive(val) }
+	end
+
+	def self.transform_frag(key,val)
 		return { 'fragment' => val.gsub(/[^\w ]/, '') }
 	end
 
-	def self.transform_max_matches(val)
-		#TODO: This should be filtered out before sending to solr
+	def self.transform_max_matches(key,val)
 		return { 'max' => val }
 	end
 
-	def self.transform_uri(val)
+	def self.transform_uri(key,val)
 		return { 'q' => "uri:#{val}" }
 	end
 
@@ -231,8 +288,15 @@ class QueryFormat
 		params.each { |key,val|
 			definition = format[key]
 			raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
-			raise(ArgumentError, "Bad parameter: #{val}. Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
-			solr_hash = definition[:transformation].call(val)
+			raise(ArgumentError, "Bad parameter: #{definition[:name]} was passed as an array.") if val.kind_of?(Array) && definition[:can_be_array] != true
+			if val.kind_of?(Array)
+				val.each { |v|
+					raise(ArgumentError, "Bad parameter: #{v}. Must match: #{definition[:exp]}") if definition[:exp].match(v) == nil
+				}
+			else
+				raise(ArgumentError, "Bad parameter: #{val}. Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
+			end
+			solr_hash = definition[:transformation].call(key,val)
 			query.merge!(solr_hash) {|key, oldval, newval|
 				oldval + " AND " + newval
 			}

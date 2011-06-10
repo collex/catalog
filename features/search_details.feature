@@ -24,8 +24,7 @@ Feature: retrieve object's details
 	Scenario: Object not found
 		Given I am not authenticated
 		When I details with <uri=http://XXXXXXXX> using xml
-		Then the response status should be "500"
-		And the xml xpath "error/message" is <Cannot find the object "http://XXXXXXXX">
+		Then the response status should be "404"
 
 	Scenario: Display an object's details
 		Given I am not authenticated

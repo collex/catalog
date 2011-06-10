@@ -61,6 +61,10 @@
 			recent call.
 		</li>
 		<li>Do we need the scaffold for the genres at all? The list of possible names can be retrieved from solr.</li>
+		<li>Need to create a performance test to get some numbers: this needs to make queries that are varied enough that the caching doesn't throw off results. It
+		should also run from a different computer so that the entire end-to-end is tested.</li>
+		<li>The public-facing API is well represented here, but there should also be the federation-facing API done in the same user-friendly way. Unfortunately, that
+		exposes the API to hackers, so there needs to be some sign on to get pages for "index exhibits", "index community", and "query community".</li>
 	</ul>
 </div>
 

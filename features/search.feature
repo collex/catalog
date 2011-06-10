@@ -9,17 +9,17 @@ Feature: Normal search
 		When I search with <q=+tree> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "23981"
+		And the xml search total is "23979"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "33"
-		And the xml "genre" facet "Book History" is "36"
+		And the xml "genre" facet "Book History" is "34"
 
 	Scenario: Browse to a simple solr search
 		Given I am not authenticated
 		When I search with <q=+tree>
 		Then the response status should be "200"
-		And I should see in this order "Search Results, Total found: 23,981, Results, Facets, genre, has_full_text"
+		And I should see in this order "Search Results, Total found: 23,979, Results, Facets, genre, has_full_text"
 
 	Scenario: Do a solr search with utf-8
 		Given I am not authenticated
@@ -38,29 +38,29 @@ Feature: Normal search
 		When I search with <q=+don't> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "40901"
+		And the xml search total is "40894"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
-		And the xml number of "archive" facets is "94"
-		And the xml "genre" facet "Poetry" is "412"
+		And the xml number of "archive" facets is "91"
+		And the xml "genre" facet "Poetry" is "409"
 
 	Scenario: Do a solr search with quotes
 		Given I am not authenticated
 		When I search with <q=+"never more"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "3416"
+		And the xml search total is "3414"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "federation" facets is "2"
-		And the xml "has_full_text" facet "true" is "3400"
+		And the xml "has_full_text" facet "true" is "3398"
 
 	Scenario: Do a solr search with mismatched quotes
 		Given I am not authenticated
 		When I search with <q=+"never more> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "3416"
+		And the xml search total is "3414"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "32"
@@ -72,7 +72,7 @@ Feature: Normal search
 		When I search with <q=+never+more"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "3416"
+		And the xml search total is "3414"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "32"
@@ -80,15 +80,15 @@ Feature: Normal search
 		When I search with <q=-never+more"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "1403209"
+		And the xml search total is "1403112"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "35"
-		And the xml "genre" facet "Book History" is "22884"
+		And the xml "genre" facet "Book History" is "22867"
 		When I search with <q=+never-more"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "3416"
+		And the xml search total is "3414"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "32"
@@ -96,11 +96,11 @@ Feature: Normal search
 		When I search with <q=-never-more"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "1403209"
+		And the xml search total is "1403112"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "35"
-		And the xml "genre" facet "Book History" is "22884"
+		And the xml "genre" facet "Book History" is "22867"
 		When I search with <q=+more+never"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
@@ -112,11 +112,11 @@ Feature: Normal search
 		When I search with <q=-more+never"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "1406450"
+		And the xml search total is "1406351"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "35"
-		And the xml "genre" facet "Book History" is "22888"
+		And the xml "genre" facet "Book History" is "22871"
 		When I search with <q=+more-never"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
@@ -128,11 +128,11 @@ Feature: Normal search
 		When I search with <q=-more-never"> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "1406450"
+		And the xml search total is "1406351"
 		And the xml number of hits is "10"
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "35"
-		And the xml "genre" facet "Book History" is "22888"
+		And the xml "genre" facet "Book History" is "22871"
 
 	Scenario: Do a solr search by archive
 		Given I am not authenticated
@@ -150,9 +150,9 @@ Feature: Normal search
 		When I search with <g=+Poetry> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
-		And the xml search total is "69549"
+		And the xml search total is "69505"
 		And the xml number of "genre" facets is "30"
-		And the xml "genre" facet "Book History" is "676"
+		And the xml "genre" facet "Book History" is "659"
 
 	Scenario: Do a solr search by federation
 		Given I am not authenticated

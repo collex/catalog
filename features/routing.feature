@@ -68,9 +68,9 @@ Feature: Routing
 		When I restfully show "1" from "genres"
 		Then I should be on the show genres 1 page
 
-#TODO: these should exist only for an authorized federation
 	Scenario: Exhibits controller
-		Then all routes should exist in "exhibits"
+		Then only the routes "create,delete" should exist in "exhibits"
 
+#TODO: these should exist only for an authorized federation
 	Scenario: Locals controller
 		Then all routes should exist in "locals"

@@ -6,7 +6,14 @@ CollexCatalog::Application.routes.draw do
 
 	resources :genres
 
-	resources :exhibits
+	resources :exhibits, :only => [:create, :destroy] do
+		collection do
+			get 'test_create_good'
+			get 'test_create_bad'
+			get 'test_destroy_good'
+			get 'test_destroy_bad'
+		end
+	end
 
 	resources :locals
 

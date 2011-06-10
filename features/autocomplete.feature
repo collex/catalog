@@ -9,28 +9,28 @@ Feature: Auto completion
 		When I autocomplete with <frag=tree> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,23981,trees,17913,treetops,414,treeless,173,treed,126,treetop,117,treet,73,treesthe,60,treetrunk,56,treethe,53,treetrunks,49,treea,46,treesand,44,treecutting,44,treelined,37"
+		And the xml autocomplete list is "tree,23979,trees,17911,treetops,414,treeless,173,treed,126,treetop,117,treet,73,treesthe,60,treetrunk,56,treethe,53,treetrunks,49,treea,46,treesand,44,treecutting,44,treelined,37"
 
 	Scenario: Do a simple autocomplete with many matches
 		Given I am not authenticated
 		When I autocomplete with <frag=tree&max=30> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,23981,trees,17913,treetops,414,treeless,173,treed,126,treetop,117,treet,73,treesthe,60,treetrunk,56,treethe,53,treetrunks,49,treea,46,treesand,44,treecutting,44,treelined,37,treen,34,treefelling,33,treeand,31,treefrogs,30,treelike,27,treeshaded,26,treetoad,26,treesa,25,treefrog,24,treeplanting,23,treets,20,treeing,17,treei,17,treestump,17,treeferns,16"
+		And the xml autocomplete list is "tree,23979,trees,17911,treetops,414,treeless,173,treed,126,treetop,117,treet,73,treesthe,60,treetrunk,56,treethe,53,treetrunks,49,treea,46,treesand,44,treecutting,44,treelined,37,treen,34,treefelling,33,treeand,31,treefrogs,30,treelike,27,treeshaded,26,treetoad,26,treesa,25,treefrog,24,treeplanting,23,treets,20,treeing,17,treei,17,treestump,17,treeferns,16"
 
 	Scenario: Do an autocomplete that starts with quote
 		Given I am not authenticated
 		When I autocomplete with <frag="tree> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,23981,trees,17913,treetops,414,treeless,173,treed,126,treetop,117,treet,73,treesthe,60,treetrunk,56,treethe,53,treetrunks,49,treea,46,treesand,44,treecutting,44,treelined,37"
+		And the xml autocomplete list is "tree,23979,trees,17911,treetops,414,treeless,173,treed,126,treetop,117,treet,73,treesthe,60,treetrunk,56,treethe,53,treetrunks,49,treea,46,treesand,44,treecutting,44,treelined,37"
 
 	Scenario: Do an autocomplete with punctuation
 		Given I am not authenticated
 		When I autocomplete with <frag=etc.> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "etc,42137,etching,761,etchings,685,etched,639,etcher,161,etch,131,etceteras,110,etcetera,102,etcand,95,etcetc,82,etcthe,55,etches,53,etcbut,51,etci,50,etchers,42"
+		And the xml autocomplete list is "etc,42131,etching,761,etchings,685,etched,639,etcher,161,etch,131,etceteras,110,etcetera,102,etcand,95,etcetc,82,etcthe,55,etches,53,etcbut,51,etci,50,etchers,42"
 
 
 	Scenario: Do an autocomplete with two non-contiguous words
@@ -52,7 +52,7 @@ Feature: Auto completion
 		When I autocomplete with <frag=tree&q=+same> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,13332,trees,12033,treetops,376,treeless,164,treed,116,treetop,97,treet,67,treesthe,54,treethe,51,treetrunk,46,treetrunks,45,treea,43,treesand,42,treeand,31,treelined,29"
+		And the xml autocomplete list is "tree,13331,trees,12032,treetops,376,treeless,164,treed,116,treetop,97,treet,67,treesthe,54,treethe,51,treetrunk,46,treetrunks,45,treea,43,treesand,42,treeand,31,treelined,29"
 		When I autocomplete with <frag=tree&a=+estc> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
@@ -60,7 +60,7 @@ Feature: Auto completion
 		When I autocomplete with <frag=tree&t=+leaves> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,65,trees,48,treetoad,8,treetops,6,treesto,3,treesearth,3,treesbuilt,3,treesthe,3,treesthere,2,treetopswind,2,treesnot,1,treesfarborn,1,treeswhere,1,treeswith,1,treescanst,1"
+		And the xml autocomplete list is "tree,63,trees,48,treetoad,8,treetops,6,treesto,3,treesearth,3,treesbuilt,3,treesthe,3,treesthere,2,treetopswind,2,treesnot,1,treesfarborn,1,treeswhere,1,treeswith,1,treescanst,1"
 		When I autocomplete with <frag=tree&aut=+nomatch> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
@@ -84,11 +84,11 @@ Feature: Auto completion
 		When I autocomplete with <frag=tree&g=+Poetry> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,2090,trees,1143,treetops,15,treetoad,7,treesthe,7,treeen,5,treen,4,treetrunks,4,treecrownd,4,treetwas,3,treesto,3,treecrown,3,treesearth,3,treetop,3,treethe,3"
+		And the xml autocomplete list is "tree,2088,trees,1141,treetops,15,treetoad,7,treesthe,7,treeen,5,treen,4,treetrunks,4,treecrownd,4,treetwas,3,treesto,3,treecrown,3,treesearth,3,treetop,3,treethe,3"
 		When I autocomplete with <frag=tree&f=+NINES> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"
-		And the xml autocomplete list is "tree,22283,trees,16241,treetops,409,treeless,173,treed,120,treetop,112,treet,62,treetrunk,56,treesthe,55,treethe,52,treetrunks,49,treecutting,44,treea,44,treesand,43,treelined,37"
+		And the xml autocomplete list is "tree,22281,trees,16239,treetops,409,treeless,173,treed,120,treetop,112,treet,62,treetrunk,56,treesthe,55,treethe,52,treetrunks,49,treecutting,44,treea,44,treesand,43,treelined,37"
 		When I autocomplete with <frag=tree&o=+freeculture> using xml
 		Then the response status should be "200"
 		And the xml has the structure "xsd/autocomplete_results.xsd"

@@ -27,4 +27,10 @@ Feature: Search with bad parameters
 		Given I am not authenticated
 		When I search with <f=+NINES&hl=on&start=0&max=30>
 		Then the response status should be "200"
-		And I should see "Total found: 963,720"
+		And I should see "Total found: 963,621"
+
+	Scenario: Space in genre name
+		Given I am not authenticated
+		When I search with <q=+treeless&g=+Family Life&f=+NINES&hl=on&start=0&max=30>
+		Then the response status should be "200"
+		And I should see "Total found: 1"

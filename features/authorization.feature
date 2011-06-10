@@ -60,11 +60,6 @@ Feature: Authorization
 		When I go to the locals page
 		Then I should be on the home page
 
-	Scenario: Not logged in - Exhibit
-		Given I am not authenticated
-		When I go to the exhibits page
-		Then I should be on the home page
-
 	Scenario: Not logged in - Home
 		Given I am not authenticated
 		When I go to the home page

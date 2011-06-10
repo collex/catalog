@@ -32,7 +32,7 @@ namespace :solr do
 	task :stop  => :environment do
 		puts "~~~~~~~~~~~ Stopping solr..."
 		port = get_solr_port()
-		cmd_line("cd #{SOLR_PATH} && #{JAVA_PATH}java -Djetty.port=#{port} -DSTOP.PORT=8079 -DSTOP.KEY=c0113x -jar start.jar --stop")
+		cmd_line("cd #{SOLR_PATH} && java -Djetty.port=#{port} -DSTOP.PORT=8079 -DSTOP.KEY=c0113x -jar start.jar --stop")
 		puts "Finished."
 	end
 end

@@ -26,6 +26,8 @@ ActiveRecord::Schema.define(:version => 20110502220053) do
   create_table "federations", :force => true do |t|
     t.string   "name"
     t.string   "thumbnail"
+    t.string   "ip"
+    t.string   "site"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
