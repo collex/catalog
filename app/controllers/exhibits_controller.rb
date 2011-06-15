@@ -62,8 +62,6 @@ class ExhibitsController < ApplicationController
 					page = params[:page]
 					query[:uri] = query[:uri].gsub("$[FEDERATION_SITE]$", federation.site).gsub("$[PAGE_NUM]$", page ? "/#{page}" : "")
 					query[:archive] = query[:archive].gsub("$[FEDERATION_NAME]$", federation.name)
-					is_test = Rails.env == 'test'
-					solr = Solr.factory_create(is_test)
 					commit = params[:commit] == 'immediate'
 					type = params[:type]
 					boost = type == 'partial' ? 3.0 : 2.0

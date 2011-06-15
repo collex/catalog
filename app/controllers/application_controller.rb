@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
 	def render_error(msg, stat = :bad_request)
 		msg = msg[0..msg.index('Backtrace')-1] if msg.include?('Backtrace')
 		@error_msg = msg
+		puts "**** ERROR: #{@error_msg}"
 		@status = stat
 		@original_request = request.fullpath
 		respond_to do |format|
