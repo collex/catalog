@@ -12,6 +12,14 @@
 site_name_title: 'Arc Catalog'
 
 ##########################
+### SYSTEM
+##########################
+
+# this is the path where the "identify" program is located.
+paperclip:
+  image_magic_path: '/opt/local/bin'
+
+##########################
 ### EMAIL
 ##########################
 

@@ -16,6 +16,8 @@ gem 'devise'
 
 gem "rsolr"
 
+gem 'paperclip'
+
 # Use unicorn as the web server
 # gem 'unicorn'
 
