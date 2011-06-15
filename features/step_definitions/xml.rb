@@ -82,6 +82,24 @@ Then /^the xml hit "([^"]*)" is "([^"]*)"$/ do |index, uri|
 	assert_equal uri, response['search']['results']['result'][index.to_i]['uri'].strip()
 end
 
+Then /^the xml hit "([^"]*)" contains "([^"]*)"$/ do |index, expected|
+	response = get_xml(page)
+	hit = response['search']['results']['result'][index.to_i]
+	arr = expected.split('&')
+	expected = {}
+	arr.each { |el|
+		arr2 = el.split('=')
+		expected[arr2[0]] = arr2[1]
+	}
+	assert_equal expected, hit
+end
+
+Then /^the xml hit "([^"]*)" has the text <([^>]*)>$/ do |index, expected|
+	response = get_xml(page)
+	hit = response['search']['results']['result'][index.to_i]
+	assert_equal hit['text'], expected
+end
+
 Then /^the xml xpath "([^"]*)" is "([^"]*)"$/ do |path, value|
 	response = get_xml(page)
 	arr = path.split('/')

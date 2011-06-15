@@ -20,7 +20,7 @@
 	<% @federations.each do |federation| %>
 	  <tr>
 		  <td><%= federation.name %></td>
-		  <td><%= federation.thumbnail %></td>
+		  <td><%= image_tag federation.thumbnail.url(:thumb) %></td>
 		  <td><%= federation.site %></td>
 	<% if user_signed_in? %>
 		  <td><%= federation.ip %></td>

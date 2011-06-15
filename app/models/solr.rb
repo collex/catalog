@@ -18,17 +18,6 @@
 require 'rsolr'
 # documentation at: http://github.com/mwmitchell/rsolr
 
-class SolrException < StandardError
-	def initialize(msg, status = :internal_server_error)
-		@status = status
-		super(msg)
-	end
-
-	def status()
-		return @status
-	end
-end
-
 class Solr
 	def initialize(core)
 		@core = "#{SOLR_CORE_PREFIX}/#{core}"
@@ -179,7 +168,7 @@ class Solr
 		# TODO-PER: This should be corrected in the schema, then the following can disappear.
 		if response && response['response'] && response['response']['docs']
 			response['response']['docs'].each { |doc|
-				doc['title'] = doc['title'].join("") if doc['title']
+				doc['title'] = doc['title'].join("") if doc['title'] && doc['title'].kind_of?(Array)
 				doc['url'] = doc['url'].join("") if doc['url']
 			}
 		end
@@ -189,6 +178,7 @@ class Solr
 		options = add_facet_param(options, @facet_fields) if overrides[:no_facets] == nil
 		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
 		options = add_field_list_param(options, fields)
+		key_field = overrides[:key_field] ? overrides[:key_field] : 'uri'
 		ret = select(options)
 
 		massage_hits(ret)
@@ -197,7 +187,7 @@ class Solr
 		# simplify this to return either nil or a string.
 		if ret && ret['highlighting']
 			ret['response']['docs'].each { |hit|
-				highlight = ret['highlighting'][hit['uri']]
+				highlight = ret['highlighting'][hit[key_field]]
 				if highlight && highlight['text']
 					str = highlight['text'].join("\n") # This should always return an array of size 1, but just in case, we won't throw away any items.
 					hit['text'] = str.force_encoding("UTF-8")
@@ -324,6 +314,20 @@ class Solr
 			raise SolrException.new(e.to_s)
 		end
 	end
+
+	def clear_core()
+		if @core.include?("LocalContent")
+			@solr.delete_by_query "*:*"
+		else
+			core = @core.split('/')
+			raise SolrException.new("Cannot clear the core #{core.last}")
+		end
+	end
+
+	def commit()
+		@solr.commit() # :wait_searcher => false, :wait_flush => false, :shards => @cores)
+	end
+
 end
 
 ##########################################################################
@@ -438,16 +442,6 @@ end
 #			end
 #		end
 #	end
-#
-#  def num_docs	# called for each entry point to get the number for the footer.
-#    warm_num_doc_cache()
-#    return @num_docs
-#  end
-#
-#  def num_sites	# called for each entry point to get the number for the footer.
-#    warm_num_doc_cache()
-#    return @num_sites
-#  end
 #
 #	def tank_citations(query)
 #		#return "(*:* AND #{query}) OR (*:* AND #{query} -genre:Citation)^5"
@@ -680,10 +674,6 @@ end
 #			CollexEngine.report_line("#{fields.to_s}\n")
 #			add_object(fields, relevancy, true) if is_retry == false
 #		end
-#	end
-#
-#	def commit()	# called by Exhibit at the end of indexing exhibits
-#		@solr.commit() # :wait_searcher => false, :wait_flush => false, :shards => @cores)
 #	end
 #
 #	def delete_archive(archive) #usually called when un-peer-reviewing an exhibit, but is also used for indexing.

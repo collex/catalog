@@ -1,7 +1,7 @@
 <p id="notice"><%= notice %></p>
 <p id="alert"><%= alert %></p>
 <div class="nav_outer">
-<ul class="nav">
+<ul class="nav<%= " narrow" if user_signed_in? %>">
 	<li><a href="#overview">Overview</a></li>
 	<li><a href="#totals">Totals</a></li>
 	<li><a href="#search">Search</a></li>
@@ -9,6 +9,10 @@
 	<li><a href="#names">Names Faceting</a></li>
 	<li><a href="#uri">Details</a></li>
 	<li><a href="#meta">Meta</a></li>
+<% if user_signed_in? %>
+	<li><a href="#exhibits">Exhibits</a></li>
+	<li><a href="#user_content">User Content</a></li>
+<% end %>
 </ul>
 </div>
 <div class="tab_content">
@@ -121,6 +125,19 @@
 	<p><%= example_link("/archives.xml") %> : To get a list of all the possible archives, and their parameters.</p>
 	<p><%= example_link("/genres.xml") %> : To get a list of all the possible genres</p>
 	<p><%= example_link("/federations.xml") %> : To get a list of all the possible federations, and their thumbnails.</p>
+</div>
+
+<div id="tab_exhibits" class="individual_tab hidden">
+	<h3>Exhibits</h3>
+	<p>Exhibits can be indexed like this:</p>
+	<p><%= example_link("/exhibits.xml") %></p>
+</div>
+
+<div id="tab_user_content" class="individual_tab hidden">
+	<h3>User Content</h3>
+	<p>A secondary index can be read and written from too:</p>
+	<%= render :partial => 'params', :locals => { :params => @locals_params } %>
+	<p>Example: <%= example_link("/locals.xml?q=%2btree&section=community&visibility=all&object_type=all&federation=NINES") %></p>
 </div>
 </div> <%# tab content %>
 

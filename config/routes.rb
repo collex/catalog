@@ -15,7 +15,12 @@ CollexCatalog::Application.routes.draw do
 		end
 	end
 
-	resources :locals
+	resources :locals, :only => [:index, :create, :destroy, :update ] do
+		collection do
+			get 'test_search_good'
+			get 'test_search_bad'
+		end
+	end
 
 	devise_for :users
 

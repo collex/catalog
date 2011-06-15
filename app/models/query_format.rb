@@ -51,7 +51,16 @@ class QueryFormat
 			:commit => { :exp => /^(immediate|delayed)$/, :friendly => "Whether to commit the change now, or wait for the background task to commit. (immediate or delayed)"},
 			:exhibit_type => { :exp => /^(partial|whole)$/, :friendly => "Whether the object is the entire work or just a page of it."},
 			:string => { :exp => /^.+$/, :friendly => "Any string."},
-			:boolean => { :exp => /^(true|false)$/, :friendly => "true or false."}
+			:string_optional => { :exp => /^.*$/, :friendly => "Any string."},
+			:boolean => { :exp => /^(true|false)$/, :friendly => "true or false."},
+			:section => { :exp => /^(community|classroom|peer-reviewed)$/, :friendly => "One of community, classroom, or peer-reviewed."},
+			:visibility => { :exp => /^(all)$/, :friendly => "all or TBD."},
+			:object_type_plural => { :exp => /^(all|Groups|Exhibits|Clusters|DiscussionThreads)$/, :friendly => "One of all, Groups, Exhibits, Clusters, or DiscussionThreads."},
+			:object_type => { :exp => /^(Group|Exhibit|Cluster|DiscussionThread)$/, :friendly => "One of Group, Exhibit, Cluster, or DiscussionThread."},
+			:decimal => { :exp => /^\d+$/, :friendly => "An integer."},
+			:decimal_array => { :exp => /^\d+(,\d+)*$/, :friendly => "An integer or array of integers separated by commas."},
+			:local_sort => { :exp => /(title|last_modified) (asc|desc)/, :friendly => "One of title or last_modified followed by one of asc or desc" },
+			:last_modified => { :exp => /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ" },
 		}
 
 		return verifications[typ]
@@ -174,6 +183,38 @@ class QueryFormat
 		return self.add_to_format(format)
 	end
 
+	def self.locals_format()
+		format = {
+				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
+				'sort' => { :name => 'Sort', :param => :local_sort, :default => nil, :transformation => get_proc(:transform_sort) },
+				'start' => { :name => 'Starting Row', :param => :starting_row, :default => '0', :transformation => get_proc(:transform_field) },
+				'max' => { :name => 'Maximum Results', :param => :max, :default => '30', :transformation => get_proc(:transform_max) },
+				'section' => { :name => 'Section', :param => :section, :default => nil, :transformation => get_proc(:transform_section) },
+				'member' => { :name => 'All Group IDs that the user is a member of', :param => :decimal_array, :default => nil, :transformation => get_proc(:transform_group_membership) },
+				'admin' => { :name => 'All Group IDs that the user is an admin of', :param => :decimal_array, :default => nil, :transformation => get_proc(:transform_group_admin) },
+				'object_type' => { :name => 'Object Type', :param => :object_type_plural, :default => nil, :transformation => get_proc(:transform_object_type) },
+				'federation' => { :name => 'Federation', :param => :string, :default => nil, :transformation => get_proc(:transform_nil) }
+		}
+		return self.add_to_format(format)
+	end
+
+	def self.add_locals_format()
+		format = {
+				'section' => { :name => 'Section', :param => :section, :default => nil, :transformation => get_proc(:transform_field) },
+				'object_type' => { :name => 'Object Type', :param => :object_type, :default => nil, :transformation => get_proc(:transform_field) },
+				'object_id' => { :name => 'Object ID', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
+				'group_id' => { :name => 'Group ID', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
+				'title' => { :name => 'title', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+				'text' => { :name => 'text', :param => :string_optional, :default => nil, :transformation => get_proc(:transform_field) },
+				'last_modified' => { :name => 'Last Modified', :param => :last_modified, :default => nil, :transformation => get_proc(:transform_field) },
+				'visible_to_everyone' => { :name => 'Visible to Everyone', :param => :boolean, :default => nil, :transformation => get_proc(:transform_field) },
+				'visible_to_group_member' => { :name => 'Visible to Member', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
+				'visible_to_group_admin' => { :name => 'Visible to Admin', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
+				'federation' => { :name => 'Federation', :param => :string, :default => nil, :transformation => get_proc(:transform_field) }
+		}
+		return self.add_to_format(format)
+	end
+
 	def self.get_proc( method_sym )
 	  self.method( method_sym ).to_proc
 	end
@@ -229,7 +270,11 @@ class QueryFormat
 
 	def self.transform_sort(key,val)
 		arr = val.split(' ')
-		return { 'sort' => "#{arr[0]}_sort #{arr[1]}" }
+		if arr[0] == 'last_modified'
+			return { 'sort' => "#{arr[0]} #{arr[1]}" }	# Hack! this one parameter isn't parallel with the others.
+		else
+			return { 'sort' => "#{arr[0]}_sort #{arr[1]}" }
+		end
 	end
 
 	def self.transform_max(key,val)
@@ -276,6 +321,22 @@ class QueryFormat
 		return { 'q' => "uri:#{val}" }
 	end
 
+	def self.transform_section(key, val)
+		return { 'q' => "section:#{val}" }
+	end
+
+	def self.transform_group_membership(key, val)
+		return { 'q' => "visible_to_group_member:(#{val.split(',').join(' OR ')})" }
+	end
+
+	def self.transform_group_admin(key, val)
+		return { 'q' => "visible_to_group_admin:(#{val.split(',').join(' OR ')})" }
+	end
+
+	def self.transform_object_type(key, val)
+		return { 'q' => "object_type:#{val}" }
+	end
+
 	def self.create_solr_query(format, params)
 		# A raw parameter is one that is received by this web service.
 		# It needs to be transformed into a solr parameter.
@@ -288,13 +349,13 @@ class QueryFormat
 		params.each { |key,val|
 			definition = format[key]
 			raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
-			raise(ArgumentError, "Bad parameter: #{definition[:name]} was passed as an array.") if val.kind_of?(Array) && definition[:can_be_array] != true
+			raise(ArgumentError, "Bad parameter (#{key}): #{definition[:name]} was passed as an array.") if val.kind_of?(Array) && definition[:can_be_array] != true
 			if val.kind_of?(Array)
 				val.each { |v|
-					raise(ArgumentError, "Bad parameter: #{v}. Must match: #{definition[:exp]}") if definition[:exp].match(v) == nil
+					raise(ArgumentError, "Bad parameter (#{key}): #{v}. Must match: #{definition[:exp]}") if definition[:exp].match(v) == nil
 				}
 			else
-				raise(ArgumentError, "Bad parameter: #{val}. Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
+				raise(ArgumentError, "Bad parameter (#{key}): #{val}. Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
 			end
 			solr_hash = definition[:transformation].call(key,val)
 			query.merge!(solr_hash) {|key, oldval, newval|
@@ -303,8 +364,11 @@ class QueryFormat
 		}
 		# add defaults
 		format.each { |key, definition|
-			if query[key] == nil && definition[:default] != nil
-				query[key] = definition[:default]
+			if params[key] == nil && definition[:default] != nil
+				solr_hash = definition[:transformation].call(key,definition[:default])
+				query.merge!(solr_hash) {|key, oldval, newval|
+					oldval + " AND " + newval
+				}
 			end
 		}
 

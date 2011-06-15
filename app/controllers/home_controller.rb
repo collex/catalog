@@ -4,6 +4,8 @@ class HomeController < ApplicationController
 	  @autocomplete_params = QueryFormat.autocomplete_format()
 	  @names_params = QueryFormat.names_format()
 	  @uri_params= { 'uri' => { :name => 'URI', :description => 'The URI of the object that you are interested in.'}}
+	  @locals_params = QueryFormat.locals_format()
+
   end
 
 end
