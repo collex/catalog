@@ -19,7 +19,7 @@ Feature: retrieve object's details
 		Given I am not authenticated
 		When I details with <uri=not a uri> using xml
 		Then the response status should be "400"
-		And the xml xpath "error/message" is "Bad parameter: not a uri. Must match: (?-mix:^([A-Za-z0-9+.-]+):\/\/.+$)"
+		And the xml xpath "error/message" is "Bad parameter (uri): not a uri. Must match: (?-mix:^([A-Za-z0-9+.-]+):\/\/.+$)"
 
 	Scenario: Object not found
 		Given I am not authenticated

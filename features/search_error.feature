@@ -14,7 +14,7 @@ Feature: Search with bad parameters
 		Given I am not authenticated
 		When I search with <q=tree>
 		Then the response status should be "400"
-		And I should see "Bad parameter: tree."
+		And I should see "Bad parameter (q): tree."
 
 	Scenario: Call with the same parameter twice
 		Given I am not authenticated

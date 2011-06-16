@@ -58,7 +58,8 @@ Feature: Authorization
 	Scenario: Not logged in - Local
 		Given I am not authenticated
 		When I go to the locals page
-		Then I should be on the home page
+		Then I should be on the locals page
+		And I should see "You do not have permission to do this."
 
 	Scenario: Not logged in - Home
 		Given I am not authenticated

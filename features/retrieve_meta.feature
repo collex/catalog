@@ -31,4 +31,4 @@ Feature: Retrieve Meta Data
 		Then the response status should be "200"
 		And the xml has the structure "xsd/meta_federations.xsd"
 		And the xml list is "NINES,18thConnect"
-		And the xml list item "NINES" "thumbnail" is "/images/nines.png"
+		And the xml list item "NINES" "thumbnail" contains "/images/nines.png"

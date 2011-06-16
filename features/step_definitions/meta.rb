@@ -23,6 +23,10 @@ def create_rec(model, idd, hash)
 	end
 end
 
+def construct_paperclip_entry(fname)
+	return { :thumbnail_file_name => fname, :thumbnail_content_type => 'png', :thumbnail_file_size => 2000, :thumbnail_updated_at => Time.now }
+end
+
 Given /^the standard genres$/ do
 	create_rec(Genre, 1, {:name => 'Architecture'})
 	create_rec(Genre, 2, {:name => 'Artifacts'})
@@ -37,7 +41,7 @@ Given /^the standard archives$/ do
 end
 
 Given /^the standard federations$/ do
-	create_rec(Federation, 1, {:name => 'NINES', :thumbnail => '/images/nines.png', :ip => '9.9.9.9', :site => 'nines.org' })
-	create_rec(Federation, 2, {:name => '18thConnect', :thumbnail => '/images/18th_connect.png', :ip => '18.18.18.18', :site => '18thConnect.org' })
+	create_rec(Federation, 1, {:name => 'NINES', :ip => '9.9.9.9', :site => 'nines.org' }.merge(construct_paperclip_entry('images/nines.png')))
+	create_rec(Federation, 2, {:name => '18thConnect', :ip => '18.18.18.18', :site => '18thConnect.org' }.merge(construct_paperclip_entry('images/18th_connect.png')))
 end
 

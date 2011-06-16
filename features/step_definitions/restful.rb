@@ -51,7 +51,7 @@ Then /^I should be redirected from "([^"]*)" to the (.+?) page$/ do |source, pag
 	desired_path = path_to(page_name)
 	current_path = URI.parse(current_url).path
 	if desired_path != current_path
-		reg = page.html.match(/You are being <a href="http:\/\/example\.org(.+)">redirected<\/a>/)
+		reg = page.html.match(/You are being <a href="http:\/\/www\.example\.com(.+)">redirected<\/a>/)
 		found_path =  reg && reg.length > 1 ? reg[1] : "UNKNOWN"
 		if desired_path != found_path
 			puts "Redirecting from #{source}"

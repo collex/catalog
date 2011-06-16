@@ -21,6 +21,10 @@
 										<xs:element name="role_pbl" type="arrayType" minOccurs="0"/>
 										<xs:element name="role_aut" type="arrayType" minOccurs="0"/>
 										<xs:element name="role_art" type="arrayType" minOccurs="0"/>
+										<xs:element name="role_trl" type="arrayType" minOccurs="0"/>
+										<xs:element name="role_egr" type="arrayType" minOccurs="0"/>
+										<xs:element name="role_etr" type="arrayType" minOccurs="0"/>
+										<xs:element name="role_cre" type="arrayType" minOccurs="0"/>
 										<xs:element name="date_label" type="arrayType" minOccurs="0"/>
 										<xs:element name="source_xml" type="xs:token" minOccurs="0"/>
 										<xs:element name="thumbnail" type="xs:token" minOccurs="0"/>

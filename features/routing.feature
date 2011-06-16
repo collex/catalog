@@ -73,4 +73,4 @@ Feature: Routing
 
 #TODO: these should exist only for an authorized federation
 	Scenario: Locals controller
-		Then all routes should exist in "locals"
+		Then only the routes "index,create,update,delete" should exist in "locals"

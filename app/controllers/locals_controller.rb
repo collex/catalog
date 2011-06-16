@@ -29,16 +29,24 @@ class LocalsController < ApplicationController
 				QueryFormat.transform_raw_parameters(params)
 				query = QueryFormat.create_solr_query(query_params, params)
 				query.merge!(QueryFormat.transform_highlight("hl", "on")) if params[:q]
-				if query[:q]
-					query[:q] = "#{query[:q]} AND visible_to_everyone:true"
+				visible = query['visible']
+				if visible
+					visible = visible.gsub("AND", "OR")
+					visible = " AND (#{visible} OR visible_to_everyone:true)"
 				else
-					query[:q] = "visible_to_everyone:true"
+					visible = " AND visible_to_everyone:true"
 				end
+				if query['q']
+					query['q'] = query['q'] + visible
+				else
+					query['q'] = visible
+				end
+				query.delete('visible')
 
 				is_test = Rails.env == 'test'
 				solr = Solr.factory_create(is_test, federation.name)
 
-				@results = solr.search(query, { :field_list => [ 'key', 'title', 'object_type', 'object_id', 'last_modified' ], :key_field => 'key' })
+				@results = solr.search(query, { :field_list => [ 'key', 'title', 'object_type', 'object_id', 'last_modified' ], :key_field => 'key', :no_facets => true })
 
 				respond_to do |format|
 					format.html { render :template => '/locals/index' }

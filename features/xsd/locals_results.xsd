@@ -10,12 +10,12 @@
 							<xs:element name="result" minOccurs="0" maxOccurs="unbounded">
 								<xs:complexType>
 									<xs:all>
-										<xs:element name="object_type" type="xs:token"/>
-										<xs:element name="object_id" type="xs:token"/>
-										<xs:element name="last_modified" type="xs:token"/>
-										<xs:element name="key" type="xs:token"/>
-										<xs:element name="title" type="xs:token"/>
-										<xs:element name="text" type="xs:token" minOccurs="0"/>
+										<xs:element name="object_type" type="objType"/>
+										<xs:element name="object_id" type="xs:integer"/>
+										<xs:element name="last_modified" type="dateType"/>
+										<xs:element name="key" type="xs:string"/>
+										<xs:element name="title" type="xs:string"/>
+										<xs:element name="text" type="xs:string" minOccurs="0"/>
 									</xs:all>
 								</xs:complexType>
 							</xs:element>
@@ -25,6 +25,21 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+
+	<xs:simpleType name="objType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Group"/>
+			<xs:enumeration value="Exhibit"/>
+			<xs:enumeration value="DiscussionThread"/>
+			<xs:enumeration value="Cluster"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="dateType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ"/>
+		</xs:restriction>
+	</xs:simpleType>
 
 	<xs:complexType name="arrayType">
 		<xs:sequence>

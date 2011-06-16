@@ -84,7 +84,11 @@ end
 
 Then /^the xml hit "([^"]*)" contains "([^"]*)"$/ do |index, expected|
 	response = get_xml(page)
-	hit = response['search']['results']['result'][index.to_i]
+	if response['search']['results']['result'].kind_of?(Hash) && index.to_i == 0
+		hit = response['search']['results']['result']
+	else
+		hit = response['search']['results']['result'][index.to_i]
+	end
 	arr = expected.split('&')
 	expected = {}
 	arr.each { |el|
@@ -94,9 +98,10 @@ Then /^the xml hit "([^"]*)" contains "([^"]*)"$/ do |index, expected|
 	assert_equal expected, hit
 end
 
-Then /^the xml hit "([^"]*)" has the text <([^>]*)>$/ do |index, expected|
+Then /^the xml hit "([^"]*)" has the text "([^"]*)"$/ do |index, expected|
 	response = get_xml(page)
 	hit = response['search']['results']['result'][index.to_i]
+	expected = expected.gsub('\n', "\n")
 	assert_equal hit['text'], expected
 end
 
@@ -162,6 +167,27 @@ Then /^the xml list item "([^"]*)" "([^"]*)" is "([^"]*)"$/ do |match_item, matc
 			value.each { |item2|
 				if item2['name'] == match_item
 					assert_equal match, item2[match_subitem]
+					found = true
+					break
+				end
+			}
+		}
+	}
+	if !found
+		assert false, "The requested item is not found."
+	end
+end
+
+Then /^the xml list item "([^"]*)" "([^"]*)" contains "([^"]*)"$/ do |match_item, match_subitem, match|
+	response = get_xml(page)
+	found = false
+	response.each {|top, all|
+		all.each { |item, value|
+			value.each { |item2|
+				if item2['name'] == match_item
+					if !item2[match_subitem].include?(match)
+						assert_equal match, item2[match_subitem]
+					end
 					found = true
 					break
 				end

@@ -55,7 +55,6 @@ class QueryFormat
 			:boolean => { :exp => /^(true|false)$/, :friendly => "true or false."},
 			:section => { :exp => /^(community|classroom|peer-reviewed)$/, :friendly => "One of community, classroom, or peer-reviewed."},
 			:visibility => { :exp => /^(all)$/, :friendly => "all or TBD."},
-			:object_type_plural => { :exp => /^(all|Groups|Exhibits|Clusters|DiscussionThreads)$/, :friendly => "One of all, Groups, Exhibits, Clusters, or DiscussionThreads."},
 			:object_type => { :exp => /^(Group|Exhibit|Cluster|DiscussionThread)$/, :friendly => "One of Group, Exhibit, Cluster, or DiscussionThread."},
 			:decimal => { :exp => /^\d+$/, :friendly => "An integer."},
 			:decimal_array => { :exp => /^\d+(,\d+)*$/, :friendly => "An integer or array of integers separated by commas."},
@@ -192,7 +191,7 @@ class QueryFormat
 				'section' => { :name => 'Section', :param => :section, :default => nil, :transformation => get_proc(:transform_section) },
 				'member' => { :name => 'All Group IDs that the user is a member of', :param => :decimal_array, :default => nil, :transformation => get_proc(:transform_group_membership) },
 				'admin' => { :name => 'All Group IDs that the user is an admin of', :param => :decimal_array, :default => nil, :transformation => get_proc(:transform_group_admin) },
-				'object_type' => { :name => 'Object Type', :param => :object_type_plural, :default => nil, :transformation => get_proc(:transform_object_type) },
+				'object_type' => { :name => 'Object Type', :param => :object_type, :default => nil, :transformation => get_proc(:transform_object_type) },
 				'federation' => { :name => 'Federation', :param => :string, :default => nil, :transformation => get_proc(:transform_nil) }
 		}
 		return self.add_to_format(format)
@@ -325,12 +324,22 @@ class QueryFormat
 		return { 'q' => "section:#{val}" }
 	end
 
+	def self.trans_visible(typ, val)
+		val = val.split(',')
+		if val.length == 1
+			val = val[0]
+		else
+			val = "(#{val.join(' OR ')})"
+		end
+		return { 'visible' => "visible_to_group_#{typ}:#{val}" }
+	end
+
 	def self.transform_group_membership(key, val)
-		return { 'q' => "visible_to_group_member:(#{val.split(',').join(' OR ')})" }
+		return self.trans_visible("member", val)
 	end
 
 	def self.transform_group_admin(key, val)
-		return { 'q' => "visible_to_group_admin:(#{val.split(',').join(' OR ')})" }
+		return self.trans_visible("admin", val)
 	end
 
 	def self.transform_object_type(key, val)

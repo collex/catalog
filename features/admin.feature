@@ -39,7 +39,6 @@ Feature: Admin login
 		Given I am logged in
 		When I go to the home page
 		Then I should see "Manage genres"
-		And I should not see "admin"
 
 	Scenario: Logging out
 		Given I am logged in
