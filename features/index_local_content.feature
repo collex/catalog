@@ -4,5 +4,5 @@ Feature: Index local content
 	As a federated web site
 	I want to be able to send information to be indexed into solr that is only visible on my federation.
 
-#TODO
-
+	Scenario: TODO
+		Then TODO

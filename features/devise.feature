@@ -1,4 +1,4 @@
-Feature: User Records
+Feature: User Records (devise)
 
 	So that unauthorized users can't access the administration pages
 	The authentication system needs to be restricted to only the functionality

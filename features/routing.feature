@@ -71,6 +71,5 @@ Feature: Routing
 	Scenario: Exhibits controller
 		Then only the routes "create,delete" should exist in "exhibits"
 
-#TODO: these should exist only for an authorized federation
 	Scenario: Locals controller
 		Then only the routes "index,create,update,delete" should exist in "locals"
