@@ -35,6 +35,12 @@ Feature: Search Local Content
 		And the xml search total is "144"
 		And the xml number of hits is "30"
 		And the xml hit "0" contains "key=Exhibit_49&last_modified=2010-03-05T22:19:06Z&object_type=Exhibit&object_id=49&title=Broxterman ENGL 227 Project"
+		When I search local content with <federation=NINES&section=classroom&group=2> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/locals_results.xsd"
+		And the xml search total is "122"
+		And the xml number of hits is "30"
+		And the xml hit "0" contains "key=Exhibit_49&last_modified=2010-03-05T22:19:06Z&object_type=Exhibit&object_id=49&title=Broxterman ENGL 227 Project"
 
 	Scenario: Simple search for all community objects
 		Given the standard federations

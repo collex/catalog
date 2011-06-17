@@ -4,6 +4,7 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="total" type="xs:nonNegativeInteger" />
+				<xs:element name="total_documents" type="xs:nonNegativeInteger" />
 				<xs:element name="results">
 					<xs:complexType>
 						<xs:sequence>

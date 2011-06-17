@@ -5,6 +5,8 @@ xml.search do
 	xml.text!("\n  ")
 	xml.total @results[:total]
 	xml.text!("\n  ")
+	xml.total_documents @results[:total_documents]
+	xml.text!("\n  ")
 	xml.results do
 		@results[:hits].each do |result|
 			xml.text!("\n    ")

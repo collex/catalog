@@ -192,6 +192,7 @@ class QueryFormat
 				'member' => { :name => 'All Group IDs that the user is a member of', :param => :decimal_array, :default => nil, :transformation => get_proc(:transform_group_membership) },
 				'admin' => { :name => 'All Group IDs that the user is an admin of', :param => :decimal_array, :default => nil, :transformation => get_proc(:transform_group_admin) },
 				'object_type' => { :name => 'Object Type', :param => :object_type, :default => nil, :transformation => get_proc(:transform_object_type) },
+				'group' => { :name => 'Group ID', :param => :decimal, :default => nil, :transformation => get_proc(:transform_group) },
 				'federation' => { :name => 'Federation', :param => :string, :default => nil, :transformation => get_proc(:transform_nil) }
 		}
 		return self.add_to_format(format)
@@ -344,6 +345,10 @@ class QueryFormat
 
 	def self.transform_object_type(key, val)
 		return { 'q' => "object_type:#{val}" }
+	end
+
+	def self.transform_group(key, val)
+		return { 'q' => "group_id:#{val}" }
 	end
 
 	def self.create_solr_query(format, params)
