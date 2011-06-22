@@ -5,3 +5,6 @@
 #
 #   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
 #   Mayor.create(:name => 'Daley', :city => cities.first)
+
+require File.expand_path(File.join(File.dirname(__FILE__), "genres_seeds.rb"))
+require File.expand_path(File.join(File.dirname(__FILE__), "resources_seeds.rb"))

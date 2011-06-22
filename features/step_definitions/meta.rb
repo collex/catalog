@@ -33,11 +33,28 @@ Given /^the standard genres$/ do
 end
 
 Given /^the standard archives$/ do
-	create_rec(Archive, 1, { :handle => 'victbib', :name => 'Victorian Studies Bibliography', :site_url => 'http://www.letrs.indiana.edu/web/v/victbib', :carousel_description => "bibliography of over 4,000 entries" })
-	create_rec(Archive, 2, {:handle => 'poetess', :name => 'The Poetess Archive', :site_url => 'http://unixgen.muohio.edu/~poetess/',
-		:thumbnail => 'http://unixgen.muohio.edu/~poetess/works/cupidsm.gif',
-		:carousel_description => 'The Poetess Archive Database now contains a bibliography of over 4,000 entries for works by and about writers working in and against the "poetess tradition" the extraordinarily popular, but much criticized, flowery poetry written in Britain and America between 1750 and 1900.',
-		:carousel_image_url => '/uploads/1/poetess.jpg' })
+	create_rec(Archive, 1, { :typ => "node",:name => "Journals",:parent_id => "",:carousel_include => "0",
+		:carousel_description => ""
+	})
+	create_rec(Archive, 2, { :typ => "node",:name => "Peer-Reviewed Projects",:parent_id => "",:carousel_include => "0",
+		:carousel_description => ""
+	})
+	create_rec(Archive, 3, { :typ => "archive",:name => "The Rossetti Archive",:parent_id => "2",:carousel_include => "1",
+		:carousel_description => "facilitates the scholarly study of Dante Gabriel Rossetti, the painter, designer, writer, and translator who was, according to both John Ruskin and Walter Pater, the most important and original artistic force in the second half of the nineteenth century in Great Britain.",
+		:carousel_image_file_name => "photos_small/85/original/rossettiArchive.jpg", :handle => "rossetti", :site_url => "http://www.rossettiarchive.org", :thumbnail => "http://www.rossettiarchive.org/css/whitedgrmotto.gif"
+	})
+	create_rec(Archive, 4, { :typ => "node",:name => "Library Catalogs",:parent_id => "1",:carousel_include => "0",
+		:carousel_description => ""
+	})
+	create_rec(Archive, 5, { :typ => "archive",:name => "UVA Special Collections",:parent_id => "4",:carousel_include => "0",
+		:carousel_description => "",
+		:handle => "uva_library", :site_url => "http://www.lib.virginia.edu/small/", :thumbnail => "http://staff.lib.virginia.edu/commpub/resources/new_logos/gif/liblogo_bluetxt.gif	"
+	})
+#	create_rec(Archive, 1, { :handle => 'victbib', :name => 'Victorian Studies Bibliography', :site_url => 'http://www.letrs.indiana.edu/web/v/victbib', :carousel_description => "bibliography of over 4,000 entries" })
+#	create_rec(Archive, 2, {:handle => 'poetess', :name => 'The Poetess Archive', :site_url => 'http://unixgen.muohio.edu/~poetess/',
+#		:thumbnail => 'http://unixgen.muohio.edu/~poetess/works/cupidsm.gif',
+#		:carousel_description => 'The Poetess Archive Database now contains a bibliography of over 4,000 entries for works by and about writers working in and against the "poetess tradition" the extraordinarily popular, but much criticized, flowery poetry written in Britain and America between 1750 and 1900.',
+#		:carousel_image_url => '/uploads/1/poetess.jpg' })
 end
 
 Given /^the standard federations$/ do

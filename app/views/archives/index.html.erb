@@ -6,12 +6,15 @@
 
 	<table class="results">
 	  <tr>
+		  <th>Type</th>
+		  <th>Parent Id</th>
 		  <th>Handle</th>
 		  <th>Name</th>
 		<th>Site url</th>
 		<th>Thumbnail</th>
-		<th>Carousel description</th>
-		<th>Carousel image url</th>
+		  <th>Carousel Include</th>
+		  <th>Carousel description</th>
+		<th>Carousel image</th>
 	<% if user_signed_in? %>
 		<th></th>
 	<% end %>
@@ -19,12 +22,15 @@
 
 	<% @archives.each do |archive| %>
 	  <tr>
+		  <td><%= archive.typ %></td>
+		  <td><%= archive.parent_id %></td>
 		  <td><%= archive.handle %></td>
 		  <td><%= archive.name %></td>
 		<td><%= archive.site_url %></td>
 		<td><%= archive.thumbnail %></td>
-		<td><%= archive.carousel_description %></td>
-		<td><%= archive.carousel_image_url %></td>
+		  <td><%= archive.carousel_include %></td>
+		  <td><%= archive.carousel_description %></td>
+		<td><%= raw("<img src='#{archive.carousel_image.url}' alt='carousel image' />") if archive.carousel_image? %></td>
 	<% if user_signed_in? %>
 		<td><%= link_to 'Show', archive %>&nbsp;
 		<%= link_to 'Edit', edit_archive_path(archive) %>&nbsp;

@@ -76,6 +76,7 @@
 	<h3>Totals</h3>
 	<p>This gives an overview of the number of documents and the number of archives that are in the catalog.</p>
 	<p>Call <%= example_link("/search/totals.xml") %> to get a list of all the federations and how many documents and archives they contain.</p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/totals.xsd", { :class => 'example_link' } %></p>
 </div>
 
 <div id="tab_search" class="individual_tab hidden">
@@ -85,6 +86,7 @@
 	<p>Call <span class="code">/search.xml</span> with the following parameters:</p>
 	<%= render :partial => 'params', :locals => { :params => @query_params } %>
 	<p>Example: Search for all mention of "tree" by Williams: <%= example_link("/search.xml?q=%2btree&aut=%2bWilliams") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/search_results.xsd", { :class => 'example_link' } %></p>
 </div>
 
 <div id="tab_autocomplete" class="individual_tab hidden">
@@ -99,6 +101,7 @@
 	<p>Call <span class="code">/search/autocomplete.xml</span> with the following parameters:</p>
 	<%= render :partial => 'params', :locals => { :params => @autocomplete_params } %>
 	<p>Example: Auto-complete "tre" (top 25 results): <%= example_link("/search/autocomplete.xml?frag=tre&max=25") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/autocomplete_results.xsd", { :class => 'example_link' } %></p>
 </div>
 
 <div id="tab_names" class="individual_tab hidden">
@@ -107,6 +110,7 @@
 	<p>Call <span class="code">/search/names.xml</span> with the following parameters:</p>
 	<%= render :partial => 'params', :locals => { :params => @names_params } %>
 	<p>Example: All authors, publishers, and editors who mention "tree" and Williams: <%= example_link("/search/names.xml?q=%2btree%2bWilliams") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/names_results.xsd", { :class => 'example_link' } %></p>
 </div>
 
 <div id="tab_uri" class="individual_tab hidden">
@@ -117,14 +121,18 @@
 	<p>Call <span class="code">/search/details.xml</span> with the following parameters:</p>
 	<%= render :partial => 'params', :locals => { :params => @uri_params } %>
 	<p>Example: A document by Whitman: <%= example_link("/search/details.xml?uri=http%3a%2f%2fwww%2ewhitmanarchive%2eorg%2fcriticism%2freviews%2fleaves%2fleaves55%2fdailytimes") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/search_results.xsd", { :class => 'example_link' } %></p>
 </div>
 
 <div id="tab_meta" class="individual_tab hidden">
 	<h3>Other information</h3>
 	<p>You can also get information about the items that make up the index with one of these calls:</p>
 	<p><%= example_link("/archives.xml") %> : To get a list of all the possible archives, and their parameters.</p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_archives.xsd", { :class => 'example_link' } %></p>
 	<p><%= example_link("/genres.xml") %> : To get a list of all the possible genres</p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_genres.xsd", { :class => 'example_link' } %></p>
 	<p><%= example_link("/federations.xml") %> : To get a list of all the possible federations, and their thumbnails.</p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_federations.xsd", { :class => 'example_link' } %></p>
 </div>
 
 <div id="tab_exhibits" class="individual_tab hidden">
@@ -138,6 +146,7 @@
 	<p>A secondary index can be read and written from too:</p>
 	<%= render :partial => 'params', :locals => { :params => @locals_params } %>
 	<p>Example: <%= example_link("/locals.xml?q=%2brossetti&section=community&object_type=Exhibit&federation=NINES") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/locals_results.xsd", { :class => 'example_link' } %></p>
 </div>
 </div> <%# tab content %>
 

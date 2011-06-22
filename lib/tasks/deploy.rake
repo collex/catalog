@@ -26,8 +26,37 @@ namespace :deploy do
 		puts `svn up`
 		run_bundler()
 		Rake::Task['db:migrate'].invoke
+		Rake::Task['deploy:update_xsd'].invoke
 		puts "You will be asked for your sudo password."
 		puts `sudo /sbin/service httpd restart`
+	end
+
+	desc "Update the xsd files to be publically available"
+	task :update_xsd do
+		puts "Updating xsd files..."
+		safe_mkdir("#{Rails.root}/public/xsd")
+		copy_dir( "#{Rails.root}/features/xsd", "#{Rails.root}/public/xsd" )
+	end
+
+	################################
+	# Utilities
+	################################
+
+	def safe_mkdir(folder)
+		begin
+	    Dir.mkdir(folder)
+		rescue
+			# It's ok to fail: it probably means the folder already exists.
+		end
+	end
+
+	def copy_dir( start_dir, dest_dir )
+		puts "Copying the contents of #{start_dir} to #{dest_dir}..."
+		Dir.new(start_dir).each { |file|
+			unless file =~ /\A\./
+				`cp "#{start_dir}/#{file}" "#{dest_dir}/#{file}"`
+			end
+		}
 	end
 
 	def run_bundler()

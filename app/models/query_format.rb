@@ -318,6 +318,7 @@ class QueryFormat
 	end
 
 	def self.transform_uri(key,val)
+		val = "\"#{val}\"" if val.include?(' ')
 		return { 'q' => "uri:#{val}" }
 	end
 

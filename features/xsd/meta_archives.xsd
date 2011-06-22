@@ -1,21 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-	<xs:element name="archives">
+	<xs:element name="resource_tree">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="archive" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="nodes">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="handle" type="xs:string"/>
-							<xs:element name="name" type="xs:string"/>
-							<xs:element name="site_url" type="xs:string"/>
-							<xs:element name="thumbnail" type="xs:string"/>
-							<xs:element name="carousel_description" type="xs:string"/>
-							<xs:element name="carousel_image_url" type="xs:string"/>
+							<xs:element name="node" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="name" type="xs:string"/>
+										<xs:element name="parent" type="xs:string" minOccurs="0"/>
+										<xs:element name="carousel" type="carousel" minOccurs="0"/>
+									</xs:sequence>
+							  </xs:complexType>
+							</xs:element>
+						</xs:sequence>
+				  </xs:complexType>
+				</xs:element>
+				<xs:element name="archives">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="archive" minOccurs="0" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="name" type="xs:string"/>
+										<xs:element name="parent" type="xs:string" minOccurs="0"/>
+										<xs:element name="handle" type="xs:string"/>
+										<xs:element name="site_url" type="xs:string"/>
+										<xs:element name="thumbnail" type="xs:string"/>
+										<xs:element name="carousel" type="carousel" minOccurs="0"/>
+									</xs:sequence>
+							  </xs:complexType>
+							</xs:element>
 						</xs:sequence>
 				  </xs:complexType>
 				</xs:element>
 			</xs:sequence>
-	  </xs:complexType>
+		</xs:complexType>
 	</xs:element>
+
+	<xs:complexType name="carousel">
+		<xs:sequence>
+			<xs:element name="image" type="xs:string" minOccurs="0"/>
+			<xs:element name="description" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
 </xs:schema>

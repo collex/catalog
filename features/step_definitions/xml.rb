@@ -109,7 +109,11 @@ Then /^the xml xpath "([^"]*)" is "([^"]*)"$/ do |path, value|
 	response = get_xml(page)
 	arr = path.split('/')
 	arr.each { |key|
-		response = response[key]
+		if response.kind_of?(Array)
+			response = response[key.to_i]
+		else
+			response = response[key]
+		end
 	}
 	response = response.join(',') if response.kind_of?(Array)
 	assert_equal value, response.strip()
@@ -153,6 +157,21 @@ Then /^the xml list is "([^"]*)"$/ do |list|
 		value.each { |item2, value2|
 			value2.each { |item3|
 				results.push(item3['name'])
+			}
+		}
+	}
+	assert_equal list, results.join(',')
+end
+
+Then /^the xml list2 is "([^"]*)"$/ do |list|
+	response = get_xml(page)
+	results = []
+	response.each {|item, value|
+		value.each { |item2, value2|
+			value2.each { |item3, value3|
+				value3.each { |item4|
+					results.push(item4['name'])
+				}
 			}
 		}
 	}

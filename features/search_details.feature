@@ -32,3 +32,10 @@ Feature: retrieve object's details
 		Then the response status should be "200"
 		And I should see "Nineteenth-Century English Labouring–Class Poets, Vol. 2: 1830-1860"
 
+	Scenario: URI contains a space
+		Given I am not authenticated
+		When I details with <uri=http://www.amdigital.co.uk/UL MM6> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml number of hits is "1"
+		And the xml xpath "search/results/result/uri" is "http://asp6new.alexanderstreet.com/romr/1000889336"

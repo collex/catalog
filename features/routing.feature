@@ -18,7 +18,7 @@ Feature: Routing
 		Then all routes in "archives" except "index" should redirect to "the home page"
 		When I go to the archives page
 		Then I should be on the archives page
-		And I should not see "new"
+		And I should not see "New Archive"
 		And I should not see "edit"
 		And I should not see "delete"
 		When I go to the archives page using xml
