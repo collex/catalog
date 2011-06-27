@@ -328,6 +328,10 @@ class Solr
 		@solr.commit() # :wait_searcher => false, :wait_flush => false, :shards => @cores)
 	end
 
+	def optimize()
+		@solr.optimize() #(:wait_searcher => true, :wait_flush => true)
+	end
+
 end
 
 ##########################################################################
@@ -699,9 +703,6 @@ end
 #		string.gsub(/(\W)/,'\\\\\1')
 #	end
 #
-#	def optimize()
-#		@solr.optimize() #(:wait_searcher => true, :wait_flush => true)
-#  end
 #
 #private
 #	def self.print_error(uri, total_errors, first_error, msg)
