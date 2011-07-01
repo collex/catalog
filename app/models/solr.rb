@@ -59,18 +59,6 @@ class Solr
 		index = arr[arr.length-2]
 		puts "SOLR: [#{index}] #{ret.request[:data]}"
 
-#		# highlighting is returned as a hash of uri to a hash that is either empty or contains 'text' => Array of one string element.
-#		# simplify this to return either nil or a string.
-#		if ret && ret['highlighting']
-#			ret['highlighting'].each { |uri,hsh|
-#				if hsh.length == 0 || hsh['text'] == nil || hsh['text'].length == 0
-#					ret['highlighting'][uri] = nil
-#				else
-#					str = hsh['text'].join("\n") # This should always return an array of size 1, but just in case, we won't throw away any items.
-#					ret['highlighting'][uri] = str
-#				end
-#			}
-#		end
 		return ret
 	end
 
@@ -196,8 +184,32 @@ class Solr
 		end
 
 		facets = facets_to_hash(ret)
+		facets['federation'] = adjust_federation_counts(options, facets['federation'])
 
 		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
+	end
+
+	def adjust_federation_counts(src_options, prior_facets)
+		# don't have to do anything if a federation wasn't passed in to begin with
+		return prior_facets if src_options['q'].include?('federation:') == nil
+
+		# trim out any federation constraints. To get counts, we want them all
+		options = {}
+		src_options.each { |key,val|
+			options[key] = val if key != 'f' && key != 'hl'
+		}
+		options[:fl] = 'uri'
+		options['facet.field'] = [ 'federation']
+		options['rows'] = 1
+		options['q'] = options['q'].gsub(/[\+-]federation:\w+( AND )?/, '')
+		options['q'] = "*:*" if options['q'].length == 0
+
+		ret = select(options)
+
+		# Reformat the facets into what the UI wants, so as to leave that code as-is for now
+		# tack the new federaton info into the orignal results map
+		facets = facets_to_hash(ret)
+		return facets['federation']
 	end
 
 	def auto_complete(options)	# called for autocomplete
@@ -599,32 +611,6 @@ end
 #  end
 #
 #  private
-#  def append_federation_counts(src_constraints, prior_results)
-#
-#    # trim out any federation constraints. TO get counts, we want them all
-#    constraints = []
-#    src_constraints.each { |constraint| constraints.push(constraint) }
-#    constraints.delete_if { |constraint| constraint.is_a?(FederationConstraint) }
-#    if constraints.length == src_constraints.length
-#      return prior_results
-#    end
-#
-#    # turn map of constraint data into solr quert strings
-#    query, filter_queries = solrize_constraints(constraints)
-#
-#    # do a very basic search and return minimal info
-#    response = solr_select(:q => query, :fq => filter_queries,
-#      :field_list => ['uri'],
-#      :facets => {:fields => @facet_fields, :mincount => 1, :missing => true, :limit => -1},
-#      :shards => @cores )
-#
-#    # Reformat the facets into what the UI wants, so as to leave that code as-is for now
-#    # tack the new federaton info into the orignal results map
-#    results = {}
-#    results["facets"] = facets_to_hash(response['facet_counts']['facet_fields'])
-#    prior_results['facets']['federation'] = results['facets']['federation']
-#    return prior_results
-#  end
 #
 #  public
 #	def get_object(uri, all_fields = false) #called when "collect" is pressed.

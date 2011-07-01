@@ -27,3 +27,27 @@ Feature: Search totals
 		And the xml search total is "963621"
 		And the xml "federation" facet "NINES" is "963621"
 		And the xml "federation" facet "18thConnect" is "230559"
+
+	Scenario: Get the federation totals on a facet search
+		Given I am not authenticated
+		When I search with <f=+NINES&g=+Science> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml search total is "4112"
+		And the xml "federation" facet "NINES" is "4112"
+		And the xml "federation" facet "18thConnect" is "8544"
+
+		When I search with <f=+18thConnect&g=+Science> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml search total is "8544"
+		And the xml "federation" facet "NINES" is "4112"
+		And the xml "federation" facet "18thConnect" is "8544"
+
+		When I search with <g=+Science> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml search total is "10265"
+		And the xml "federation" facet "NINES" is "4112"
+		And the xml "federation" facet "18thConnect" is "8544"
+

@@ -249,7 +249,7 @@ class QueryFormat
 	def self.insert_field_name(field, val)
 		# this is of the format ([+|-]match)+
 		# we want to break it into its component parts
-		results = self.partition(val, /\+|-/)
+		results = self.partition(val, /[\+-]/)
 		pairs = []
 		results.each { |result|
 			if pairs.last && pairs.last.length == 1
@@ -258,6 +258,8 @@ class QueryFormat
 				pairs.push([result])
 			end
 		}
+		pairs.last.push("") if pairs.last.length == 1
+
 		results = []
 		pairs.each {|pair|
 			match = pair[1]
