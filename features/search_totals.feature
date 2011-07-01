@@ -19,3 +19,11 @@ Feature: Search totals
 		Then the response status should be "200"
 		And I should see in this order "18thConnect, 673,462, 15, NINES, 963,621, 105"
 
+	Scenario: Get the federation totals on a blank search
+		Given I am not authenticated
+		When I search with <f=+NINES> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml search total is "963621"
+		And the xml "federation" facet "NINES" is "963621"
+		And the xml "federation" facet "18thConnect" is "230559"

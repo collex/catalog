@@ -153,6 +153,10 @@ Feature: Normal search
 		And the xml search total is "69505"
 		And the xml number of "genre" facets is "30"
 		And the xml "genre" facet "Book History" is "659"
+		When I search with <g=+Criticism+Manuscript> using xml
+		Then the response status should be "200"
+		And the xml has the structure "xsd/search_results.xsd"
+		And the xml search total is "54"
 
 	Scenario: Do a solr search by federation
 		Given I am not authenticated

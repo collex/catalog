@@ -223,10 +223,51 @@ class QueryFormat
 		return { 'q' => val }
 	end
 
+	#partitions a string based on regex.  matches are included in results
+	#ex. 'a b  c'.partition(/ +/) returns ['a', ' ', 'b', '  ', 'c']
+	#ex. ' b '.partition(/ +/) returns [' ', 'b', ' ']
+	def self.partition(str, regex)
+		results = []
+		s = StringScanner.new(str)
+		last_pos = 0
+		while(s.skip_until(regex))
+			matched_size = s.matched_size
+			pos = s.pos
+			#add the non-delimiter string if it exists (it may not if the string starts with a delimiter)
+			results << str[last_pos ... pos - matched_size] if last_pos < pos - matched_size
+			#add the delimiter
+			results << str[pos - matched_size ... pos]
+			#update the last_pos to the current pos
+			last_pos = pos
+		end
+		#add the last non-delimiter string if one exists after the last delimiter.  It would not have
+		#been added since s.skip_until would have returned nil
+		results << str[last_pos ... str.length] if last_pos < str.length
+		return results
+	end
+
 	def self.insert_field_name(field, val)
-		str = val[1..val.length]
-		str = "\"#{str}\"" if str.include?(' ')
-		return "#{val[0]}#{field}:#{str}"
+		# this is of the format ([+|-]match)+
+		# we want to break it into its component parts
+		results = self.partition(val, /\+|-/)
+		pairs = []
+		results.each { |result|
+			if pairs.last && pairs.last.length == 1
+				pairs.last.push(result)
+			else
+				pairs.push([result])
+			end
+		}
+		results = []
+		pairs.each {|pair|
+			match = pair[1]
+			match = "\"#{match}\"" if match.include?(' ')
+			results.push("#{pair[0]}#{field}:#{match}")
+		}
+		return results.join(" AND ")
+#		str = val[1..val.length]
+#		str = "\"#{str}\"" if str.include?(' ')
+#		return "#{val[0]}#{field}:#{str}"
 	end
 
 	def self.transform_title(key,val)
