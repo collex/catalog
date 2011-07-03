@@ -20,6 +20,14 @@ require 'rsolr'
 
 class Solr
 	def initialize(core)
+		if core.kind_of?(Array)
+			base_url = SOLR_URL.gsub("http://", "")
+			@shards = core.collect { |shard| base_url + '/' + shard }
+
+			core = core[0]
+		else
+			@shards = nil
+		end
 		@core = "#{SOLR_CORE_PREFIX}/#{core}"
 		@solr = RSolr.connect( :url=>"#{SOLR_URL}/#{core}" )
 		@field_list = [ "uri", "archive", "date_label", "genre", "source", "image", "thumbnail", "title", "alternative", "url",
@@ -31,10 +39,12 @@ class Solr
 	def self.factory_create(is_test, federation="")
 		name = ""
 		if federation == ""
-			if is_test
+			if is_test == :test
 				name = "testResources"
-			else
+			elsif is_test == :live
 				name = "resources"
+			elsif is_test == :shards
+				name = self.get_archive_core_list()
 			end
 		else	# if a federation is passed, then we are using the local index
 			name = is_test ? "test" : ""
@@ -47,6 +57,9 @@ class Solr
 	def select(options)
 		options['version'] = '2.2'
 		options['defType'] = 'edismax'
+		if @shards
+			options[:shards] = @shards.join(',')
+		end
 		begin
 			ret = @solr.post( 'select', :data => options )
 		rescue Errno::ECONNREFUSED => e
@@ -342,6 +355,20 @@ class Solr
 
 	def optimize()
 		@solr.optimize() #(:wait_searcher => true, :wait_flush => true)
+	end
+
+	def self.get_archive_core_list()
+		#return [ "resources", "testResources" ]
+		url = "#{SOLR_URL}/admin/cores?action=STATUS"
+		resp = `curl #{url}`	# this returns some info on all the cores. We can ignore most of it, we are just looking for the names that start with "archive_"
+		arr = resp.split('<lst name="archive_')
+		arr.delete_at(0)	# this gets rid of the header.
+		archives = []
+		arr.each{ |a|
+			arr2 = a.split('"')
+			archives.push("archive_#{arr2[0]}")
+		}
+		return archives.sort()
 	end
 
 end
@@ -698,37 +725,3 @@ end
 #		CollexEngine.report_line("    #{msg}\n")
 #		return total_errors, first_error
 #	end
-#
-#  # splits constraints into a full-text query (for relevancy ranking) and filter queries for constraining
-#  def solrize_constraints(constraints)
-#    queries = []
-#    filter_queries = []
-#		#filter_queries << 'title_sort:t*'
-#    constraints.each do |constraint|
-#      if constraint.is_a?(ExpressionConstraint)
-#        queries << constraint.to_solr_expression
-#      else
-#        filter_queries << constraint.to_solr_expression
-#      end
-#    end
-#  	#queries << "federation:#{DEFAULT_FEDERATION}"
-#
-#    queries << "*:*" if queries.empty?
-#
-#    [queries.join(" "), filter_queries]
-#  end
-#
-#  def facets_to_hash(facet_data)
-#    # TODO: change how <unspecified> is dealt with, so that it can link back to a -field:[* TO *] query.
-#    #       Leave nil as-is here, let the UI deal with rendering it as <unspecified>
-#    facets = {}
-#    facet_data.each do |facet,values|
-#      facets[facet] = {}
-#      CollexEngine.paired_array_each(values) do |key, value|
-#        # despite requesting mincount => 1, nil (aka "<unspecified>") items can be returned with zero count anyway
-#        facets[facet][key || "<unspecified>"] = value if value > 0
-#      end
-#    end
-#    facets
-#  end
-#end

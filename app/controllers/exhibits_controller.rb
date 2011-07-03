@@ -67,7 +67,7 @@ class ExhibitsController < ApplicationController
 					boost = type == 'partial' ? 3.0 : 2.0
 					@uri = query[:uri]
 
-					is_test = Rails.env == 'test'
+					is_test = Rails.env == 'test' ? :test : :live
 					solr = Solr.factory_create(is_test)
 					solr.add_object(query, boost, commit)
 
@@ -99,7 +99,7 @@ class ExhibitsController < ApplicationController
 					id = params[:id]
 					@archive = QueryFormat.id_to_archive(id).gsub("$[FEDERATION_NAME]$", federation.name)
 
-					is_test = Rails.env == 'test'
+					is_test = Rails.env == 'test' ? :test : :live
 					solr = Solr.factory_create(is_test)
 					solr.remove_archive(@archive, commit)
 

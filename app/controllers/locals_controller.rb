@@ -47,7 +47,7 @@ class LocalsController < ApplicationController
 				query.merge!(QueryFormat.transform_highlight("hl", "on")) if params[:q]
 				straighten_out_visible(query)
 
-				is_test = Rails.env == 'test'
+				is_test = Rails.env == 'test' ? :test : :live
 				solr = Solr.factory_create(is_test, federation.name)
 
 				@results = solr.search(query, { :field_list => [ 'key', 'title', 'object_type', 'object_id', 'last_modified' ], :key_field => 'key', :no_facets => true })
@@ -118,7 +118,7 @@ class LocalsController < ApplicationController
 				fields[:key] = "#{params['object_type']}_#{params['object_id']}"
 				fields[:title_sort] = params['title']
 
-				is_test = Rails.env == 'test'
+				is_test = Rails.env == 'test' ? :test : :live
 				solr = Solr.factory_create(is_test, federation.name)
 
 				commit = params[:commit] == 'immediate'
@@ -145,7 +145,7 @@ class LocalsController < ApplicationController
 		ip = request.headers['REMOTE_ADDR']
 		if federation && ip == federation.ip
 			begin
-				is_test = Rails.env == 'test'
+				is_test = Rails.env == 'test' ? :test : :live
 				solr = Solr.factory_create(is_test, federation.name)
 
 				solr.commit()
@@ -171,7 +171,7 @@ class LocalsController < ApplicationController
 		ip = request.headers['REMOTE_ADDR']
 		if federation && ip == federation.ip
 			begin
-				is_test = Rails.env == 'test'
+				is_test = Rails.env == 'test' ? :test : :live
 				solr = Solr.factory_create(is_test, federation.name)
 				solr.clear_core()
 

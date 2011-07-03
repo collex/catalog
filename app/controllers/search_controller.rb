@@ -6,7 +6,8 @@ class SearchController < ApplicationController
 		begin
 			QueryFormat.transform_raw_parameters(params)
 			query = QueryFormat.create_solr_query(query_params, params)
-			is_test = Rails.env == 'test'
+			is_test = Rails.env == 'test' ? :test : :live
+			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
 			@results = solr.search(query)
 
@@ -41,7 +42,8 @@ class SearchController < ApplicationController
 		begin
 			QueryFormat.transform_raw_parameters(params)
 			query = QueryFormat.create_solr_query(query_params, params)
-			is_test = Rails.env == 'test'
+			is_test = Rails.env == 'test' ? :test : :live
+			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
 			max = query['max'].to_i
 			query.delete('max')
@@ -70,7 +72,8 @@ class SearchController < ApplicationController
 		begin
 			QueryFormat.transform_raw_parameters(params)
 			query = QueryFormat.create_solr_query(query_params, params)
-			is_test = Rails.env == 'test'
+			is_test = Rails.env == 'test' ? :test : :live
+			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
 			@results = solr.names(query)
 
@@ -92,7 +95,8 @@ class SearchController < ApplicationController
 		begin
 			QueryFormat.transform_raw_parameters(params)
 			query = QueryFormat.create_solr_query(query_params, params)
-			is_test = Rails.env == 'test'
+			is_test = Rails.env == 'test' ? :test : :live
+			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
 			@document = solr.details(query)
 
