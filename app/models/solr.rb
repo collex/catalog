@@ -198,8 +198,32 @@ class Solr
 
 		facets = facets_to_hash(ret)
 		facets['federation'] = adjust_federation_counts(options, facets['federation'])
+		facets['archive'] = adjust_archive_counts(options, facets['archive'])
 
 		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
+	end
+
+	def adjust_archive_counts(src_options, prior_facets)
+		# if the search included archive, then do the search again without the archive to get the archive facets.
+		return prior_facets if src_options['q'].include?('archive:') == nil
+
+		# trim out any archive constraints. To get counts, we want them all
+		options = {}
+		src_options.each { |key,val|
+			options[key] = val if key != 'f' && key != 'hl'
+		}
+		options[:fl] = 'uri'
+		options['facet.field'] = [ 'archive']
+		options['rows'] = 1
+		options['q'] = options['q'].gsub(/[\+-]archive:\w+( AND )?/, '')
+		options['q'] = "*:*" if options['q'].length == 0
+
+		ret = select(options)
+
+		# Reformat the facets into what the UI wants, so as to leave that code as-is for now
+		# tack the new archive info into the original results map
+		facets = facets_to_hash(ret)
+		return facets['archive']
 	end
 
 	def adjust_federation_counts(src_options, prior_facets)
@@ -220,7 +244,7 @@ class Solr
 		ret = select(options)
 
 		# Reformat the facets into what the UI wants, so as to leave that code as-is for now
-		# tack the new federaton info into the orignal results map
+		# tack the new federation info into the original results map
 		facets = facets_to_hash(ret)
 		return facets['federation']
 	end

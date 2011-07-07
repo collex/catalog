@@ -144,6 +144,7 @@ Feature: Normal search
 		And the xml number of facets is "6"
 		And the xml number of "genre" facets is "17"
 		And the xml "genre" facet "Manuscript" is "409"
+		And the xml number of "archive" facets is "105"
 
 	Scenario: Do a solr search by genre
 		Given I am not authenticated

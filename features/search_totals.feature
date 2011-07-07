@@ -26,7 +26,7 @@ Feature: Search totals
 		And the xml has the structure "xsd/search_results.xsd"
 		And the xml search total is "963621"
 		And the xml "federation" facet "NINES" is "963621"
-		And the xml "federation" facet "18thConnect" is "230559"
+		And the xml "federation" facet "18thConnect" is "673462"
 
 	Scenario: Get the federation totals on a facet search
 		Given I am not authenticated
