@@ -199,3 +199,16 @@ Feature: Normal search
 		Then the response status should be "200"
 		And the xml has the structure "xsd/search_results.xsd"
 		And the xml search total is "895"
+
+		Scenario: Do a wildcard search
+			Given I am not authenticated
+			When I search with <q=+bront*> using xml
+			Then the response status should be "200"
+			And the xml has the structure "xsd/search_results.xsd"
+			And the xml search total is "1996"
+			And the xml number of hits is "30"
+			When I search with <q=+Bront*> using xml
+			Then the response status should be "200"
+			And the xml has the structure "xsd/search_results.xsd"
+			And the xml search total is "1996"
+			And the xml number of hits is "30"

@@ -224,7 +224,7 @@ class QueryFormat
 	end
 
 	def self.transform_query(key,val)
-		return { 'q' => val }
+		return { 'q' => val.downcase() }
 	end
 
 	#partitions a string based on regex.  matches are included in results
@@ -277,19 +277,19 @@ class QueryFormat
 	end
 
 	def self.transform_title(key,val)
-		return { 'q' => self.insert_field_name("title", val) }
+		return { 'q' => self.insert_field_name("title", val.downcase()) }
 	end
 
 	def self.transform_author(key,val)
-		return { 'q' => self.insert_field_name("author", val) }
+		return { 'q' => self.insert_field_name("author", val.downcase()) }
 	end
 
 	def self.transform_editor(key,val)
-		return { 'q' => self.insert_field_name("editor", val) }
+		return { 'q' => self.insert_field_name("editor", val.downcase()) }
 	end
 
 	def self.transform_publisher(key,val)
-		return { 'q' => self.insert_field_name("publisher", val) }
+		return { 'q' => self.insert_field_name("publisher", val.downcase()) }
 	end
 
 	def self.transform_year(key,val)
