@@ -318,13 +318,13 @@ class QueryFormat
 	def self.transform_other(key,val)
 		mapper = { 'freeculture' => 'freeculture', 'fulltext' => 'has_full_text', 'ocr' => 'is_ocr', 'typewright' => 'typewright' }
 		pairs = self.make_pairs(val, /[\+-]/)
-		results = ""
+		results = []
 		pairs.each {|pair|
 			qualifier = pair[0]
 			facet = mapper[pair[1]]
-			results += "#{qualifier}#{facet}:true" if !facet.blank?
+			results.push("#{qualifier}#{facet}:true") if !facet.blank?
 		}
-		return { 'q' => results }
+		return { 'q' => results.join(' AND ') }
 	end
 
 	def self.transform_sort(key,val)
