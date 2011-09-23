@@ -250,10 +250,10 @@ class QueryFormat
 		return results
 	end
 
-	def self.insert_field_name(field, val)
+	def self.make_pairs(str, regex)
 		# this is of the format ([+|-]match)+
 		# we want to break it into its component parts
-		results = self.partition(val, /[\+-]/)
+		results = self.partition(str, regex)
 		pairs = []
 		results.each { |result|
 			if pairs.last && pairs.last.length == 1
@@ -263,11 +263,18 @@ class QueryFormat
 			end
 		}
 		pairs.last.push("") if pairs.last.length == 1
+		return pairs
+	end
+
+	def self.insert_field_name(field, val)
+		# this is of the format ([+|-]match)+
+		# we want to break it into its component parts
+		pairs = self.make_pairs(val, /[\+-]/)
 
 		results = []
 		pairs.each {|pair|
 			match = pair[1]
-			match = "\"#{match}\"" if match.include?(' ')
+			match = "\"#{match}\"" if match.include?(' ') && !match.include?('"')
 			results.push("#{pair[0]}#{field}:#{match}")
 		}
 		return results.join(" AND ")
@@ -310,9 +317,14 @@ class QueryFormat
 
 	def self.transform_other(key,val)
 		mapper = { 'freeculture' => 'freeculture', 'fulltext' => 'has_full_text', 'ocr' => 'is_ocr', 'typewright' => 'typewright' }
-		qualifier = val[0]
-		facet = mapper[val[1..val.length]]
-		return { 'q' => "#{qualifier}#{facet}:true" }
+		pairs = self.make_pairs(val, /[\+-]/)
+		results = ""
+		pairs.each {|pair|
+			qualifier = pair[0]
+			facet = mapper[pair[1]]
+			results += "#{qualifier}#{facet}:true" if !facet.blank?
+		}
+		return { 'q' => results }
 	end
 
 	def self.transform_sort(key,val)
