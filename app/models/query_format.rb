@@ -33,8 +33,8 @@ class QueryFormat
 
 	def self.term_info(typ)
 		verifications = {
-			:term => { :exp => /([+\-]("\w[\w?*]*( \w[\w?*]*)*"|\w[\w?*]*))/u, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
-			:frag => { :exp => /(("\w[\w?*]*( \w[\w?*]*)*"|\w[\w?*]*))/u, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
+			:term => { :exp => /([+\-]("\p{Word}[\p{Word}?*]*( \p{Word}[\p{Word}?*]*)*"|\p{Word}[\p{Word}?*]*))/u, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
+			:frag => { :exp => /(("\p{Word}[\p{Word}?*]*( \p{Word}[\p{Word}?*]*)*"|\p{Word}[\p{Word}?*]*))/u, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
 			:year => { :exp => /([+\-]\d\d\d\d)/, :friendly => "[+-] A four digit date" },
 			:archive => { :exp => /([+\-]\w[\w?*]*)/, :friendly => "[+-] One of the predefined archive abbreviations" },
 			:genre => { :exp => /([+\-]\w[ \w?*]*)+/, :friendly => "[+-] One or more of the predefined genres" },
@@ -369,7 +369,7 @@ class QueryFormat
 	end
 
 	def self.transform_frag(key,val)
-		return { 'fragment' => val.gsub(/[^\w ]/, '') }
+		return { 'fragment' => val.gsub(/[^\p{Word} ]/u, '') }
 	end
 
 	def self.transform_max_matches(key,val)
