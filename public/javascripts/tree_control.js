@@ -37,7 +37,7 @@ YUI().use('node', function(Y) {
 		}
 	}
 
-     Y.on("click", function(e) {
-        toggle(e.target);
-    }, ".expander");
+	Y.delegate("click", function(e) {
+		toggle(e.target);
+	}, 'body', ".expander");
 });

@@ -104,21 +104,29 @@ class Solr
 		return Solr.factory_create(is_test).get_totals()
 	end
 
-	def get_federation_list()
+	def get_facet_list(typ)
 		options = { :q=>"*:*", :rows => 1 }
-		options = add_facet_param(options, [ 'federation' ])
+		options = add_facet_param(options, [ typ ])
 		response = select(options)
-		federations = []
-		if response && response['facet_counts'] && response['facet_counts']['facet_fields'] && response['facet_counts']['facet_fields']['federation']
-			facets = response['facet_counts']['facet_fields']['federation']
+		results = []
+		if response && response['facet_counts'] && response['facet_counts']['facet_fields'] && response['facet_counts']['facet_fields'][typ]
+			facets = response['facet_counts']['facet_fields'][typ]
 			skip_next = false
 			facets.each {|f|
 				if f.kind_of?(String)
-					federations.push(f)
+					results.push(f)
 				end
 			}
 		end
-		return federations
+		return results
+	end
+
+	def get_federation_list()
+		return get_facet_list('federation')
+	end
+
+	def get_archive_list()
+		return get_facet_list('archive')
 	end
 
 	def get_totals()

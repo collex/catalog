@@ -1,0 +1,29 @@
+<% #
+# ------------------------------------------------------------------------
+#    Copyright 2009 Applied Research in Patacriticism and the University of Virginia
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#---------------------------------------------------------------------------- -%>
+<%# /common/facet_tree_one_branch params: tree_node node, int indent, string parent_id, bool start_hidden -%>
+<%= format_node(branch, indent) %>
+<div id="site_<%= "#{branch[:id]}"%>" class="<%= "hidden" if start_hidden %>">
+<% for child in branch[:children] -%>
+	<% hidden = session[:resource_toggle] ? (session[:resource_toggle]["#{child[:id]}"] == 'open' ? false : true) : true  -%>
+	<%#= site_selector(site, indent, true, parent_id, start_hidden, true, hidden, site_count ) %>
+	<%= render :partial => 'facet_tree_one_branch', :locals => { :branch => child, :indent => indent + 1, :parent_id => "child_of_#{child[:id]}", :start_hidden => hidden || start_hidden } %>
+<% end # each node -%>
+<% for site in branch[:sites] -%>
+	<%= format_site(site, indent+1) %>
+	<%#= site_selector(site, indent, false, parent_id, start_hidden, site['found'], false ) %>
+<% end # each site -%>
+</div>

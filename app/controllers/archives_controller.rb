@@ -2,42 +2,44 @@ class ArchivesController < ApplicationController
 #	before_filter :must_be_logged_in
 	before_filter :must_be_logged_in, :except => [:index]
 
-  # GET /archives
-  # GET /archives.xml
-  def index
-    @archives = Archive.all
+	def facets
+		@sites_forest = Archive.get_tree()
+		is_test = Rails.env == 'test' ? :test : :live
+		solr = Solr.factory_create(is_test)
+		comp = Archive.compare_to_solr(solr)
+		@missing_in_db = comp[:missing]
+		@extra_in_db = comp[:extra]
+		@inaccessible_sites = Archive.get_inaccessible_sites()
+	end
 
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml
-    end
-  end
 
-  # GET /archives/1
-  # GET /archives/1.xml
-  def show
-    @archive = Archive.find(params[:id])
+	def category_list()
+		nodes = Archive.get_category_list()
+		render :json => nodes
+	end
 
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @archive }
-    end
-  end
+	# GET /archives
+	# GET /archives.xml
+	def index
+		respond_to do |format|
+			format.html {
+				facets()
+			}
+			format.xml {
+				@archives = Archive.all
+			}
+		end
+	end
 
-  # GET /archives/new
-  # GET /archives/new.xml
-  def new
-    @archive = Archive.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @archive }
-    end
-  end
+	def redraw
+		facets()
+		render :partial => 'edit_site_list', :locals => { :sites_forest => @sites_forest, :missing_in_db => @missing_in_db, :extra_in_db => @extra_in_db, :parent_div => 'edit_site_list', :inaccessible_sites => @inaccessible_sites }
+	end
 
   # GET /archives/1/edit
   def edit
     @archive = Archive.find(params[:id])
+	  render :json => { :item => @archive.attributes, :categories => Archive.get_category_list() }
   end
 
   # POST /archives
@@ -47,7 +49,7 @@ class ArchivesController < ApplicationController
 
     respond_to do |format|
       if @archive.save
-        format.html { redirect_to(@archive, :notice => 'Archive was successfully created.') }
+        format.html { redraw() }
         format.xml  { render :xml => @archive, :status => :created, :location => @archive }
       else
         format.html { render :action => "new" }
@@ -60,13 +62,14 @@ class ArchivesController < ApplicationController
   # PUT /archives/1.xml
   def update
     @archive = Archive.find(params[:id])
+	params[:archive][:carousel_include] = 1 if params[:archive][:carousel_include] == 'true'
 
     respond_to do |format|
       if @archive.update_attributes(params[:archive])
-        format.html { redirect_to(@archive, :notice => 'Archive was successfully updated.') }
+        format.html { redraw() }
         format.xml  { head :ok }
       else
-        format.html { render :action => "edit" }
+        format.html { redraw() }
         format.xml  { render :xml => @archive.errors, :status => :unprocessable_entity }
       end
     end
@@ -79,7 +82,7 @@ class ArchivesController < ApplicationController
     @archive.destroy
 
     respond_to do |format|
-      format.html { redirect_to(archives_url) }
+      format.html { redraw() }
       format.xml  { head :ok }
     end
   end

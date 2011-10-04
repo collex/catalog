@@ -1,0 +1,62 @@
+<% # 
+    # ------------------------------------------------------------------------
+    # Copyright 2009 Applied Research in Patacriticism and the University of Virginia
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #    http://www.apache.org/licenses/LICENSE-2.0
+  
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    # ---------------------------------------------------------------------------- -%>
+<%# edit_site_list params: array sites_forest, array missing_in_db, array extra_in_db, string parent_div, array inaccessible_sites -%>
+<div class="header">Edit Sites and Categories</div>
+<div class="site_list">
+<div class="header">
+	<div class="left">Resource</div>
+	<div class="middle">In carousel?</div>
+	<div class='right'></div>
+</div>
+<%= render :partial => 'facet_tree_one_branch', :locals => { :branch => sites_forest, :indent => 0, :parent_id => '', :start_hidden => false } %>
+<%= link_to "[Add Category]", '#', { :class => 'dialog',
+			'data-dlg-url' => "/archives",
+			'data-dlg-method' => 'POST',
+			'data-dlg-type' => 'addCategory',
+			'data-parent-div' => 'edit_site_list',
+			'data-ajax-url' => '/archives/category_list'} %>
+</div>
+
+<div class="header">Sites not in the resource tree:</div>
+<table class="limit_to">
+<% for resource in missing_in_db -%>
+	<tr><td class='limit_to_lvl1'><%= resource %></td><td>
+		<%= link_to "[add]", '#', { :class => 'dialog',
+					'data-dlg-url' => "/archives",
+					'data-dlg-method' => 'POST',
+					'data-dlg-type' => 'addArchive',
+					'data-parent-div' => 'edit_site_list',
+					'data-ajax-url' => '/archives/category_list'} %>
+	</td></tr>
+<% end -%>
+</table>
+
+<div class="header">Sites not in Solr:</div>
+<% missing = extra_in_db -%>
+<table class="limit_to">
+	<% for site in missing -%>
+		<tr><td class='limit_to_lvl1'><%= site[:name] %> [<%= site[:handle] %>]</td><td><%= raw(site_links(site[:id], site[:name], true, true)) %></td></tr>
+	<% end -%>
+</table>
+
+<div class="header">Inaccessible Sites:</div>
+<table class="limit_to">
+	<% for site in inaccessible_sites -%>
+		<% sanitized_value = site['handle'].gsub("'") { |apos| "&apos;" } -%>
+		<tr><td class='limit_to_lvl1'><%= site.name %> [<%= site.handle %>]</td><td><%= raw(site_links(site['id'], site['name'], true)) %></td></tr>
+	<% end -%>
+</table>

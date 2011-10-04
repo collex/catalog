@@ -3,13 +3,14 @@
 <head>
 	<link href='http://fonts.googleapis.com/css?family=Nunito' rel='stylesheet' type='text/css'>
 	<title><%= SITE_NAME_TITLE %></title>
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.4.0/build/cssreset/reset-min.css&3.4.0/build/cssfonts/fonts-min.css&3.4.0/build/cssgrids/grids-min.css">
+	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.4.0/build/widget-base/assets/skins/sam/widget-base.css&3.4.0/build/widget-base/assets/skins/sam/widget-base.css&3.4.0/build/widget-stack/assets/skins/sam/widget-stack.css&3.4.0/build/widget-stack/assets/skins/sam/widget-stack.css&3.4.0/build/panel/assets/skins/sam/panel.css&3.4.0/build/panel/assets/skins/sam/panel.css">
   <%= stylesheet_link_tag :all %>
-	<script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js" charset="utf-8"></script>
-	<%= javascript_include_tag :defaults %>
-	<%= javascript_include_tag 'tree_control', 'nav' %>
+	<script src="http://yui.yahooapis.com/3.4.1/build/yui/yui-min.js" charset="utf-8"></script>
+	<%= javascript_include_tag 'tree_control', 'nav', 'dialog', 'archive_dlg' %>
   <%= csrf_meta_tag %>
 </head>
-<body>
+<body class="yui3-skin-sam">
 <div class="banner_outer">
 <div class="banner">
 	<div class="title">Arc Catalog</div>

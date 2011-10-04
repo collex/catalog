@@ -1,0 +1,98 @@
+.edit_site_list .header {
+	color: white;
+	background: #471A08;
+	padding: 4px;
+	margin-top: 4px;
+}
+
+.site_list .limit_to {
+	margin-top: 16px;
+}
+
+div.site_list div.header {
+	background: #B99A86;
+	color: white;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border: none;
+	font-size: .8em;
+	vertical-align: bottom;
+	height: 30px;
+}
+
+.site_list .row {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-bottom: solid 1px #966C54;
+	height: 20px;
+}
+
+.site_list .left {
+	float: left;
+	width: 600px;
+	overflow: hidden;
+	position: absolute;
+	height: 20px;
+}
+
+.site_list .middle {
+	float: left;
+	margin-left: 700px;
+}
+
+.site_list .right {
+	margin-left: 800px;
+}
+
+.site_list img {
+	margin-right: 4px;
+}
+
+.site_list .indent0 {
+
+}
+
+.site_list .indent1 {
+	padding-left: 16px;
+}
+
+.site_list .indent2 {
+	padding-left: 32px;
+}
+
+.site_list .indent3 {
+	padding-left: 48px;
+}
+
+.site_list .indent4 {
+	padding-left: 64px;
+}
+
+.yui3-panel .row {
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
+.yui3-panel .left {
+	text-align: right;
+	float: left;
+	padding-right: .5em;
+	width: 10em;
+}
+
+.yui3-panel .instructions {
+	font-style: italic;
+	color: #777;
+}
+
+.yui3-panel .error {
+	color: red;
+}
+
+.yui3-panel .notice {
+	color: green;
+}
+
+#addCategory .right {
+	width: 300px;
+}

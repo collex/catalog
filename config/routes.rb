@@ -1,6 +1,9 @@
 CollexCatalog::Application.routes.draw do
-	#resources :controllers, :only => [:edit, :update]
-	resources :archives
+	resources :archives, :only => [:index, :create, :edit, :destroy, :update] do
+		collection do
+			get 'category_list'
+		end
+	end
 
 	resources :federations
 
