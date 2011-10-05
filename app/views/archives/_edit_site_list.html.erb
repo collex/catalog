@@ -28,9 +28,10 @@
 			'data-dlg-method' => 'POST',
 			'data-dlg-type' => 'addCategory',
 			'data-parent-div' => 'edit_site_list',
-			'data-ajax-url' => '/archives/category_list'} %>
+			'data-ajax-url' => '/archives/category_list'} if user_signed_in? %>
 </div>
 
+<% if user_signed_in? %>
 <div class="header">Sites not in the resource tree:</div>
 <table class="limit_to">
 <% for resource in missing_in_db -%>
@@ -60,3 +61,4 @@
 		<tr><td class='limit_to_lvl1'><%= site.name %> [<%= site.handle %>]</td><td><%= raw(site_links(site['id'], site['name'], true)) %></td></tr>
 	<% end -%>
 </table>
+<% end %>

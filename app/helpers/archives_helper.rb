@@ -4,7 +4,7 @@ module ArchivesHelper
 	end
 
 	def site_links(id, name, is_node, no_edit = false)
-		return "" if id == 0
+		return "" if id == 0 || !user_signed_in?
 		edit = no_edit ? '' : content_tag(:a, "[edit]", { :href => '#', :class => 'dialog',
 			'data-dlg-url' => "/archives/#{id}",
 			'data-dlg-method' => 'PUT',
