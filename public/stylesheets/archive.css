@@ -1,8 +1,8 @@
 .edit_site_list .header {
+	background: none repeat scroll 0 0 #8B9A49;
 	color: white;
-	background: #471A08;
-	padding: 4px;
 	margin-top: 4px;
+	padding: 7px 4px 7px 10px;
 }
 
 .site_list .limit_to {
@@ -10,14 +10,15 @@
 }
 
 div.site_list div.header {
-	background: #B99A86;
+	background: none repeat scroll 0 0 #4B6C9C;
+	border: medium none;
 	color: white;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	border: none;
-	font-size: .8em;
-	vertical-align: bottom;
+	font-size: 0.8em;
 	height: 30px;
+	padding-bottom: 0;
+	padding-left: 10px;
+	padding-top: 9px;
+	vertical-align: bottom;
 }
 
 .site_list .row {
@@ -105,4 +106,25 @@ div.site_list div.header {
 
 .archive_dlg textarea {
 	height: 200px;
+}
+
+.yui3-skin-sam .yui3-panel-content {
+    background: none repeat scroll 0 0 white;
+    border: 1px solid #001E51;
+    border-radius: 8px 8px 8px 8px;
+    box-shadow: 0 0 5px #333333;
+}
+
+.yui3-skin-sam .yui3-panel-content .yui3-widget-hd {
+    background: -webkit-gradient(linear,left bottom,left top,from(#314D75),color-stop(0.07,#314d75),color-stop(0.5,#4b6c9c),to(#5d7ba6));
+    border-radius: 8px 8px 0 0;
+    color: white;
+    min-height: 13px;
+    padding: 8px 28px 8px 8px;
+}
+
+.yui3-skin-sam .yui3-panel .yui3-panel-content .yui3-widget-ft {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-radius: 0 0 8px 8px;
+    padding: 8px;
 }
