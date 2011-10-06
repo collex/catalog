@@ -21,7 +21,7 @@
 //}
 
 /*global YUI */
-YUI().use('node', function(Y) {
+YUI().use('node', "io-base", function(Y) {
 
 	function toggle(node) {
 		var target = '#' + node.getAttribute("data-target");
@@ -34,6 +34,12 @@ YUI().use('node', function(Y) {
 			node.addClass('contracter');
 			var div = Y.one(target);
 			div.removeClass('hidden');
+		}
+		var notice = node.getAttribute("data-notice-url");
+		if (notice) {
+			notice += (notice.indexOf('?')) ? '&' : '?';
+			notice += "expanded=" + !contract;
+			Y.io(notice);
 		}
 	}
 

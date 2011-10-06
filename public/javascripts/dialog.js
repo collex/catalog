@@ -262,6 +262,10 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 			html += elAndClass('input', item.klass);
 			html += nameAndId(item.input);
 			html += " type='text' />";
+		} else if (item.readonly) {
+			html += elAndClass('input', item.klass);
+			html += nameAndId(item.readonly);
+			html += " readonly='readonly' type='text' />";
 		} else if (item.select) {
 			html += elAndClass('select', item.klass);
 			html += nameAndId(item.select) + '>';
@@ -303,6 +307,11 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 				el._node.focus();
 		}
 
+		// Klunky way of setting the class: I didn't see a way to do it directly when creating the panel.
+		if (params.klass) {
+			var outer = Y.one("#"+params.type);
+			outer.addClass(params.klass);
+		}
 		return panel;
 	}
 

@@ -18,6 +18,19 @@ class ArchivesController < ApplicationController
 		render :json => nodes
 	end
 
+	def tree
+		session[:resource_toggle] ||= {}
+		expanded = params[:expanded]
+		id = params[:id]
+		if expanded == 'true' && id != nil
+			session[:resource_toggle][id] = 'open'
+		end
+		if expanded == 'false' && id != nil
+			session[:resource_toggle][id] = 'close'
+		end
+		render :text => ''	# this is just to keep from getting an error.
+	end
+
 	# GET /archives
 	# GET /archives.xml
 	def index
@@ -36,13 +49,17 @@ class ArchivesController < ApplicationController
 		render :partial => 'edit_site_list', :locals => { :sites_forest => @sites_forest, :missing_in_db => @missing_in_db, :extra_in_db => @extra_in_db, :parent_div => 'edit_site_list', :inaccessible_sites => @inaccessible_sites }
 	end
 
-  # GET /archives/1/edit
-  def edit
-    @archive = Archive.find(params[:id])
-	  render :json => { :item => @archive.attributes, :categories => Archive.get_category_list() }
-  end
+	# GET /archives/1/edit
+	def edit
+		if params[:id].to_i != 0
+			@archive = Archive.find(params[:id])
+			render :json => {:item => @archive.attributes, :categories => Archive.get_category_list()}
+		else
+			render :json => {:item => { :handle => params[:id] }, :categories => Archive.get_category_list()}
+		end
+	end
 
-  # POST /archives
+	# POST /archives
   # POST /archives.xml
   def create
     @archive = Archive.new(params[:archive])

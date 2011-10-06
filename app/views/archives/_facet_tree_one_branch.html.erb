@@ -15,7 +15,7 @@
 #    limitations under the License.
 #---------------------------------------------------------------------------- -%>
 <%# /common/facet_tree_one_branch params: tree_node node, int indent, string parent_id, bool start_hidden -%>
-<%= format_node(branch, indent) %>
+<%= format_node(branch, indent, start_hidden) %>
 <div id="site_<%= "#{branch[:id]}"%>" class="<%= "hidden" if start_hidden %>">
 <% for child in branch[:children] -%>
 	<% hidden = session[:resource_toggle] ? (session[:resource_toggle]["#{child[:id]}"] == 'open' ? false : true) : true  -%>

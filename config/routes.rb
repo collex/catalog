@@ -2,6 +2,7 @@ CollexCatalog::Application.routes.draw do
 	resources :archives, :only => [:index, :create, :edit, :destroy, :update] do
 		collection do
 			get 'category_list'
+			get 'tree'
 		end
 	end
 

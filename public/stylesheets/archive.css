@@ -93,6 +93,16 @@ div.site_list div.header {
 	color: green;
 }
 
-#addCategory .right {
+.archive_dlg .right {
 	width: 300px;
+}
+
+.archive_dlg input[readonly=readonly] {
+	background-color: #E7E8EA;
+	font-style: italic;
+	color: #777;
+}
+
+.archive_dlg textarea {
+	height: 200px;
 }
