@@ -88,8 +88,14 @@ class ArchivesController < ApplicationController
 			if params[:file] == 'upload'
 				@archive.carousel_image = params[:archive][:carousel_image]
 				@archive.save
-				src = @archive.carousel_image.url(:normal)
-				render :text => "OK;#{src}"
+				if @archive.errors && @archive.errors.length > 0
+					err = ""
+					@archive.errors.each { |key,val| err += "#{key}: #{val}"}
+					render :text => "ERROR;#{err}"
+				else
+					src = @archive.carousel_image.url(:normal)
+					render :text => "OK;#{src}"
+				end
 			elsif params[:file] == 'remove'
 				@archive.carousel_image = nil
 				@archive.save

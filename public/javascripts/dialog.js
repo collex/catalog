@@ -1,5 +1,8 @@
 // This wraps the modal dialog ability so that a dialog can be called with just a properly marked up <a>
 //
+// The html id "gd_upload_form" is reserved. Do not use it on your page.
+// Also do not use any ids elsewhere on the page that you have defined in your data type.
+//
 //data-dlg-url
 //data-dlg-method
 //data-dlg-confirm
@@ -19,7 +22,8 @@
 //If not successful, then an error message is displayed.
 //On submit,
 //if data-confirm, the confirmation message is put up.
-//if data-parent-div then it is an ajax call, otherwise it is a regular page change.
+//if data-parent-div or data-success-callback then it is an ajax call, otherwise it is a regular page change.
+//If the div is supplied, then the response from the server is just placed in the div. If a callback is supplied, the callback is called instead.
 //
 // data types are defined by registering the data type by firing the following event:
 //function registerDialogType(name, json) {
@@ -29,6 +33,38 @@
 //}
 //
 // "name" is the name that you use in data-dlg-type, and "json" is what defines the dialog.
+// The format of the json is:
+//			title: the title that appears at the top of the dialog
+//			focus: the element that should initially have the keyboard focus
+//			populate: a function that will be called as soon as the data has been retrieved from an ajax call
+//			validate: a function that will be called when the user clicks "ok"
+//			progressMsg: the message that will appear when the call is being made to the server
+//			width: the width of the dialog
+//			klass: a class to apply to the entire dialog
+//			hidden: a hash containing any data that should be included in the call, but is hidden from the user.
+//			rows: an array of all the rows in the dialog
+//			each row is an array of items that will appear horizontally. Those items are hashes and can contain:
+//				(except for the text type, the value is what will appear in the name attribute. The id will be calculated from that, also.)
+//				the type is defined as whichever of these keys is present:
+//				text: a span is created with whatever the value of this is.
+//				readonly: an input control of type 'text' with 'readonly' set.
+//				input: an input control of type 'text'
+//				checkbox: an input control of type 'checkbox'
+//				textarea: a textarea
+//				select: a select control (see below)
+//				image: a complex object that displays and allows the modification of an image. (see below)
+//
+//			each of the items can contain the key 'klass', which causes that class to be added as an attribute.
+//
+//			the select type also takes the following parameters:
+//				options: an array of hashes. The hashes contain { value: and text: } and that is how the <options> are created.
+//
+//			the image type also contains the attributes:
+//				alt: the alt text for the image
+//				removeButton: if it exists, a remove button is included and has the specified text.
+//			The image type also defines two more server calls: the same URL and method that is specified for the entire
+//			dialog, plus either "?file=upload" or "?file=remove".
+//
 
 /*global YUI */
 YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-parse', "io-upload-iframe", function(Y) {
@@ -312,7 +348,7 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 			if (url.indexOf('?')>0) url += '&'; else url += '?';
 			html += "<a href='#' class='file_upload' data-upload-url='" + url + "file=upload' data-upload-id='" + item.image + "'>Upload Image</a>";
 			if (item.removeButton)
-				html += "<br /><a href='#' class='dialog' data-dlg-url='" + url + "file=remove' data-dlg-method='PUT' data-success-callback='clearImage(\"" + name2Id(item.image) + "\")'>" + item.removeButton + "</a>";
+				html += "<br /><a href='#' class='dialog' data-dlg-url='" + url + "file=remove' data-dlg-method='" + params.method + "' data-success-callback='clearImage(\"" + name2Id(item.image) + "\")'>" + item.removeButton + "</a>";
 		} else {
 			html += "<span>Unsupported: " + item + "</span>"
 		}
@@ -408,7 +444,6 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		var doUpload = function(panel) {
 			// Define a function to handle the start of a transaction
 			function start(id, args) {
-				closeWindow(panel);
 			}
 
 			// Define a function to handle the response data.
@@ -419,26 +454,19 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 					var imgId = "#" + name2Id(params.id);
 					var el = Y.one(imgId);
 					el._node.src = arr[1];
+					closeWindow(panel);
 				} else {
-					alert("Error: "+ o.responseText);
+					displayMessage('gd_upload_dlg', 'error', arr[1]);
 				}
 			}
-
-			// Subscribe to event "io:start", and pass an object
-			// as an argument to the event handler "start".
-			//Y.on('io:start', start, Y);
-
-			// Subscribe to event "io:complete", and pass an array
-			// as an argument to the event handler "complete".
-			//Y.on('io:complete', complete, Y, ['lorem', 'ipsum']);
 
 			// Start the transaction.
 			var request = Y.io(params.url, { method: 'POST', form: { id: 'gd_upload_form', upload: true },
 				on: { start: start, complete: complete }});
 		};
 
-		var body = ""; // "<iframe id='gd_upload_target' name='gd_upload_target' src='' style='display:none;width:0;height:0;border:0px solid #fff;'></iframe>";
-		body += "<form id='gd_upload_form'>"; // enctype='multipart/form-data' method='post'>";
+		var body = "<div class='error'></div><div class='notice'></div>";
+		body += "<form id='gd_upload_form'>";
 		body += "<input id='_" + makeId(params.id) + "' type='file' name='" + params.id + "' size='35'></div>";
 		var auth = getAuthenticityToken();
 		body += "<input id='_method' type='hidden' name='_method' value='PUT'>";
@@ -446,11 +474,12 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		body += "</form>";
 
 		var dlg = create({ header: "Upload File",
-				body: body,
-				width: 400,
-				ok: { text: "Ok", action: doUpload },
-				cancel: "Cancel"
-			});
+			id: 'gd_upload_dlg',
+			body: body,
+			width: 400,
+			ok: { text: "Ok", action: doUpload },
+			cancel: "Cancel"
+		});
 	}
 
 	Y.delegate("click", function(e) {
