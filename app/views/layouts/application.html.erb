@@ -7,7 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.4.0/build/widget-base/assets/skins/sam/widget-base.css&3.4.0/build/widget-base/assets/skins/sam/widget-base.css&3.4.0/build/widget-stack/assets/skins/sam/widget-stack.css&3.4.0/build/widget-stack/assets/skins/sam/widget-stack.css&3.4.0/build/panel/assets/skins/sam/panel.css&3.4.0/build/panel/assets/skins/sam/panel.css">
   <%= stylesheet_link_tag :all %>
 	<script src="http://yui.yahooapis.com/3.4.1/build/yui/yui-min.js" charset="utf-8"></script>
-	<%= javascript_include_tag 'tree_control', 'nav', 'dialog', 'archive_dlg' %>
+	<%= javascript_include_tag 'tree_control', 'history', 'dialog', 'archive_dlg' %>
   <%= csrf_meta_tag %>
 </head>
 <body class="yui3-skin-sam">
@@ -17,7 +17,7 @@
 	<div class="tag_line">a web service for searching the documents collected by Arc</div>
 </div>
 </div>
-<div class="content">
+<div id="everything" class="content">
 <%= yield %>
 </div>
 </body>

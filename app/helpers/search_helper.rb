@@ -23,6 +23,6 @@ module SearchHelper
 	end
 
 	def make_home_path()
-		return raw("<div class=\"home_link\">#{link_to raw("&larr; Home"), home_index_path}</div>")
+		return raw("<div class=\"home_link\">#{link_to raw("&larr; Home"), "/"}</div>")
 	end
 end

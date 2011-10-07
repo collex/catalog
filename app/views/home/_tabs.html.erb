@@ -1,0 +1,170 @@
+<p id="notice"><%= notice %></p>
+<p id="alert"><%= alert %></p>
+<div class="nav_outer">
+<ul class="nav<%= " narrow" if user_signed_in? %>">
+	<% curr_tab = params[:tab] ? params[:tab] : 'overview' %>
+	<%= tab_link("Overview", 'overview', curr_tab) %>
+	<%= tab_link("Totals", 'totals', curr_tab) %>
+	<%= tab_link("Search", 'search', curr_tab) %>
+	<%= tab_link("Autocomplete", 'autocomplete', curr_tab) %>
+	<%= tab_link("Names Faceting", 'names', curr_tab) %>
+	<%= tab_link("Details", 'uri', curr_tab) %>
+	<%= tab_link("Meta", 'meta', curr_tab) %>
+<% if user_signed_in? %>
+		<%= tab_link("Exhibits", 'exhibits', curr_tab) %>
+		<%= tab_link("User Content", 'user_content', curr_tab) %>
+<% end %>
+</ul>
+</div>
+<div class="tab_content">
+<% if params[:tab] == nil || params[:tab] == 'overview' %>
+<div id="tab_overview" class="individual_tab">
+	<h2>Arc Catalog</h2>
+	<p>The Arc Catalog is a collection of documents that can be searched through.</p>
+	<p>To use, call this in one of the ways indicated. It is designed to be used as a web service, but you can also type the
+		values into your browser to interactively test your parameters. If you leave off the ".xml" in the following calls,
+		the results will be formatted better for a browser.
+	</p>
+	<p>
+		Note that some characters are not allowed to be sent as part of a URL. If you want to use those characters they need
+		to be escaped using a % and the hex code of the character. For instance, a plus sign should be encoded as <span class="code">%2B</span>.
+	</p>
+
+	<h2>There are still the following issues to deal with:</h2>
+	<h3>solr</h3>
+	<ul>
+		<li>solr needs to be upgraded to version 3.2. This looks like a minor bug fix release, so should be easy.</li>
+		<li>A couple of fields are wrong in the schema. Mostly they return multi-values when they should be single values, but there could also be some filter errors.</li>
+		<li>Need to add a timestamp for original creation date and modified date.</li>
+	</ul>
+	<h3>Output format</h3>
+	<ul>
+		<li>Create a new search type for OAI-type queries.</li>
+		<li>Create an output for RDF</li>
+		<li>What output formats should be allowed? Currently, if no format is specified, HTML is returned. XML can be specified as a format.
+			We probably want to expand that to also include RDF, and possibly JSON and RUBY.
+		</li>
+	</ul>
+	<h3>Input format</h3>
+	<ul>
+		<li>UTF-8 characters need to be escaped, so a query looks like: <span class="code">q=%2BBront%C3%AB</span> instead of the more natural: <span class="code">q=%2BBrontë</span> </li>
+		<li>The plus sign is used in a lot of places, but that needs to be escaped. It seems like that is a place that will annoy and trip up visitors.</li>
+		<li>The question mark and asterisk may also be an annoyance in the same way.</li>
+		<li>Should parentheses be allowed in the search?</li>
+		<li>For multiple parameters, they should get specified like: <span class="code">+never-more</span>, but the hyphen seems to work like quotes instead.</li>
+		<li>Where should validation be done? Should the format of the q parameter be tight so that the client site must parse the
+			user's input, or should anything be let through, and we just monitor the return from solr and let solr validate?
+		</li>
+		<li>should queries without plus and minus to be allowed like they are in solr to mean "not required, but raises relevancy"?</li>
+		<li>Need to also support POST for the same operations.</li>
+	</ul>
+	<h3>Other</h3>
+	<ul>
+		<li>The name search can easily generate a really expensive solr operation. Is there a way to limit it?</li>
+		<li>What type of statistics should be kept on the searches that are performed? All searches can be stored in the db by date, with requesting IP and date.
+			The actual requesting user is not passed, so the IP would be the installation. If the end user should be logged, then it needs to be passed as a parameter.
+			Or, all <em>unique</em> searches could be kept, with a count of how many times they have been called, and perhaps the date of the first call and the date of the most
+			recent call.
+		</li>
+		<li>Do we need the scaffold for the genres at all? The list of possible names can be retrieved from solr.</li>
+		<li>Need to create a performance test to get some numbers: this needs to make queries that are varied enough that the caching doesn't throw off results. It
+		should also run from a different computer so that the entire end-to-end is tested.</li>
+		<li>The public-facing API is well represented here, but there should also be the federation-facing API done in the same user-friendly way. Unfortunately, that
+		exposes the API to hackers, so there needs to be some sign on to get pages for "index exhibits", "index community", and "query community".</li>
+	</ul>
+</div>
+
+<% elsif params[:tab] == 'totals' %>
+<div id="tab_totals" class="individual_tab">
+	<h3>Totals</h3>
+	<p>This gives an overview of the number of documents and the number of archives that are in the catalog.</p>
+	<p>Call <%= example_link("/search/totals.xml") %> to get a list of all the federations and how many documents and archives they contain.</p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/totals.xsd", { :class => 'example_link' } %></p>
+</div>
+
+<% elsif params[:tab] == 'search' %>
+<div id="tab_search" class="individual_tab">
+	<h3>Full Text Searching</h3>
+	<p>Any field that is collected can be searched for, including the full text of the document.</p>
+	<p>Note: All searches are case-insensitive and punctuation cannot be searched for.</p>
+	<p>Call <span class="code">/search.xml</span> with the following parameters:</p>
+	<%= render :partial => 'params', :locals => { :params => @query_params } %>
+	<p>Example: Search for all mention of "tree" by Williams: <%= example_link("/search.xml?q=%2btree&aut=%2bWilliams") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/search_results.xsd", { :class => 'example_link' } %></p>
+</div>
+
+<% elsif params[:tab] == 'autocomplete' %>
+<div id="tab_autocomplete" class="individual_tab">
+	<h3>Searching to Facilitate Auto-completion</h3>
+	<p>A query can be submitted character by character to allow you to prompt the user for queries that will succeed.
+		You can specify the number of items that you want to present, and the results will contain the number of hits
+		that the queries will generate.
+	</p>
+	<p>This is designed to be used to implement auto-complete functionality. Either the entire index can be searched with auto-complete
+		or you may search just a portion of the index by including other parameters.
+	</p>
+	<p>Call <span class="code">/search/autocomplete.xml</span> with the following parameters:</p>
+	<%= render :partial => 'params', :locals => { :params => @autocomplete_params } %>
+	<p>Example: Auto-complete "tre" (top 25 results): <%= example_link("/search/autocomplete.xml?frag=tre&max=25") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/autocomplete_results.xsd", { :class => 'example_link' } %></p>
+</div>
+
+<% elsif params[:tab] == 'names' %>
+<div id="tab_names" class="individual_tab">
+	<h3>Names Faceting</h3>
+	<p>This is to get a list of all the names (authors, publishers, and editors) that are associated with a particular query.</p>
+	<p>Call <span class="code">/search/names.xml</span> with the following parameters:</p>
+	<%= render :partial => 'params', :locals => { :params => @names_params } %>
+	<p>Example: All authors, publishers, and editors who mention "tree" and Williams: <%= example_link("/search/names.xml?q=%2btree%2bWilliams") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/names_results.xsd", { :class => 'example_link' } %></p>
+</div>
+
+<% elsif params[:tab] == 'uri' %>
+<div id="tab_uri" class="individual_tab">
+	<h3>Querying for a particular object.</h3>
+	<p>This is designed to get all the fields for a specific object if you already know what the object is. Usually it would be used if you had already done a search in the past.
+		You can save the uri from the first search, and retrieve the details later using this call.
+	</p>
+	<p>Call <span class="code">/search/details.xml</span> with the following parameters:</p>
+	<%= render :partial => 'params', :locals => { :params => @uri_params } %>
+	<p>Example: A document by Whitman: <%= example_link("/search/details.xml?uri=http%3a%2f%2fwww%2ewhitmanarchive%2eorg%2fcriticism%2freviews%2fleaves%2fleaves55%2fdailytimes") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/search_results.xsd", { :class => 'example_link' } %></p>
+</div>
+
+<% elsif params[:tab] == 'meta' %>
+<div id="tab_meta" class="individual_tab">
+	<h3>Other information</h3>
+	<p>You can also get information about the items that make up the index with one of these calls:</p>
+	<p><%= example_link("/archives.xml") %> : To get a list of all the possible archives, and their parameters.</p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_archives.xsd", { :class => 'example_link' } %></p>
+	<p><%= example_link("/genres.xml") %> : To get a list of all the possible genres</p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_genres.xsd", { :class => 'example_link' } %></p>
+	<p><%= example_link("/federations.xml") %> : To get a list of all the possible federations, and their thumbnails.</p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_federations.xsd", { :class => 'example_link' } %></p>
+</div>
+
+<% elsif params[:tab] == 'exhibits' %>
+<div id="tab_exhibits" class="individual_tab">
+	<h3>Exhibits</h3>
+	<p>Exhibits can be indexed like this:</p>
+	<p><%= example_link("/exhibits.xml") %></p>
+</div>
+
+<% elsif params[:tab] == 'user_content' %>
+<div id="tab_user_content" class="individual_tab">
+	<h3>User Content</h3>
+	<p>A secondary index can be read and written from too:</p>
+	<%= render :partial => 'params', :locals => { :params => @locals_params } %>
+	<p>Example: <%= example_link("/locals.xml?q=%2brossetti&section=community&object_type=Exhibit&federation=NINES") %></p>
+	<p>The output format is described in this <%= link_to "XSD", "/xsd/locals_results.xsd", { :class => 'example_link' } %></p>
+</div>
+<% end %>
+</div> <%# tab content %>
+
+<div class="admin">
+<% if user_signed_in? %>
+	<%= link_to "Manage genres", genres_path %> | <%= link_to "Manage archives", archives_path %> | <%= link_to "Manage federations", federations_path %> | <%= link_to "Log out", destroy_user_session_path %>
+<% else %>
+<%= link_to "admin", new_user_session_path %>
+<% end %>
+</div>
