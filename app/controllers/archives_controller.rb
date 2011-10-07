@@ -53,7 +53,11 @@ class ArchivesController < ApplicationController
 	def edit
 		if params[:id].to_i != 0
 			@archive = Archive.find(params[:id])
-			render :json => {:item => @archive.attributes, :categories => Archive.get_category_list()}
+			item = @archive.attributes
+			if @archive.carousel_image_file_name
+				item[:carousel_image] = @archive.carousel_image.url(:normal)
+			end
+			render :json => {:item => item, :categories => Archive.get_category_list()}
 		else
 			render :json => {:item => { :handle => params[:id] }, :categories => Archive.get_category_list()}
 		end
@@ -75,22 +79,36 @@ class ArchivesController < ApplicationController
     end
   end
 
-  # PUT /archives/1
-  # PUT /archives/1.xml
-  def update
-    @archive = Archive.find(params[:id])
-	params[:archive][:carousel_include] = 1 if params[:archive][:carousel_include] == 'true'
+	# PUT /archives/1
+	# PUT /archives/1.xml
+	def update
+		@archive = Archive.find(params[:id])
+		if params[:file]
+			src = ""
+			if params[:file] == 'upload'
+				@archive.carousel_image = params[:archive][:carousel_image]
+				@archive.save
+				src = @archive.carousel_image.url(:normal)
+				render :text => "OK;#{src}"
+			elsif params[:file] == 'remove'
+				@archive.carousel_image = nil
+				@archive.save
+				render :text => "OK"
+			end
+		else
+			params[:archive][:carousel_include] = 1 if params[:archive][:carousel_include] == 'true'
 
-    respond_to do |format|
-      if @archive.update_attributes(params[:archive])
-        format.html { redraw() }
-        format.xml  { head :ok }
-      else
-        format.html { redraw() }
-        format.xml  { render :xml => @archive.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
+			respond_to do |format|
+				if @archive.update_attributes(params[:archive])
+					format.html { redraw() }
+					format.xml { head :ok }
+				else
+					format.html { redraw() }
+					format.xml { render :xml => @archive.errors, :status => :unprocessable_entity }
+				end
+			end
+		end
+	end
 
   # DELETE /archives/1
   # DELETE /archives/1.xml

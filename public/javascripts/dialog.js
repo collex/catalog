@@ -1,14 +1,14 @@
 // This wraps the modal dialog ability so that a dialog can be called with just a properly marked up <a>
 //
-//data-url
-//data-method
-//data-confirm
-//data-confirm-title
-//data-confirm-yes
-//data-confirm-no
+//data-dlg-url
+//data-dlg-method
+//data-dlg-confirm
+//data-dlg-confirm-title
+//data-dlg-confirm-yes
+//data-dlg-confirm-no
 //data-dlg-type [must match one of the types registered in js]
 //data-ajax-url
-//data-parent-div
+//data-parent-div or data-success-callback
 //data-ajax-data
 //
 //If data-dlg-type is defined, then that dialog is displayed.
@@ -31,7 +31,7 @@
 // "name" is the name that you use in data-dlg-type, and "json" is what defines the dialog.
 
 /*global YUI */
-YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-parse', function(Y) {
+YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-parse', "io-upload-iframe", function(Y) {
 	var dlgTypes = {};
 
 	Y.Global.on('dialog:registerDialogType', function(name, data) {
@@ -64,6 +64,8 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 						node.checked = data[property];
 					} else if (node.nodeName === 'INPUT' && node.type === 'text') {
 						node.value = data[property];
+					} else if (node.nodeName === 'IMG') {
+						node.src = data[property];
 					}
 				}
 			}
@@ -86,6 +88,8 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		}
 	}
 
+	var zIndex = 300;	// Just keep counting up on the zindex so that new dialogs appear above the old ones.
+
 	function create(params) {
 		var header = params.header;
 		var body = params.body;
@@ -94,12 +98,13 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		var cancel = params.cancel;
 		var actionParams = params.params;
 		var id = params.id;
+		zIndex++;
 
 		var panel = new Y.Panel({
 			width: width,
 			centered:true,
 			visible: false,
-			zIndex: 500,
+			zIndex: zIndex,
 			modal:true,
 			headerContent: header,
 			bodyContent: body,
@@ -201,8 +206,14 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 
 	function okAction(panel, params) {
 		if (params.url) {
-			if (params.div) {
+			if (params.div || params.successCallback) {
 				var ioParams = { on: { success: onSuccess, failure: onFailure }, arguments: [ panel, params ] };
+				if (params.successCallback) {
+					var callback = function() {
+						eval(params.successCallback);
+					}
+					ioParams.on.success = callback;
+				}
 				if (params.method) ioParams.method = params.method;
 				if (params.method && params.method != 'GET')
 					ioParams.data = params.data;
@@ -242,8 +253,16 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		}
 	}
 
+	function name2Id(name) {
+		return name.replace(/\[/, '_').replace(/\]/, '');
+	}
+
+	function makeId(name) {
+		return " id='" + name2Id(name) + "'";
+	}
+
 	function nameAndId(name) {
-		return " id='" + name.replace(/\[/, '_').replace(/\]/, '') + "' name='" + name + "'";
+		return makeId(name) + " name='" + name + "'";
 	}
 
 	function elAndClass(el, klass) {
@@ -253,7 +272,12 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		return html;
 	}
 
-	function drawElement(item) {
+	function clearImage(node) {
+		var el = Y.one("#"+node);
+		el._node.src = "";
+	}
+
+	function drawElement(item, params) {
 		var html = "";
 		if (item.text) {
 			html += elAndClass('scan', item.klass);
@@ -281,6 +305,14 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 			html += elAndClass('textarea', item.klass);
 			html += nameAndId(item.textarea);
 			html += "></textarea>";
+		} else if (item.image) {
+			html += elAndClass('div', item.klass) + "><img src='' alt='" + item.alt + "'";
+			html += makeId(item.image) + "/>";
+			var url = params.url;
+			if (url.indexOf('?')>0) url += '&'; else url += '?';
+			html += "<a href='#' class='file_upload' data-upload-url='" + url + "file=upload' data-upload-id='" + item.image + "'>Upload Image</a>";
+			if (item.removeButton)
+				html += "<br /><a href='#' class='dialog' data-dlg-url='" + url + "file=remove' data-dlg-method='PUT' data-success-callback='clearImage(\"" + name2Id(item.image) + "\")'>" + item.removeButton + "</a>";
 		} else {
 			html += "<span>Unsupported: " + item + "</span>"
 		}
@@ -292,7 +324,7 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		for (var i = 0; i < dlgDescription.rows.length; i++) {
 			body += "<div class='row'>";
 			for (var j = 0; j < dlgDescription.rows[i].length; j++) {
-				body += drawElement(dlgDescription.rows[i][j]);
+				body += drawElement(dlgDescription.rows[i][j], params);
 			}
 			body += "</div>";
 		}
@@ -372,6 +404,55 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 			submit(null, params);
 	}
 
+	function doFileUploadDialog(params) {
+		var doUpload = function(panel) {
+			// Define a function to handle the start of a transaction
+			function start(id, args) {
+				closeWindow(panel);
+			}
+
+			// Define a function to handle the response data.
+			function complete(id, o, args) {
+				var data = o.responseText; // Response data.
+				var arr = data.split(';');
+				if (arr[0] === 'OK') {
+					var imgId = "#" + name2Id(params.id);
+					var el = Y.one(imgId);
+					el._node.src = arr[1];
+				} else {
+					alert("Error: "+ o.responseText);
+				}
+			}
+
+			// Subscribe to event "io:start", and pass an object
+			// as an argument to the event handler "start".
+			//Y.on('io:start', start, Y);
+
+			// Subscribe to event "io:complete", and pass an array
+			// as an argument to the event handler "complete".
+			//Y.on('io:complete', complete, Y, ['lorem', 'ipsum']);
+
+			// Start the transaction.
+			var request = Y.io(params.url, { method: 'POST', form: { id: 'gd_upload_form', upload: true },
+				on: { start: start, complete: complete }});
+		};
+
+		var body = ""; // "<iframe id='gd_upload_target' name='gd_upload_target' src='' style='display:none;width:0;height:0;border:0px solid #fff;'></iframe>";
+		body += "<form id='gd_upload_form'>"; // enctype='multipart/form-data' method='post'>";
+		body += "<input id='_" + makeId(params.id) + "' type='file' name='" + params.id + "' size='35'></div>";
+		var auth = getAuthenticityToken();
+		body += "<input id='_method' type='hidden' name='_method' value='PUT'>";
+		body += "<input id='authenticity_token' type='hidden' name='authenticity_token' value='" + auth.authenticity_token + "'>";
+		body += "</form>";
+
+		var dlg = create({ header: "Upload File",
+				body: body,
+				width: 400,
+				ok: { text: "Ok", action: doUpload },
+				cancel: "Cancel"
+			});
+	}
+
 	Y.delegate("click", function(e) {
 		var data = { url: e.target.getAttribute("data-dlg-url"),
 			method: e.target.getAttribute("data-dlg-method"),
@@ -382,7 +463,8 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 			type: e.target.getAttribute("data-dlg-type"),
 			ajaxUrl: e.target.getAttribute("data-ajax-url"),
 			div: e.target.getAttribute("data-parent-div"),
-			ajaxData: e.target.getAttribute("data-ajax-data")
+			ajaxData: e.target.getAttribute("data-ajax-data"),
+			successCallback:  e.target.getAttribute("data-success-callback")
 		};
 		if (!data.confirmTitle) data.confirmTitle = "Are you sure?";
 		if (!data.yes) data.yes = "Yes";
@@ -391,4 +473,13 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		e.halt();
 		doDialog(data);
 	}, 'body', ".dialog");
+
+	Y.delegate("click", function(e) {
+		var data = { url: e.target.getAttribute("data-upload-url"),
+			id: e.target.getAttribute("data-upload-id")
+		};
+
+		e.halt();
+		doFileUploadDialog(data);
+	}, 'body', ".file_upload");
 });

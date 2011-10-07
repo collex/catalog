@@ -73,7 +73,7 @@ YUI().use('node', function(Y) {
 				[ { text: 'Parent Category:', klass: 'left' }, { select: 'archive[parent_id]', klass: 'right', options: [ { value: -1, text: 'Loading categories. Please Wait...' } ] } ],
 				[ { text: 'Include in Carousel?', klass: 'left' }, { checkbox: 'archive[carousel_include]', klass: 'right' } ],
 				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ],
-				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_thumbnail]', klass: 'right', removeButton: 'Remove Thumbnail', value: " " } ],
+				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_image]', alt: 'Thumbnail', klass: 'thumb', removeButton: 'Remove Thumbnail' } ],
 			]
 		}
 	);
@@ -107,7 +107,7 @@ YUI().use('node', function(Y) {
 				[ { text: 'Parent Category:', klass: 'left' }, { select: 'archive[parent_id]', klass: 'right', options: [ { value: -1, text: 'Loading categories. Please Wait...' } ] } ],
 				[ { text: 'Include in Carousel?', klass: 'left' }, { checkbox: 'archive[carousel_include]', klass: 'right' } ],
 				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ],
-				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_thumbnail]', klass: 'right', removeButton: 'Remove Thumbnail', value: " " } ],
+				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_image]', alt: 'Thumbnail', klass: 'thumb', removeButton: 'Remove Thumbnail' } ],
 			]
 		}
 	);
@@ -134,7 +134,7 @@ YUI().use('node', function(Y) {
 				[ { text: 'Parent Category:', klass: 'left' }, { select: 'archive[parent_id]', klass: 'right', options: [ { value: -1, text: 'Loading categories. Please Wait...' } ] } ],
 				[ { text: 'Include in Carousel?', klass: 'left' }, { checkbox: 'archive[carousel_include]', klass: 'right' } ],
 				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ],
-				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_thumbnail]', klass: 'right', removeButton: 'Remove Thumbnail', value: " " } ],
+				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_image]', alt: 'Thumbnail', klass: 'thumb', removeButton: 'Remove Thumbnail' } ],
 			]
 		}
 	);
