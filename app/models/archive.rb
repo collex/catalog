@@ -7,11 +7,11 @@ class Archive < ActiveRecord::Base
 		nodes = nodes.map {|node|
 			{ :id => node.id, :parent_id => node.parent_id, :name => node.name, :carousel_include => node.carousel_include, :carousel_description => node.carousel_description, :children => [], :sites => [] }
 		}
-		tree = []
+		root = { :id => 0, :name => 'root', :children => [], :sites => []}
 
 		nodes.each { |node|
 			if node[:parent_id] == 0
-				tree.push(node)
+				root[:children].push(node)
 			else
 				nodes.each { |node2|
 					if node[:parent_id] == node2[:id]
@@ -24,15 +24,19 @@ class Archive < ActiveRecord::Base
 
 		archives = Archive.find_all_by_typ('archive')
 		archives.each { |archive|
-			nodes.each { |node2|
-				if archive[:parent_id] == node2[:id]
-					node2[:sites].push(archive)
-					break
-				end
-			}
+			if archive[:parent_id] == root[:id]
+				root[:sites].push(archive)
+			else
+				nodes.each { |node2|
+					if archive[:parent_id] == node2[:id]
+						node2[:sites].push(archive)
+						break
+					end
+				}
+			end
 		}
 
-		return { :id => 0, :name => 'root', :children => tree, :sites => [] }
+		return root
 	end
 
 	def self.compare_to_solr(solr)

@@ -64,20 +64,20 @@ class ArchivesController < ApplicationController
 	end
 
 	# POST /archives
-  # POST /archives.xml
-  def create
-    @archive = Archive.new(params[:archive])
+	# POST /archives.xml
+	def create
+		@archive = Archive.new(params[:archive])
 
-    respond_to do |format|
-      if @archive.save
-        format.html { redraw() }
-        format.xml  { render :xml => @archive, :status => :created, :location => @archive }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @archive.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
+		respond_to do |format|
+			if @archive.save
+				format.html { redraw() }
+				format.xml { render :xml => @archive, :status => :created, :location => @archive }
+			else
+				format.html { render :action => "new" }
+				format.xml { render :xml => @archive.errors, :status => :unprocessable_entity }
+			end
+		end
+	end
 
 	# PUT /archives/1
 	# PUT /archives/1.xml

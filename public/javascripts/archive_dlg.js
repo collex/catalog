@@ -104,6 +104,7 @@ YUI().use('node', function(Y) {
 				[ { text: 'Archive Handle:', klass: 'left' }, { readonly: 'archive[handle]', klass: 'right' } ],
 				[ { text: 'Archive Name:', klass: 'left' }, { input: 'archive[name]', klass: 'right' } ],
 				[ { text: 'Site URL:', klass: 'left' }, { input: 'archive[site_url]', klass: 'right' } ],
+				[ { text: 'Thumbnail URL:', klass: 'left' }, { input: 'archive[thumbnail]', klass: 'right' } ],
 				[ { text: 'Parent Category:', klass: 'left' }, { select: 'archive[parent_id]', klass: 'right', options: [ { value: -1, text: 'Loading categories. Please Wait...' } ] } ],
 				[ { text: 'Include in Carousel?', klass: 'left' }, { checkbox: 'archive[carousel_include]', klass: 'right' } ],
 				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ],
@@ -131,10 +132,10 @@ YUI().use('node', function(Y) {
 				[ { text: 'Archive Handle:', klass: 'left' }, { readonly: 'archive[handle]', klass: 'right' } ],
 				[ { text: 'Archive Name:', klass: 'left' }, { input: 'archive[name]', klass: 'right' } ],
 				[ { text: 'Site URL:', klass: 'left' }, { input: 'archive[site_url]', klass: 'right' } ],
+				[ { text: 'Thumbnail URL:', klass: 'left' }, { input: 'archive[thumbnail]', klass: 'right' } ],
 				[ { text: 'Parent Category:', klass: 'left' }, { select: 'archive[parent_id]', klass: 'right', options: [ { value: -1, text: 'Loading categories. Please Wait...' } ] } ],
 				[ { text: 'Include in Carousel?', klass: 'left' }, { checkbox: 'archive[carousel_include]', klass: 'right' } ],
-				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ],
-				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_image]', alt: 'Thumbnail', klass: 'thumb', removeButton: 'Remove Thumbnail' } ],
+				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ]
 			]
 		}
 	);

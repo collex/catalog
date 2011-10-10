@@ -18,6 +18,7 @@
 //If the dialog wasn't specified, a dlg with an error message is displayed.
 //If data-dlg-type is not defined, skip to confirm.
 //If data-ajax-url is defined then a spinner is shown and the ajax call is made.
+//If data-ajax-data is defined, then it should have the format: "key:value;key:value"
 //If successful, then the dlg is populated.
 //If not successful, then an error message is displayed.
 //On submit,
@@ -346,7 +347,7 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 			html += makeId(item.image) + "/>";
 			var url = params.url;
 			if (url.indexOf('?')>0) url += '&'; else url += '?';
-			html += "<a href='#' class='file_upload' data-upload-url='" + url + "file=upload' data-upload-id='" + item.image + "'>Upload Image</a>";
+			html += "<a href='#' class='file_upload' data-upload-url='" + url + "file=upload' data-dlg-method='" + params.method + "' data-upload-id='" + item.image + "'>Upload Image</a>";
 			if (item.removeButton)
 				html += "<br /><a href='#' class='dialog' data-dlg-url='" + url + "file=remove' data-dlg-method='" + params.method + "' data-success-callback='clearImage(\"" + name2Id(item.image) + "\")'>" + item.removeButton + "</a>";
 		} else {
@@ -426,8 +427,15 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 					cancel: "Cancel"
 				});
 			var ioParams = { on: { success: getDataSuccess, failure: getDataFailure }, arguments: [ dlg, dlgDescription, params ] };
-			if (params.ajaxData)
-				ioParams.data = params.ajaxData;
+			if (params.ajaxData) {
+				var arr = params.ajaxData.split(';');
+				ioParams.data = {};
+				for (var i = 0; i < arr.length; i++) {
+					var arr2 = arr[i].split(':');
+					if (arr2.length === 2)
+						ioParams.data[arr2[0]] = arr2[1];
+				}
+			}
 			Y.io(params.ajaxUrl, ioParams);
 		} else
 			constructDlg(dlgDescription, params);
@@ -456,7 +464,10 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 					el._node.src = arr[1];
 					closeWindow(panel);
 				} else {
-					displayMessage('gd_upload_dlg', 'error', arr[1]);
+					if (arr.length > 1)
+						displayMessage('gd_upload_dlg', 'error', arr[1]);
+					else
+						displayMessage('gd_upload_dlg', 'error', "We're sorry. You hit an error! Please try again or contact technical support. (" + arr[0] + ")");
 				}
 			}
 
@@ -469,7 +480,8 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		body += "<form id='gd_upload_form'>";
 		body += "<input id='_" + makeId(params.id) + "' type='file' name='" + params.id + "' size='35'></div>";
 		var auth = getAuthenticityToken();
-		body += "<input id='_method' type='hidden' name='_method' value='PUT'>";
+		if (params.method)
+			body += "<input id='_method' type='hidden' name='_method' value=params.method>";
 		body += "<input id='authenticity_token' type='hidden' name='authenticity_token' value='" + auth.authenticity_token + "'>";
 		body += "</form>";
 
@@ -505,6 +517,7 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 
 	Y.delegate("click", function(e) {
 		var data = { url: e.target.getAttribute("data-upload-url"),
+			method: e.target.getAttribute("data-dlg-method"),
 			id: e.target.getAttribute("data-upload-id")
 		};
 
