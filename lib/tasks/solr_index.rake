@@ -38,6 +38,56 @@ namespace :solr_index do
 		return {:folders => folders[0].split(';'), :page_size => folders[1]}
 	end
 
+	desc "create complete reindexing task list"
+	task :create_reindexing_task_list => :environment do
+		#solr = CollexEngine.factory_create(false)
+		#archives = solr.get_all_archives()
+
+		folder_file = File.join(RDF_PATH, "sitemap.yml")
+		site_map = YAML.load_file(folder_file)
+		rdf_folders = site_map['archives']
+		sh_all = TaskUtilities.create_sh_file("batch_all")
+
+		# the archives found need to exactly match the archives in the site maps.
+		all_enum_archives = {}
+		rdf_folders.each { |k,f|
+			all_enum_archives.merge!(f)
+		}
+		#all_enum_archives.merge!(marc_folders)
+		#archives.each {|archive|
+		#	if archive.index("exhibit_") != 0 && archive != "ECCO" && all_enum_archives[archive] == nil
+		#		puts "Missing archive #{archive} from the sitemap.yml files"
+		#	end
+		#}
+		#all_enum_archives.each {|k,v|
+		#	if !archives.include?(k)
+		#		puts "Archive #{k} in sitemap missing from deployed index"
+		#	end
+		#}
+
+		sh_clr = TaskUtilities.create_sh_file("clear_archives")
+		#core_archives = CollexEngine.get_archive_core_list()
+		#core_archives.each {|archive|
+		#}
+
+		rdf_folders.each { |i, rdfs|
+			sh_rdf = TaskUtilities.create_sh_file("batch#{i+1}")
+			rdfs.each {|archive,f|
+				sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E\n")
+				sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Ccommit%3E%3C/commit%3E\n")
+
+				sh_rdf.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
+				sh_all.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
+			}
+			sh_rdf.close()
+		}
+		sh_clr.close()
+
+#		sh_all.puts("rake ecco:mark_for_textwright\n")
+
+		sh_all.close()
+	end
+
 	def index_archive(msg, archive, type)
 		flags = nil
 		case type

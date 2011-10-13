@@ -26,5 +26,13 @@ class TaskUtilities
 		end
 	end
 
+	def self.create_sh_file(name)
+		path = "#{Rails.root}/tmp/#{name}.sh"
+		sh = File.open(path, 'w')
+		sh.puts("#!/bin/sh\n")
+		`chmod +x #{path}`
+		return sh
+	end
+
 
 end
