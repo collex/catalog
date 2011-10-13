@@ -32,9 +32,11 @@ class QueryFormat
 	end
 
 	def self.term_info(typ)
+		# This finds a utf8 word, plus allows the wildcards * and ? and the apostrophe
+		w = /\p{Word}[\p{Word}'?*]*/
 		verifications = {
-			:term => { :exp => /^([+\-]("\p{Word}[\p{Word}?*]*( \p{Word}[\p{Word}?*]*)*"|\p{Word}[\p{Word}?*]*))+$/u, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
-			:frag => { :exp => /^("\p{Word}[\p{Word}?*]*( \p{Word}[\p{Word}?*]*)*"|\p{Word}[\p{Word}?*]*)$/u, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
+			:term => { :exp => /^([+\-]("#{w}( #{w})*"|#{w}))+$/u, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
+			:frag => { :exp => /^("#{w}( #{w})*"|#{w})$/u, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
 			:year => { :exp => /^([+\-]\d\d\d\d)$/, :friendly => "[+-] A four digit date" },
 			:archive => { :exp => /^([+\-]\w[\w?*]*)$/, :friendly => "[+-] One of the predefined archive abbreviations" },
 			:genre => { :exp => /^([+\-]\w[ \w?*]*)+$/, :friendly => "[+-] One or more of the predefined genres" },
@@ -82,7 +84,7 @@ class QueryFormat
 
 	def self.catalog_format()
 		format = {
-				'q' => { :name => 'Query', :param => :term, :default => "*:*", :transformation => get_proc(:transform_query) },
+				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
 				't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
 				'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
 				'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
@@ -108,7 +110,7 @@ class QueryFormat
 				'max' => { :name => 'Maximum matches to return', :param => :max, :default => '15', :transformation => get_proc(:transform_max_matches) },
 #TODO:PER do we need this or is this always done?				'clean' => { :name => 'Query', :param => :term },
 
-				'q' => { :name => 'Query', :param => :term, :default => "*:*", :transformation => get_proc(:transform_query) },
+				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
 				't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
 				'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
 				'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
@@ -125,7 +127,7 @@ class QueryFormat
 
 	def self.names_format()
 		format = {
-				'q' => { :name => 'Query', :param => :term, :default => "*:*", :transformation => get_proc(:transform_query) },
+				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
 				't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
 				'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
 				'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
@@ -224,7 +226,9 @@ class QueryFormat
 	end
 
 	def self.transform_query(key,val)
-		return { 'q' => val.downcase() }
+		# To find diacriticals, the main search strips them off, then we include an optional boosted search with them
+		v = val.downcase()
+		return { 'q' => "#{insert_field_name("content", v, 20)} #{insert_field_name("content_ascii", v)}"  }
 	end
 
 	#partitions a string based on regex.  matches are included in results
@@ -234,19 +238,21 @@ class QueryFormat
 		results = []
 		s = StringScanner.new(str)
 		last_pos = 0
+		ascii = str.dup.force_encoding("ASCII-8BIT")
 		while(s.skip_until(regex))
 			matched_size = s.matched_size
 			pos = s.pos
 			#add the non-delimiter string if it exists (it may not if the string starts with a delimiter)
-			results << str[last_pos ... pos - matched_size] if last_pos < pos - matched_size
+			# HACK: StringScanner evidently returns bytes instead of strings, so we have to translate the utf8 string to ascii temporarily.
+			results << ascii[last_pos ... pos - matched_size].force_encoding("UTF-8") if last_pos < pos - matched_size
 			#add the delimiter
-			results << str[pos - matched_size ... pos]
+			results << ascii[pos - matched_size ... pos].force_encoding("UTF-8")
 			#update the last_pos to the current pos
 			last_pos = pos
 		end
 		#add the last non-delimiter string if one exists after the last delimiter.  It would not have
 		#been added since s.skip_until would have returned nil
-		results << str[last_pos ... str.length] if last_pos < str.length
+		results << ascii[last_pos ... ascii.length].force_encoding("UTF-8") if last_pos < str.length
 		return results
 	end
 
@@ -266,7 +272,7 @@ class QueryFormat
 		return pairs
 	end
 
-	def self.insert_field_name(field, val)
+	def self.insert_field_name(field, val, boost=nil)
 		# this is of the format ([+|-]match)+
 		# we want to break it into its component parts
 		pairs = self.make_pairs(val, /[\+-]/)
@@ -275,9 +281,9 @@ class QueryFormat
 		pairs.each {|pair|
 			match = pair[1]
 			match = "\"#{match}\"" if match.include?(' ') && !match.include?('"')
-			results.push("#{pair[0]}#{field}:#{match}")
+			results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{boost ? "^#{boost}" : ''}")
 		}
-		return results.join(" AND ")
+		return results.join(" ")
 #		str = val[1..val.length]
 #		str = "\"#{str}\"" if str.include?(' ')
 #		return "#{val[0]}#{field}:#{str}"

@@ -178,7 +178,7 @@ class Solr
 		if response && response['response'] && response['response']['docs']
 			response['response']['docs'].each { |doc|
 				doc['title'] = doc['title'].join("") if doc['title'] && doc['title'].kind_of?(Array)
-				doc['url'] = doc['url'].join("") if doc['url']
+				doc['url'] = doc['url'].join("") if doc['url'] && doc['url'].kind_of?(Array)
 			}
 		end
 	end
@@ -403,6 +403,16 @@ class Solr
 		return archives.sort()
 	end
 
+##########################################################################
+##########################################################################
+####### INDEXING HELPERS
+##########################################################################
+##########################################################################
+
+	def self.archive_to_core_name(archive)
+		return archive.gsub(/[:\s,]/, "_")
+	end
+	
 end
 
 ##########################################################################
