@@ -93,7 +93,7 @@ namespace :solr_index do
 		if merge_list.length > 0
 			sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
 		end
-		sh_merge.puts("rake solr_index:optimize core=resources\"")
+		sh_merge.puts("rake solr:optimize core=resources\"")
 		sh_merge.close()
 
 #		sh_all.puts("rake ecco:mark_for_textwright\n")
