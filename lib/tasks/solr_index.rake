@@ -232,7 +232,7 @@ namespace :solr_index do
 	def merge_archive(archive)
 		puts "~~~~~~~~~~~ Merging archive(s) #{archive} ..."
 		archives = archive.split(',')
-		solr = Solr.factory_create(false)
+		solr = Solr.factory_create(:live)
 		archive_list = []
 		archives.each{|arch|
 			index_name = Solr.archive_to_core_name(arch)

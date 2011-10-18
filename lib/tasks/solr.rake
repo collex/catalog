@@ -60,7 +60,7 @@ namespace :solr do
 	desc "examine solr document, both in the regular index and the reindexing index (param: uri)"
 	task :examine  => :environment do
 		uri = ENV['uri']
-		solr = Solr.factory_create(false)
+		solr = Solr.factory_create(:live)
 		begin
 			hit = solr.details({ 'q' => "uri:#{uri}" }, { :field_list => [] })
 		rescue SolrException => e
@@ -149,7 +149,7 @@ namespace :solr do
 		if param == nil
 			puts "Usage: call with archive=the archive to install"
 		else
-			solr = Solr.factory_create(false)
+			solr = Solr.factory_create(:live)
 			folder = "#{ENV['HOME']}/uploaded_data"
 			archives = param.split(',')
 
@@ -182,7 +182,7 @@ namespace :solr do
 		else
 			puts "~~~~~~~~~~~ Remove archive(s) #{archives} from resources..."
 			start_time = Time.now
-			solr = Solr.factory_create(false)
+			solr = Solr.factory_create(:live)
 			archives = archives.split(',')
 			archives.each {|archive|
 				solr.remove_archive(archive, false)
