@@ -169,7 +169,7 @@ namespace :solr do
 			# delete the cache
 			TaskUtilities.delete_file("#{Rails.root}/cache/num_docs.txt")
 
-			solr.replace_archives(indexes)
+			solr.merge_archives(indexes)
 			solr.commit()
 			puts "Finished in #{(Time.now-today)/60} minutes."
 		end

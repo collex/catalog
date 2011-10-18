@@ -28,7 +28,7 @@ class Solr
 		else
 			@shards = nil
 		end
-		@core = "#{SOLR_CORE_PREFIX}/#{core}"
+		@core = core # "#{SOLR_CORE_PREFIX}/#{core}"
 		@solr = RSolr.connect( :url=>"#{SOLR_URL}/#{core}" )
 		@field_list = [ "uri", "archive", "date_label", "genre", "source", "image", "thumbnail", "title", "alternative", "url",
 			"role_ART", "role_AUT", "role_EDT", "role_PBL", "role_TRL", "role_EGR", "role_ETR", "role_CRE", "freeculture",
@@ -361,10 +361,12 @@ class Solr
 		end
 	end
 
-	def replace_archives(archives)
+	def merge_archives(archives)
+		#http://localhost:8983/solr/admin/cores?action=mergeindexes&core=core0&srcCore=core1&srcCore=core2
+		#@solr.merge({ indexDir: archives })
 		url = "#{SOLR_URL}/admin/cores?action=mergeindexes&core=#{@core}"
 		archives.each {|archive|
-			url += "&indexDir=#{archive}"
+			url += "&srcCore=#{archive}"
 		}
 		begin
 			# this will timeout. Don't crash when that happens.
@@ -390,8 +392,7 @@ class Solr
 		if @core.include?("LocalContent")
 			@solr.delete_by_query "*:*"
 		else
-			core = @core.split('/')
-			raise SolrException.new("Cannot clear the core #{core.last}")
+			raise SolrException.new("Cannot clear the core #{@core}")
 		end
 	end
 
