@@ -228,6 +228,7 @@ class QueryFormat
 	def self.transform_query(key,val)
 		# To find diacriticals, the main search strips them off, then we include an optional boosted search with them
 		v = val.downcase()
+		#return { 'q' => v }
 		return { 'q' => "#{insert_field_name("content", v, 20)} #{insert_field_name("content_ascii", v)}"  }
 	end
 
