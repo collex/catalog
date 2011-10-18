@@ -88,6 +88,7 @@ namespace :solr do
 			puts "~~~~~~~~~~~ Optimize #{core}..."
 			start_time = Time.now
 			index = Solr.new(core)
+			index.commit()
 			index.optimize()
 			puts "Finished in #{(Time.now-start_time)/60} minutes."
 		end
