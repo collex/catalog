@@ -83,7 +83,7 @@ namespace :solr_index do
 
 				merge_list.push(archive)
 				if merge_list.length > 10
-					sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(';')}\"")
+					sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
 					merge_list = []
 				end
 			}
@@ -91,7 +91,7 @@ namespace :solr_index do
 		}
 		sh_clr.close()
 		if merge_list.length > 0
-			sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(';')}\"")
+			sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
 		end
 		sh_merge.close()
 
@@ -231,7 +231,7 @@ namespace :solr_index do
 
 	def merge_archive(archive)
 		puts "~~~~~~~~~~~ Merging archive(s) #{archive} ..."
-		archives = archive.split(';')
+		archives = archive.split(',')
 		solr = Solr.factory_create(false)
 		archive_list = []
 		archives.each{|arch|
@@ -267,7 +267,7 @@ namespace :solr_index do
 		do_archive { |archive| index_archive("Index", archive, :index) }
 	end
 
-	desc "Test one RDF archive (param: archive=XXX)"
+	desc "Test one RDF archive (param: archive=XXX,YYY)"
 	task :archive_test => :environment do
 		do_archive { |archive| test_archive(archive) }
 	end
@@ -277,7 +277,7 @@ namespace :solr_index do
 		do_archive { |archive| index_archive("Debug", archive, :debug) }
 	end
 
-	desc "Index and test one rdf archive (param: archive=XXX)"
+	desc "Index and test one rdf archive (param: archive=XXX,YYY)"
 	task :index_and_test => :environment do
 		do_archive { |archive|
 			index_archive("Index", archive, :index)
