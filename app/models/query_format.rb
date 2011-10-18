@@ -439,7 +439,7 @@ class QueryFormat
 			end
 			solr_hash = definition[:transformation].call(key,val)
 			query.merge!(solr_hash) {|key, oldval, newval|
-				oldval + " AND " + newval
+				oldval + " " + newval
 			}
 		}
 		# add defaults
@@ -447,10 +447,13 @@ class QueryFormat
 			if params[key] == nil && definition[:default] != nil
 				solr_hash = definition[:transformation].call(key,definition[:default])
 				query.merge!(solr_hash) {|key, oldval, newval|
-					oldval + " AND " + newval
+					oldval + " " + newval
 				}
 			end
 		}
+
+		# add standard boosts
+		#query[:bq] = '+genre:Citation^0.1'
 
 		return query
 	end
