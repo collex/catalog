@@ -361,6 +361,20 @@ class Solr
 		end
 	end
 
+	def replace_archives(archives)
+		url = "#{SOLR_URL}/admin/cores?action=mergeindexes&core=#{@core}"
+		archives.each {|archive|
+			url += "&indexDir=#{archive}"
+		}
+		begin
+			# this will timeout. Don't crash when that happens.
+			puts("curl \"#{url}\"")
+			puts(`curl \"#{url}\"`)
+		rescue Exception => e
+			puts("Continuing after exception: #{e}")
+		end
+	end
+
 	def remove_object(uri, commit_now)
 		begin
 			@solr.delete_by_query("+uri:#{uri}")
@@ -733,11 +747,6 @@ end
 #			CollexEngine.report_line("#{fields.to_s}\n")
 #			add_object(fields, relevancy, true) if is_retry == false
 #		end
-#	end
-#
-#	def delete_archive(archive) #usually called when un-peer-reviewing an exhibit, but is also used for indexing.
-#		# Warning: This will delete all the documents in the archive!
-#		@solr.delete_by_query "+archive:#{archive.gsub(":", "\\:").gsub(' ', '\ ')}"
 #	end
 #
 #	#

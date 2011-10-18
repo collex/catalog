@@ -19,6 +19,19 @@ class TaskUtilities
 		return directories.sort()
 	end
 
+	def safe_mkpath(folder)
+		# this makes all the folders in the hierarchy
+		arr = folder.split('/')
+		path = ""
+		arr.each { |level|
+			path += "/#{level}"
+			begin
+			Dir.mkdir(path)
+			rescue
+				# It's ok to fail: it probably means the folder already exists.
+			end
+		}
+	end
 	def self.delete_file(fname)
 		begin
 			File.delete(fname)
@@ -33,6 +46,5 @@ class TaskUtilities
 		`chmod +x #{path}`
 		return sh
 	end
-
 
 end

@@ -429,13 +429,13 @@ class QueryFormat
 		params.each { |key,val|
 			definition = format[key]
 			raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
-			raise(ArgumentError, "Bad parameter (#{key}): #{definition[:name]} was passed as an array.") if val.kind_of?(Array) && definition[:can_be_array] != true
+			raise(ArgumentError, "Bad parameter (#{key}): (#{definition[:name]}) was passed as an array.") if val.kind_of?(Array) && definition[:can_be_array] != true
 			if val.kind_of?(Array)
 				val.each { |v|
-					raise(ArgumentError, "Bad parameter (#{key}): #{v}. Must match: #{definition[:exp]}") if definition[:exp].match(v) == nil
+					raise(ArgumentError, "Bad parameter (#{key}): (#{v}). Must match: #{definition[:exp]}") if definition[:exp].match(v) == nil
 				}
 			else
-				raise(ArgumentError, "Bad parameter (#{key}): #{val}. Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
+				raise(ArgumentError, "Bad parameter (#{key}): (#{val}). Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
 			end
 			solr_hash = definition[:transformation].call(key,val)
 			query.merge!(solr_hash) {|key, oldval, newval|

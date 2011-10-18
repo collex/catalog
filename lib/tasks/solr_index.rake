@@ -69,6 +69,8 @@ namespace :solr_index do
 		#core_archives = CollexEngine.get_archive_core_list()
 		#core_archives.each {|archive|
 		#}
+		sh_merge = TaskUtilities.create_sh_file("merge_all")
+		merge_list = []
 
 		rdf_folders.each { |i, rdfs|
 			sh_rdf = TaskUtilities.create_sh_file("batch#{i+1}")
@@ -78,10 +80,20 @@ namespace :solr_index do
 
 				sh_rdf.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
 				sh_all.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
+
+				merge_list.push(archive)
+				if merge_list.length > 10
+					sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(';')}\"")
+					merge_list = []
+				end
 			}
 			sh_rdf.close()
 		}
 		sh_clr.close()
+		if merge_list.length > 0
+			sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(';')}\"")
+		end
+		sh_merge.close()
 
 #		sh_all.puts("rake ecco:mark_for_textwright\n")
 
@@ -177,13 +189,18 @@ namespace :solr_index do
 		end
 	end
 
-	def do_archive()
+	def do_archive(split = :split)
 		archive = ENV['archive']
 		if archive == nil
-			puts "Usage: call with archive=XXX"
+			puts "Usage: call with archive=XXX,YYY"
 		else
 			start_time = Time.now
-			yield archive
+			if split == :split
+				archives = archive.split(',')
+				archives.each { |a| yield a }
+			else
+				yield archive
+			end
 			finish_line(start_time)
 		end
 	end
@@ -212,6 +229,20 @@ namespace :solr_index do
 		}
 	end
 
+	def merge_archive(archive)
+		puts "~~~~~~~~~~~ Merging archive(s) #{archive} ..."
+		archives = archive.split(';')
+		solr = Solr.factory_create(false)
+		archive_list = []
+		archives.each{|arch|
+			index_name = Solr.archive_to_core_name(arch)
+			solr.remove_archive(arch, false)
+			archive_list.push("archive_#{index_name}")
+		}
+		solr.replace_archives(archive_list)
+
+	end
+
 	#############################################################
 	## TASKS
 	#############################################################
@@ -231,7 +262,7 @@ namespace :solr_index do
 		end
 	end
 
-	desc "Index documents from the rdf folder to the reindex core (param: archive=XXX)"
+	desc "Index documents from the rdf folder to the reindex core (param: archive=XXX,YYY)"
 	task :index  => :environment do
 		do_archive { |archive| index_archive("Index", archive, :index) }
 	end
@@ -241,7 +272,7 @@ namespace :solr_index do
 		do_archive { |archive| test_archive(archive) }
 	end
 
-	desc "Do the initial indexing of a folder to the archive_* core (param: archive=XXX)"
+	desc "Do the initial indexing of a folder to the archive_* core (param: archive=XXX,YYY)"
 	task :debug => :environment do
 		do_archive { |archive| index_archive("Debug", archive, :debug) }
 	end
@@ -254,8 +285,13 @@ namespace :solr_index do
 		}
 	end
 
-	desc "Spider the archive for the full text and place results in rawtext. No indexing performed. (param: archive=XXX)"
+	desc "Spider the archive for the full text and place results in rawtext. No indexing performed. (param: archive=XXX,YYY)"
 	task :spider_rdf_text => :environment do
 		do_archive { |archive| index_archive("Spider text", archive, :spider) }
+	end
+
+	desc "Merge one archive into the \"resources\" index (param: archive=XXX,YYY)"
+	task :merge_archive => :environment do
+		do_archive(:as_one) { |archives| merge_archive(archives) }
 	end
 end

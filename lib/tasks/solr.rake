@@ -92,4 +92,134 @@ namespace :solr do
 			puts "Finished in #{(Time.now-start_time)/60} minutes."
 		end
 	end
+
+	def filename_of_zipped_index(archive)
+		today = Time.now()
+		return "~/backups/#{archive}.#{today.strftime('20%y.%m.%d')}.tar.gz"
+	end
+
+	def dest_filename_of_zipped_index(archive)
+		return "~/backups/#{archive}.tar.gz"
+	end
+
+	def backup_archive(archive)
+		filename = filename_of_zipped_index(archive)
+		puts "zipping index \"#{archive}\"..."
+		cmd_line("cd #{SOLR_PATH}/solr/data/#{archive} && tar cvzf #{filename} index")
+		return filename
+	end
+
+	desc "Backup the solr index specified. Leave a tar file in the backups folder. (param: index=XXX) [i.e. index=archive_rossetti]"
+	task :backup => :environment do
+		start_time = Time.now()
+		index = ENV['index']
+		if index == nil
+			puts "Usage: call with index=the archive to backup"
+		else
+			backup_archive(index)
+		end
+		finish_line(start_time)
+	end
+
+	desc "Package an individual archive and send it to a server. (param=index,machine -- ex: param=rossetti,nines@nines.org) This gets it ready to be installed on the other server with the sister script: install_archive"
+	task :package_archive => :environment do
+		start_time = Time.now()
+		param = ENV['param']
+		if param == nil
+			puts "Usage: call with param=the archive to package,the ssh login for the destination machine"
+		else
+			arr = param.split(',')
+			if arr.length != 2
+				puts "Usage: call with param=the archive to package,the ssh login for the destination machine"
+			else
+				index = arr[0]
+				dest = arr[1]
+				index = "archive_#{index}"
+				filename = backup_archive(index)
+				cmd_line("scp #{filename} #{dest}:uploaded_data/#{dest_filename_of_zipped_index(index)}")
+			end
+		end
+		finish_line(start_time)
+	end
+
+	desc "This assumes a list of gzipped archives in the ~/uploaded_data folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
+	task :install_archive => :environment do
+		today = Time.now()
+		param = ENV['archive']
+		if param == nil
+			puts "Usage: call with archive=the archive to install"
+		else
+			solr = Solr.factory_create(false)
+			folder = "#{ENV['HOME']}/uploaded_data"
+			archives = param.split(',')
+
+			indexes = []
+			archives.each {|archive|
+				index = "archive_#{archive}"
+				index_path = "#{folder}/#{index}"
+				indexes.push(index_path)
+				cmd_line("cd #{folder} && tar xvfz #{index}.tar.gz")
+				cmd_line("rm -r -f #{index_path}")
+				cmd_line("mv #{folder}/index #{index_path}")
+				File.open("#{Rails.root}/log/archive_installations.log", 'a') {|f| f.write("Installed: #{today.getlocal().strftime("%b %d, %Y %I:%M%p")} Created: #{File.mtime(index_path).getlocal().strftime("%b %d, %Y %I:%M%p")} #{archive}\n") }
+				solr.remove_archive(archive, false)
+			}
+
+			# delete the cache
+			TaskUtilities.delete_file("#{Rails.root}/cache/num_docs.txt")
+
+			solr.replace_archives(indexes)
+			solr.commit()
+			puts "Finished in #{(Time.now-today)/60} minutes."
+		end
+	end
+	
+	desc "removes the archive from the resources index (param: archive=XXX,YYY)"
+	task :remove_archive  => :environment do
+		archives = ENV['archive']
+		if archives == nil
+			puts "Usage: call with archive=XXX,YYY"
+		else
+			puts "~~~~~~~~~~~ Remove archive(s) #{archives} from resources..."
+			start_time = Time.now
+			solr = Solr.factory_create(false)
+			archives = archives.split(',')
+			archives.each {|archive|
+				solr.remove_archive(archive, false)
+			}
+			solr.commit()
+			solr.optimize()
+			finish_line(start_time)
+		end
+	end
+
+	#desc "This assumes a gzipped archive in the resources folder named like this: YYYY.MM.DD.index.tar.gz"
+	#task :install_index => :environment do
+	#	today = Time.now()
+	#	puts "The following commands will be executed:"
+	#	puts "cd #{SOLR_PATH}/solr/data/resources && sudo rm -R index_old"
+	#	puts "sudo /sbin/service solr stop"
+	#	puts "cd #{SOLR_PATH}/solr/data/resources && sudo mv index index_old"
+	#	puts "cd #{SOLR_PATH}/solr/data/resources && tar xvfz #{filename_of_zipped_index()}"
+	#	puts "sudo /sbin/service solr start"
+	#	puts "rake solr:index_exhibits"
+	#	puts "You will be asked for your sudo password."
+	#	cmd_line("cd #{SOLR_PATH}/solr/data/resources && sudo rm -R index_old")
+	#	cmd_line("sudo /sbin/service solr stop")
+	#	cmd_line("cd #{SOLR_PATH}/solr/data/resources && sudo mv index index_old")
+	#	cmd_line("cd #{SOLR_PATH}/solr/data/resources && tar xvfz #{filename_of_zipped_index()}")
+	#	cmd_line("sudo /sbin/service solr start")
+	#	sleep 5
+	#	Exhibit.index_all_peer_reviewed()
+	#	puts "Finished in #{(Time.now-today)/60} minutes."
+	#end
+	#
+	#desc "Remove exhibits from the main index (in case the index should be zipped up and moved.)"
+	#task :remove_exhibits_from_index => :environment do
+	#	puts "~~~~~~~~~~~ Removing all peer-reviewed exhibits from solr..."
+	#	today = Time.now()
+	#	Exhibit.unindex_all_exhibits()
+	#	puts "Finished in #{Time.now-today} seconds."
+	#end
+
 end
