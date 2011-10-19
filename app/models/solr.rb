@@ -45,6 +45,8 @@ class Solr
 				name = "resources"
 			elsif is_test == :shards
 				name = self.get_archive_core_list()
+			else
+				raise "Bad parameter in Solr.factory_create"
 			end
 		else	# if a federation is passed, then we are using the local index
 			name = is_test ? "test" : ""
@@ -54,7 +56,7 @@ class Solr
 	end
 
 	private
-	def select(options)
+	def select(options, noisy = true)
 		options['version'] = '2.2'
 		options['defType'] = 'edismax'
 		if @shards
@@ -70,7 +72,8 @@ class Solr
 		uri = ret.request[:uri].to_s
 		arr = uri.split('/')
 		index = arr[arr.length-2]
-		puts "SOLR: [#{index}] #{ret.request[:data]}"
+
+		puts "SOLR: [#{index}] #{ret.request[:data]}" if noisy
 
 		return ret
 	end
@@ -282,13 +285,27 @@ class Solr
 	def details(options, overrides = {})
 		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
 		options = add_field_list_param(options, fields)
-		response = select(options)
+		if overrides[:quiet]
+			response = select(options, false)
+		else
+			response = select(options)
+		end
 		if response && response['response'] && response['response']['docs'] && response['response']['docs'].length > 0
 			massage_hits(response)
 
 			return response['response']['docs'][0]
 		else
-			raise SolrException.new("Cannot find the object \"#{options['q'].sub('uri:','')}\"", :not_found)
+			raise SolrException.new("Cannot find the object \"#{options[:q].sub('uri:','')}\"", :not_found)
+		end
+	end
+
+	def full_object(uri)
+		begin
+			return self.details({ q: "uri:#{uri}" }, { field_list: [ '*' ], quiet: true })
+		rescue RSolr::Error::Http => e
+			str = e.to_s
+			arr = str.split("\nBacktrace:")
+			raise SolrException.new("UNEXPECTED ERROR: #{arr[0]}")
 		end
 	end
 
@@ -363,17 +380,13 @@ class Solr
 
 	def merge_archives(archives)
 		#http://localhost:8983/solr/admin/cores?action=mergeindexes&core=core0&srcCore=core1&srcCore=core2
-		#@solr.merge({ indexDir: archives })
-		url = "#{SOLR_URL}/admin/cores?action=mergeindexes&core=#{@core}"
-		archives.each {|archive|
-			url += "&srcCore=#{archive}"
-		}
+		solr = RSolr.connect( :url=> SOLR_URL )
 		begin
-			# this will timeout. Don't crash when that happens.
-			puts("curl \"#{url}\"")
-			puts(`curl \"#{url}\"`)
-		rescue Exception => e
-			puts("Continuing after exception: #{e}")
+			solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :srcCore => archives } })
+		rescue RSolr::Error::Http => e
+			str = e.to_s
+			arr = str.split("\nBacktrace:")
+			raise SolrException.new(arr[0])
 		end
 	end
 
