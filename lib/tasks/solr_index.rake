@@ -82,10 +82,10 @@ namespace :solr_index do
 				sh_all.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
 
 				merge_list.push(archive)
-				if merge_list.length > 10
-					sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
-					merge_list = []
-				end
+				#if merge_list.length > 10
+				#	sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
+				#	merge_list = []
+				#end
 			}
 			sh_rdf.close()
 		}
@@ -93,7 +93,7 @@ namespace :solr_index do
 		if merge_list.length > 0
 			sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
 		end
-		sh_merge.puts("rake solr:optimize core=resources\"")
+		sh_merge.puts("rake solr:optimize core=resources")
 		sh_merge.close()
 
 #		sh_all.puts("rake ecco:mark_for_textwright\n")
