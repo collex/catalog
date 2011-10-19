@@ -225,11 +225,14 @@ class QueryFormat
 	  self.method( method_sym ).to_proc
 	end
 
+	def self.diacritical_query_data(field, val)
+		v = val.downcase()
+		return "#{insert_field_name(field, v, 20)} #{insert_field_name("#{field}_ascii", v)}"
+	end
+
 	def self.transform_query(key,val)
 		# To find diacriticals, the main search strips them off, then we include an optional boosted search with them
-		v = val.downcase()
-		#return { 'q' => v }
-		return { 'q' => "#{insert_field_name("content", v, 20)} #{insert_field_name("content_ascii", v)}"  }
+		return { 'q' => self.diacritical_query_data("content", val) }
 	end
 
 	#partitions a string based on regex.  matches are included in results
@@ -291,19 +294,23 @@ class QueryFormat
 	end
 
 	def self.transform_title(key,val)
-		return { 'q' => self.insert_field_name("title", val.downcase()) }
+		return { 'q' => self.diacritical_query_data("title", val) }
+		#return { 'q' => self.insert_field_name("title", val.downcase()) }
 	end
 
 	def self.transform_author(key,val)
-		return { 'q' => self.insert_field_name("author", val.downcase()) }
+		return { 'q' => self.diacritical_query_data("author", val) }
+		#return { 'q' => self.insert_field_name("author", val.downcase()) }
 	end
 
 	def self.transform_editor(key,val)
-		return { 'q' => self.insert_field_name("editor", val.downcase()) }
+		return { 'q' => self.diacritical_query_data("editor", val) }
+		#return { 'q' => self.insert_field_name("editor", val.downcase()) }
 	end
 
 	def self.transform_publisher(key,val)
-		return { 'q' => self.insert_field_name("publisher", val.downcase()) }
+		return { 'q' => self.diacritical_query_data("publisher", val) }
+		#return { 'q' => self.insert_field_name("publisher", val.downcase()) }
 	end
 
 	def self.transform_year(key,val)
