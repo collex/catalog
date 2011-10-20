@@ -383,7 +383,9 @@ class Solr
 		solr = RSolr.connect( :url=> SOLR_URL )
 		begin
 			solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :srcCore => archives } })
+			commit()
 		rescue RSolr::Error::Http => e
+			commit()
 			str = e.to_s
 			arr = str.split("\nBacktrace:")
 			raise SolrException.new(arr[0])
