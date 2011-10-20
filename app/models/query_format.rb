@@ -38,10 +38,10 @@ class QueryFormat
 			:term => { :exp => /^([+\-]("#{w}( #{w})*"|#{w}))+$/u, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
 			:frag => { :exp => /^("#{w}( #{w})*"|#{w})$/u, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
 			:year => { :exp => /^([+\-]\d\d\d\d)$/, :friendly => "[+-] A four digit date" },
-			:archive => { :exp => /^([+\-]\w[\w?*]*)$/, :friendly => "[+-] One of the predefined archive abbreviations" },
-			:genre => { :exp => /^([+\-]\w[ \w?*]*)+$/, :friendly => "[+-] One or more of the predefined genres" },
-			:genre2 => { :exp => /^(\w[ \w?*]*)+$/, :friendly => "One or more of the predefined genres" },
-			:federation => { :exp => /^([+\-]\w[\w?*]*)+$/, :friendly => "[+-] One or more of the predefined federations" },
+			:archive => { :exp => /^([+\-]\w[\w-]*)$/, :friendly => "[+-] One of the predefined archive abbreviations" },
+			:genre => { :exp => /^([+\-]\w[ \w]*)+$/, :friendly => "[+-] One or more of the predefined genres" },
+			:genre2 => { :exp => /^(\w[ \w]*)+$/, :friendly => "One or more of the predefined genres" },
+			:federation => { :exp => /^([+\-]\w[\w]*)+$/, :friendly => "[+-] One or more of the predefined federations" },
 			:other_facet => { :exp => /^([+\-](freeculture|fulltext|ocr|typewright))$/, :friendly => "[+-] One of freeculture, fulltext, typewright, or ocr" },
 			:sort => { :exp => /^(title|author|year) (asc|desc)$/, :friendly => "One of title, author, or year followed by one of asc or desc" },
 			:starting_row => { :exp => /^\d+$/, :friendly => "The zero-based index of the results to start on." },
@@ -318,7 +318,8 @@ class QueryFormat
 	end
 
 	def self.transform_archive(key,val)
-		return { 'q' => self.insert_field_name("archive", val) }
+#		return { 'q' => self.insert_field_name("archive", val) }
+		return { 'q' => val[0] + "archive:" + val[1..-1] }
 	end
 
 	def self.transform_genre(key,val)
@@ -392,6 +393,7 @@ class QueryFormat
 
 	def self.transform_uri(key,val)
 		val = "\"#{val}\"" if val.include?(' ')
+		val = val.gsub("&amp;", "&")
 		return { 'q' => "uri:#{val}" }
 	end
 
