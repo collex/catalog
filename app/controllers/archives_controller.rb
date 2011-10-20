@@ -3,8 +3,10 @@ class ArchivesController < ApplicationController
 	before_filter :must_be_logged_in, :except => [:index]
 
 	def facets
+		session[:use_testing_index] ||= false
 		@sites_forest = Archive.get_tree()
 		is_test = Rails.env == 'test' ? :test : :live
+		is_test = :shards if session[:use_testing_index] == true
 		solr = Solr.factory_create(is_test)
 		comp = Archive.compare_to_solr(solr)
 		@missing_in_db = comp[:missing]
@@ -29,6 +31,11 @@ class ArchivesController < ApplicationController
 			session[:resource_toggle][id] = 'close'
 		end
 		render :text => ''	# this is just to keep from getting an error.
+	end
+
+	def toggle_testing
+		session[:use_testing_index] = !session[:use_testing_index]
+		redraw()
 	end
 
 	# GET /archives

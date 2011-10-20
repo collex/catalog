@@ -3,6 +3,7 @@ CollexCatalog::Application.routes.draw do
 		collection do
 			get 'category_list'
 			get 'tree'
+			get 'toggle_testing'
 		end
 	end
 

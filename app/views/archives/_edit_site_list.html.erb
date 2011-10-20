@@ -15,6 +15,8 @@
     # limitations under the License.
     # ---------------------------------------------------------------------------- -%>
 <%# edit_site_list params: array sites_forest, array missing_in_db, array extra_in_db, string parent_div, array inaccessible_sites -%>
+<% switch_label = session[:use_testing_index] ? "Switch to production index" : "Switch to testing index" %>
+<%= link_to( switch_label, '#', { class: 'dialog', 'data-dlg-url' => "/archives/toggle_testing", 'data-parent-div' => 'edit_site_list' }) if user_signed_in? %>
 <div class="header">Edit Sites and Categories</div>
 <div class="site_list">
 <div class="header">
