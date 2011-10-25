@@ -108,7 +108,6 @@ class QueryFormat
 				'field' => { :name => 'Field', :param => :field, :default => 'content', :transformation => get_proc(:transform_field) },
 				'frag' => { :name => 'Fragment to Match', :param => :frag, :default => nil, :transformation => get_proc(:transform_frag) },
 				'max' => { :name => 'Maximum matches to return', :param => :max, :default => '15', :transformation => get_proc(:transform_max_matches) },
-#TODO:PER do we need this or is this always done?				'clean' => { :name => 'Query', :param => :term },
 
 				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
 				't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },

@@ -62,6 +62,9 @@ class Solr
 		if @shards
 			options[:shards] = @shards.join(',')
 		end
+		if options[:q].blank?
+			options[:q] = "*:*"
+		end
 		begin
 			ret = @solr.post( 'select', :data => options )
 		rescue Errno::ECONNREFUSED => e
