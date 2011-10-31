@@ -318,7 +318,9 @@ class QueryFormat
 
 	def self.transform_archive(key,val)
 #		return { 'q' => self.insert_field_name("archive", val) }
-		return { 'q' => val[0] + "archive:" + val[1..-1] }
+		arc = val[1..-1]
+		arc = "\"#{arc}\"" if arc.include?(' ')
+		return { 'q' => val[0] + "archive:" + arc }
 	end
 
 	def self.transform_genre(key,val)
@@ -462,7 +464,7 @@ class QueryFormat
 		}
 
 		# add standard boosts
-		#query[:bq] = '+genre:Citation^0.1'
+		#query[:bq] = 'genre:Citation^0.1'
 
 		return query
 	end
