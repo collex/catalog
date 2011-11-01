@@ -147,7 +147,7 @@ namespace :xxx_ecco do
 			start_time = Time.now
 			require '#{Rails.root}/script/lib/estc_856_scanner.rb'
 			Estc856Scanner.run("#{MARC_PATH}/estc", max_records)
-			puts "Finished in #{(Time.now-start_time)/60} minutes."
+			finish_line(start_time)
 		end
 	end
 end

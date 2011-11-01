@@ -90,7 +90,7 @@ namespace :solr do
 			index = Solr.new(core)
 			index.commit()
 			index.optimize()
-			puts "Finished in #{(Time.now-start_time)/60} minutes."
+			finish_line(start_time)
 		end
 	end
 
@@ -171,7 +171,7 @@ namespace :solr do
 
 			solr.merge_archives(indexes)
 			solr.commit()
-			puts "Finished in #{(Time.now-today)/60} minutes."
+			finish_line(start_time)
 		end
 	end
 	

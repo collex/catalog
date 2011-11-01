@@ -117,7 +117,7 @@ namespace :xxx_marc do
 #				args[:dir] = "#{marc_path}#{arc}"
 #				MarcIndexer.run(args)
 #			end
-			puts "Finished in #{(Time.now-start_time)/60} minutes."
+			finish_line(start_time)
 		end
 	end
 
@@ -150,7 +150,7 @@ namespace :xxx_marc do
 										}
 				MarcIndexer.run(args)
 
-				puts "Finished in #{(Time.now-start_time)/60} minutes."
+				finish_line(start_time)
 			end
 		end
 	end
@@ -185,7 +185,7 @@ namespace :xxx_marc do
 				}
 				MarcIndexer.run(args)
 
-				puts "Finished in #{(Time.now-start_time)/60} minutes."
+				finish_line(start_time)
 			end
 		end
 	end
@@ -207,7 +207,7 @@ namespace :xxx_marc do
 				puts "~~~~~~~~~~~ Scanning for genres in #{archive}..."
 				start_time = Time.now
 				MarcGenreScanner.run("#{MARC_PATH}/#{archive}", true, max_records)
-				puts "Finished in #{(Time.now-start_time)/60} minutes."
+				finish_line(start_time)
 			end
 		end
 	end
