@@ -37,17 +37,17 @@ class QueryFormat
 		verifications = {
 			:term => { :exp => /^([+\-]("#{w}( #{w})*"|#{w}))+$/u, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
 			:frag => { :exp => /^("#{w}( #{w})*"|#{w})$/u, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
-			:year => { :exp => /^([+\-]\d\d\d\d)$/, :friendly => "[+-] A four digit date" },
-			:archive => { :exp => /^([+\-]\w[\w\- ]*)$/, :friendly => "[+-] One of the predefined archive abbreviations" },
-			:genre => { :exp => /^([+\-]\w[ \w]*)+$/, :friendly => "[+-] One or more of the predefined genres" },
-			:genre2 => { :exp => /^(\w[ \w]*)+$/, :friendly => "One or more of the predefined genres" },
-			:federation => { :exp => /^([+\-]\w[\w]*)+$/, :friendly => "[+-] One or more of the predefined federations" },
-			:other_facet => { :exp => /^([+\-](freeculture|fulltext|ocr|typewright))+$/, :friendly => "[+-] One of freeculture, fulltext, typewright, or ocr" },
-			:sort => { :exp => /^(title|author|year) (asc|desc)$/, :friendly => "One of title, author, or year followed by one of asc or desc" },
+			:year => { :exp => /^([+\-]\d\d\d\d)$/, :friendly => "[+-] A four digit date." },
+			:archive => { :exp => /^([+\-]\w[\w\- ]*)$/, :friendly => "[+-] One of the predefined archive abbreviations." },
+			:genre => { :exp => /^([+\-]\w[ \w]*)+$/, :friendly => "[+-] One or more of the predefined genres." },
+			:genre2 => { :exp => /^(\w[ \w]*)+(;(\w[ \w]*)+)*$/, :friendly => "One or more of the predefined genres separated by semicolons." },
+			:federation => { :exp => /^([+\-]\w[\w]*)+$/, :friendly => "[+-] One or more of the predefined federations." },
+			:other_facet => { :exp => /^([+\-](freeculture|fulltext|ocr|typewright))+$/, :friendly => "[+-] One of freeculture, fulltext, typewright, or ocr." },
+			:sort => { :exp => /^(title|author|year) (asc|desc)$/, :friendly => "One of title, author, or year followed by one of asc or desc." },
 			:starting_row => { :exp => /^\d+$/, :friendly => "The zero-based index of the results to start on." },
 			:max => { :exp => /^\d+$/, :friendly => "The page size, or the maximum number of results to return at once." },
-			:highlighting => { :exp => /^(on|off)$/, :friendly => "Whether to return highlighted text, if available. (Pass on or off)" },
-			:field => { :exp => /^(author|title|editor|publisher|content)$/, :friendly => "Which field to autocomplete. (One of author, title, editor, publisher, content)" },
+			:highlighting => { :exp => /^(on|off)$/, :friendly => "Whether to return highlighted text, if available. (Pass on or off.)" },
+			:field => { :exp => /^(author|title|editor|publisher|content)$/, :friendly => "Which field to autocomplete. (One of author, title, editor, publisher, content.)" },
 			:uri => { :exp => /^([A-Za-z0-9+.-]+):\/\/.+$/, :friendly => "The URI of the object to return."},
 			:id => { :exp => /^[0-9]+$/, :friendly => "The unique integer ID of the object."},
 			:commit => { :exp => /^(immediate|delayed)$/, :friendly => "Whether to commit the change now, or wait for the background task to commit. (immediate or delayed)"},
@@ -60,8 +60,8 @@ class QueryFormat
 			:object_type => { :exp => /^(Group|Exhibit|Cluster|DiscussionThread)$/, :friendly => "One of Group, Exhibit, Cluster, or DiscussionThread."},
 			:decimal => { :exp => /^\d+$/, :friendly => "An integer."},
 			:decimal_array => { :exp => /^\d+(,\d+)*$/, :friendly => "An integer or array of integers separated by commas."},
-			:local_sort => { :exp => /^(title|last_modified) (asc|desc)$/, :friendly => "One of title or last_modified followed by one of asc or desc" },
-			:last_modified => { :exp => /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ" },
+			:local_sort => { :exp => /^(title|last_modified) (asc|desc)$/, :friendly => "One of title or last_modified followed by one of asc or desc." },
+			:last_modified => { :exp => /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ." },
 		}
 
 		return verifications[typ]
@@ -159,30 +159,34 @@ class QueryFormat
 
 			# Multivalued fields
 			'alternative' => { :name => 'alternative', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
-			'date_label' => { :name => 'date_label', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			#'date_label' => { :name => 'date_label', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
 			'genre' => { :name => 'genre', :param => :genre2, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
 			'role_AUT' => { :name => 'Author', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
 			'role_PBL' => { :name => 'Publisher', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
-			'role_ART' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
-			'role_EDT' => { :name => 'Editor', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
-			'role_TRL' => { :name => 'Translator', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
-			'role_EGR' => { :name => 'Engraver', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
-			'role_ETR' => { :name => 'Etcher', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
-			'role_CRE' => { :name => 'Creator', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			#'role_ART' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			#'role_EDT' => { :name => 'Editor', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			#'role_TRL' => { :name => 'Translator', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			#'role_EGR' => { :name => 'Engraver', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			#'role_ETR' => { :name => 'Etcher', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
+			#'role_CRE' => { :name => 'Creator', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
 			'year' => { :name => 'year', :param => :string, :default => nil, :transformation => get_proc(:transform_field), :can_be_array => true },
 
 			# single valued fields
-			'image' => { :name => 'image', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			#'image' => { :name => 'image', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'source' => { :name => 'source', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
 			'text' => { :name => 'text', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'text_url' => { :name => 'text_url', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
 			'thumbnail' => { :name => 'thumbnail', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
 			'title' => { :name => 'title', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
-			'url' => { :name => 'url', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'title_sort' => { :name => 'title_sort', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'author_sort' => { :name => 'author_sort', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'url' => { :name => 'url', :param => :string, :default => nil, :transformation => get_proc(:transform_field) }
 
 			# boolean fields
-			'has_full_text' => { :name => 'has_full_text', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
-			'is_ocr' => { :name => 'is_ocr', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
-			'freeculture' => { :name => 'freeculture', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
-			'typewright' => { :name => 'typewright', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) }
+			#'has_full_text' => { :name => 'has_full_text', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
+			#'is_ocr' => { :name => 'is_ocr', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
+			#'freeculture' => { :name => 'freeculture', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) },
+			#'typewright' => { :name => 'typewright', :param => :boolean, :default => 'false', :transformation => get_proc(:transform_field) }
 		}
 		return self.add_to_format(format)
 	end

@@ -60,8 +60,10 @@ class ExhibitsController < ApplicationController
 					QueryFormat.transform_raw_parameters(params)
 					query = QueryFormat.create_solr_query(query_params, params)
 					page = params[:page]
+					id = params[:id]
 					query[:uri] = query[:uri].gsub("$[FEDERATION_SITE]$", federation.site).gsub("$[PAGE_NUM]$", page ? "/#{page}" : "")
-					query[:archive] = query[:archive].gsub("$[FEDERATION_NAME]$", federation.name)
+					query[:archive] = QueryFormat.id_to_archive(id).gsub("$[FEDERATION_NAME]$", federation.name)
+					query['genre'] = query['genre'].split(';') if !query['genre'].blank? && query['genre'].include?(';')
 					commit = params[:commit] == 'immediate'
 					type = params[:type]
 					boost = type == 'partial' ? 3.0 : 2.0
@@ -70,6 +72,21 @@ class ExhibitsController < ApplicationController
 					is_test = Rails.env == 'test' ? :test : :live
 					solr = Solr.factory_create(is_test)
 					solr.add_object(query, boost, commit)
+
+					if type == 'whole'
+						parent_name = "#{federation.name} Exhibits"
+						parent = Archive.find_by_name(parent_name)
+						if parent == nil
+							parent = Archive.create({ typ: 'node', parent_id: 0, name: parent_name})
+						end
+						archive = Archive.find_by_handle(query[:archive])
+						rec = { typ: 'archive', parent_id: parent.id, handle: query[:archive], name: query['title'] }
+						if archive
+							archive.update_attributes(rec)
+						else
+							Archive.create(rec)
+						end
+					end
 
 					respond_to do |format|
 						format.xml { render :template => '/exhibits/create' }
@@ -97,12 +114,15 @@ class ExhibitsController < ApplicationController
 				begin
 					commit = params[:commit] == 'immediate'
 					id = params[:id]
-					@archive = QueryFormat.id_to_archive(id).gsub("$[FEDERATION_NAME]$", federation.name)
+					archive = QueryFormat.id_to_archive(id).gsub("$[FEDERATION_NAME]$", federation.name)
 
 					is_test = Rails.env == 'test' ? :test : :live
 					solr = Solr.factory_create(is_test)
-					solr.remove_archive(@archive, commit)
+					solr.remove_archive(archive, commit)
 
+					node = Archive.find_by_handle(archive)
+					node.destroy if !node.blank?
+						
 					respond_to do |format|
 						format.xml { render :template => '/exhibits/destroy' }
 					end
