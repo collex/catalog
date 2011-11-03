@@ -9,9 +9,9 @@ class SearchController < ApplicationController
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			# tank citations
-			if query['q']
-				query['q'] = "(#{query['q']} -genre:Citation)^20 (#{query['q']} genre:Citation)^0.1"
-			end
+			#if query['q']
+			#	query['q'] = "(#{query['q']} -genre:Citation)^20 (#{query['q']} genre:Citation)^0.1"
+			#end
 			solr = Solr.factory_create(is_test)
 			@results = solr.search(query)
 
