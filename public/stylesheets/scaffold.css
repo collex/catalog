@@ -257,3 +257,23 @@ div.field, div.actions {
   font-size: 12px;
   list-style: square;
 }
+
+table.ascii_table {
+	border: 1px solid #8B9A49;
+	text-align: center;
+	margin-top: 8px;
+	margin-left: 40px;
+}
+
+table.ascii_table th {
+	font-weight: bold;
+	padding: 4px;
+	color: #8B9A49;
+}
+
+table.ascii_table td {
+}
+
+table.ascii_table .important {
+	background-color: #eeeeee;
+}

@@ -30,51 +30,43 @@
 		to be escaped using a % and the hex code of the character. For instance, a plus sign should be encoded as <span class="code">%2B</span>.
 	</p>
 
-	<h2>There are still the following issues to deal with:</h2>
-	<h3>Documentation</h3>
-	<ul>
-		<li>This site is meant to be the main documentation for using ARC Catalog. I'm sure there are important topics missing.
-		</li>
-	</ul>
-	<h3>solr</h3>
-	<ul>
-		<li>solr needs to be upgraded to version 3.4.</li>
-		<li>A couple of fields are wrong in the schema. Mostly they return multi-values when they should be single values, but there could also be some filter errors.</li>
-		<li>Need to add a timestamp for original creation date and modified date.</li>
-		<li>This requires a complete reindex</li>
-	</ul>
-	<h3>Output format</h3>
-	<ul>
-		<li>Create a new search type for OAI-type queries.</li>
-		<li>Create an output for RDF</li>
-		<li>What output formats should be allowed? Currently, if no format is specified, HTML is returned. XML can be specified as a format.
-			We probably want to expand that to also include RDF, and possibly JSON and RUBY.
-		</li>
-	</ul>
 	<h3>Input format</h3>
 	<ul>
+		<li>The input format follows the same syntax as URLs. In particular:</li>
+		<li>The query parameters begin with a question mark.</li>
+		<li>The query parameters are separated from each other with an ampersand (&amp;).</li>
+		<li>A query parameter contains two parts: a key, followed by an equal sign, followed by a value.</li>
 		<li>UTF-8 characters need to be escaped, so a query looks like: <span class="code">q=%2BBront%C3%AB</span> instead of the more natural: <span class="code">q=%2BBrontë</span> </li>
-		<li>The plus sign is used in a lot of places, but that needs to be escaped. It seems like that is a place that will annoy and trip up visitors.</li>
-		<li>The question mark and asterisk may also be an annoyance in the same way.</li>
-		<li>Should parentheses be allowed in the search?</li>
-		<li>For multiple parameters, they should get specified like: <span class="code">+never-more</span>, but the hyphen seems to work like quotes instead.</li>
-		<li>Where should validation be done? Should the format of the q parameter be tight so that the client site must parse the
-			user's input, or should anything be let through, and we just monitor the return from solr and let solr validate?
+		<li>The plus sign and a number of other symbols are used in a lot of places, and need to be escaped to be used in a URL. Here are some common substitutions:
+			<table class="ascii_table">
+				<tr><th>Character</th><th>Escape</th></tr>
+				<tr class='important'><td>space</td><td>+</td></tr>
+				<tr><td>#</td><td>%23</td></tr>
+				<tr><td>$</td><td>%24</td></tr>
+				<tr><td>%</td><td>%25</td></tr>
+				<tr><td>&amp;</td><td>%26</td></tr>
+				<tr><td>'</td><td>%27</td></tr>
+				<tr class='important'><td>+</td><td>%2B</td></tr>
+				<tr><td>.</td><td>%2E</td></tr>
+				<tr><td>/</td><td>%2F</td></tr>
+				<tr class='important'><td>:</td><td>%3A</td></tr>
+				<tr><td>;</td><td>%3B</td></tr>
+				<tr><td>&lt;</td><td>%3C</td></tr>
+				<tr><td>=</td><td>%3D</td></tr>
+				<tr><td>&gt;</td><td>%3E</td></tr>
+				<tr><td>?</td><td>%3F</td></tr>
+				<tr><td>@</td><td>%40</td></tr>
+				<tr><td>[</td><td>%5B</td></tr>
+				<tr><td>\</td><td>%5C</td></tr>
+				<tr><td>]</td><td>%5D</td></tr>
+				<tr><td>^</td><td>%5E</td></tr>
+				<tr><td>`</td><td>%60</td></tr>
+				<tr><td>{</td><td>%7B</td></tr>
+				<tr><td>|</td><td>%7C</td></tr>
+				<tr><td>}</td><td>%7D</td></tr>
+				<tr><td>~</td><td>%7E</td></tr>
+ 			</table>
 		</li>
-		<li>should queries without plus and minus to be allowed like they are in solr to mean "not required, but raises relevancy"?</li>
-		<li>Need to also support POST for the same operations.</li>
-	</ul>
-	<h3>Other</h3>
-	<ul>
-		<li>The name search can easily generate a really expensive solr operation. Is there a way to limit it?</li>
-		<li>What type of statistics should be kept on the searches that are performed? All searches can be stored in the db by date, with requesting IP and date.
-			The actual requesting user is not passed, so the IP would be the installation. If the end user should be logged, then it needs to be passed as a parameter.
-			Or, all <em>unique</em> searches could be kept, with a count of how many times they have been called, and perhaps the date of the first call and the date of the most
-			recent call.
-		</li>
-		<li>Do we need the scaffold for the genres at all? The list of possible names can be retrieved from solr.</li>
-		<li>Need to create a performance test to get some numbers: this needs to make queries that are varied enough that the caching doesn't throw off results. It
-		should also run from a different computer so that the entire end-to-end is tested.</li>
 	</ul>
 </div>
 
