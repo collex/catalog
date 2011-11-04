@@ -403,7 +403,7 @@ class QueryFormat
 	end
 
 	def self.transform_section(key, val)
-		return { 'q' => "section:#{val}" }
+		return { 'fq' => "section:#{val}" }
 	end
 
 	def self.trans_visible(typ, val)
