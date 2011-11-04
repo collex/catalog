@@ -140,14 +140,14 @@
 	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_federations.xsd", { :class => 'example_link' } %></p>
 </div>
 
-<% elsif params[:tab] == 'exhibits' %>
+<% elsif params[:tab] == 'exhibits' && user_signed_in? %>
 <div id="tab_exhibits" class="individual_tab">
 	<h3>Exhibits</h3>
 	<p>Exhibits can be indexed like this:</p>
 	<p><%= example_link("/exhibits.xml") %></p>
 </div>
 
-<% elsif params[:tab] == 'user_content' %>
+<% elsif params[:tab] == 'user_content' && user_signed_in? %>
 <div id="tab_user_content" class="individual_tab">
 	<h3>User Content</h3>
 	<p>A secondary index can be read and written from too:</p>
@@ -156,7 +156,7 @@
 	<p>The output format is described in this <%= link_to "XSD", "/xsd/locals_results.xsd", { :class => 'example_link' } %></p>
 </div>
 
-<% elsif params[:tab] == 'indexing' %>
+<% elsif params[:tab] == 'indexing' && user_signed_in? %>
 <div id="tab_indexing" class="individual_tab">
 	<p>This is a quick synopsis of the indexing tasks that are done on a regular basis. They should be executed from the
 		command line when in the <span class="code">~/www/catalog</span> folder. There are other rake tasks
