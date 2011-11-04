@@ -64,7 +64,7 @@ namespace :solr do
 		no_text = text == 'no'
 		solr = Solr.factory_create(:live)
 		begin
-			hit = solr.details({ 'q' => "uri:#{uri}" }, { :field_list => [] })
+			hit = solr.details({ :q => "uri:#{uri}" }, { :field_list => [] })
 		rescue SolrException => e
 			puts "Error: #{e}"
 		end
@@ -72,7 +72,7 @@ namespace :solr do
 
 		solr = Solr.factory_create(:shards)
 		begin
-			hit = solr.details({ 'q' => "uri:#{uri}" }, { :field_list => [] })
+			hit = solr.details({ :q => "uri:#{uri}" }, { :field_list => [] })
 		rescue SolrException => e
 			puts "Error: #{e}"
 		end
