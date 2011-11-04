@@ -36,7 +36,7 @@ namespace :solr do
 		puts "Finished."
 	end
 
-	def dump_hit(label, hit)
+	def dump_hit(label, hit, no_text)
 		puts " ------------------------------------------------ #{label} ------------------------------------------------------------------"
 		hit.each { |key,val|
 			if val.kind_of?(Array)
@@ -45,38 +45,38 @@ namespace :solr do
 					if key == 'text'
 						v = v.force_encoding("UTF-8")
 					end
-					puts "#{key}: #{v}"
+					puts "#{key}: #{v}" if no_text == false || key != 'text'
 				}
 			else
 				#puts "#{key}: #{trans_str(val)}"
 				if key == 'text'
 					val = val.force_encoding("UTF-8")
 				end
-				puts "#{key}: #{val}"
+				puts "#{key}: #{val}" if no_text == false || key != 'text'
 			end
 		}
 	end
 
-	desc "examine solr document, both in the regular index and the reindexing index (param: uri)"
+	desc "examine solr document, both in the regular index and the reindexing index (param: uri=XXX text=yes|no)"
 	task :examine  => :environment do
 		uri = ENV['uri']
+		text = ENV['text']
+		no_text = text == 'no'
 		solr = Solr.factory_create(:live)
 		begin
 			hit = solr.details({ 'q' => "uri:#{uri}" }, { :field_list => [] })
 		rescue SolrException => e
 			puts "Error: #{e}"
 		end
-		dump_hit("RESOURCES", hit)
+		dump_hit("RESOURCES", hit, no_text) if hit
 
-#			archive = "archive_#{CollexEngine.archive_to_core_name(hit['archive'])}"
-#			solr = Solr.new([archive])
-#			hit = solr.get_object_with_text(uri)
-#			if hit == nil
-#				puts "#{uri}: Can't find this object in the archive."
-#			else
-#				dump_hit("ARCHIVE", hit)
-#			end
-#		end
+		solr = Solr.factory_create(:shards)
+		begin
+			hit = solr.details({ 'q' => "uri:#{uri}" }, { :field_list => [] })
+		rescue SolrException => e
+			puts "Error: #{e}"
+		end
+		dump_hit("REINDEX", hit, no_text) if hit
 	end
 
 	desc "Optimize the index passed in [core=XXX]"
