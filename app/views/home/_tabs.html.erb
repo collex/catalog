@@ -13,6 +13,7 @@
 <% if user_signed_in? %>
 		<%= tab_link("Exhibits", 'exhibits', curr_tab) %>
 		<%= tab_link("User Content", 'user_content', curr_tab) %>
+		<%= tab_link("Indexing", 'indexing', curr_tab) %>
 <% end %>
 </ul>
 </div>
@@ -153,6 +154,99 @@
 	<%= render :partial => 'params', :locals => { :params => @locals_params } %>
 	<p>Example: <%= example_link("/locals.xml?q=%2brossetti&section=community&object_type=Exhibit&federation=NINES") %></p>
 	<p>The output format is described in this <%= link_to "XSD", "/xsd/locals_results.xsd", { :class => 'example_link' } %></p>
+</div>
+
+<% elsif params[:tab] == 'indexing' %>
+<div id="tab_indexing" class="individual_tab">
+	<p>This is a quick synopsis of the indexing tasks that are done on a regular basis. They should be executed from the
+		command line when in the <span class="code">~/www/catalog</span> folder. There are other rake tasks
+		that can be done. See <span class="code">rake -T</span> for more info.
+	</p>
+	<h3>Initial indexing</h3>
+	<p>When you get a brand new archive to index.</p>
+	<ul>
+		<li>TODO</li>
+		<li>sitemap</li>
+		<li>debug</li>
+		<li>spider</li>
+		<li>process text</li>
+		<li>index</li>
+		<li>study log files</li>
+		<li>test manually</li>
+		<li>deploy</li>
+	</ul>
+	<h3>Refreshing Text</h3>
+	<p>When you want to download the full text again (after you have been informed that the content has changed).</p>
+	<ul>
+		<li>TODO</li>
+		<li>spider</li>
+		<li>process text</li>
+		<li>index</li>
+		<li>study log files</li>
+		<li>test manually</li>
+		<li>deploy</li>
+	</ul>
+	<h3>Reindexing an Archive</h3>
+	<p>When the RDF is modified, but the full text doesn't have to be downloaded again.</p>
+	<ul>
+		<li>Follow the steps for refreshing text, starting at the Index step.</li>
+	</ul>
+	<h3>Reindexing the entire index</h3>
+	<p>When the version of solr is updated, or a schema change has been done.</p>
+	<ul>
+		<li>TODO</li>
+		<li>make snapshot of all log files</li>
+		<li>create new batch files</li>
+		<li>restart solr</li>
+		<li>run batch files</li>
+		<li>compare log files.</li>
+		<li>study log files</li>
+		<li>test manually</li>
+		<li>deploy</li>
+	</ul>
+	<p>TODO: flesh out the descriptions below.</p>
+	<table class="help">
+		<tr>
+			<th>Common Commands</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>rake&nbsp;ecco:typewright_enable</td>
+			<td>Mark texts for typewright (param: file=/text/file/path/one/item/per/line)</td>
+		</tr>
+		<tr>
+			<td>rake&nbsp;solr:examine</td>
+			<td>examine solr document, both in the regular index and the reindexing index (param: uri=XXX text=yes|no)</td>
+		</tr>
+		<tr>
+			<td>rake&nbsp;solr:remove_archive</td>
+			<td>removes the archive from the resources index (param: archive=XXX,YYY)</td>
+		</tr>
+		<tr>
+			<td>rake&nbsp;solr_index:archive_test</td>
+			<td>Test one RDF archive (param: archive=XXX,YYY)</td>
+		</tr>
+		<tr>
+			<td>rake&nbsp;solr_index:debug</td>
+			<td>Do the initial indexing of a folder to the archive_* core (param: archive=XXX,YYY)</td>
+		</tr>
+		<tr>
+			<td>rake&nbsp;solr_index:index</td>
+			<td>Index documents from the rdf folder to the reindex core (param: archive=XXX,YYY)</td>
+		</tr>
+		<tr>
+			<td>rake&nbsp;solr_index:index_and_test</td>
+			<td>Index and test one rdf archive (param: archive=XXX,YYY)</td>
+		</tr>
+		<tr>
+			<td>rake&nbsp;solr_index:merge_archive</td>
+			<td>Merge one archive into the "resources" index (param: archive=XXX,YYY)</td>
+		</tr>
+		<tr>
+			<td>rake&nbsp;solr_index:spider_rdf_text</td>
+			<td>Spider the archive for the full text and place results in rawtext.</td>
+		</tr>
+	</table>
 </div>
 <% end %>
 </div> <%# tab content %>
