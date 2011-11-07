@@ -14,6 +14,7 @@ if File.exists?(config_file)
 		ECCO_PATH = folders['ecco']
 		INDEXER_PATH = folders['rdf_indexer']
 	end
+	PRODUCTION_SSH = site_specific['production']['ssh']
 else
 	puts "***"
 	puts "*** Failed to load site configuration. Did you create config/site.yml?"

@@ -1,0 +1,164 @@
+<p>This is a quick synopsis of the indexing tasks that are done on a regular basis. They should be executed from the
+	command line when in the <span class="code">~/www/catalog</span> folder. There are other rake tasks
+	that can be done. See <span class="code">rake -T</span> for more info.
+</p>
+<h3>Initial indexing</h3>
+<p>Use these steps when you get a brand new archive to index.</p>
+<ol>
+	<li>Update rdf/sitemap.yml
+		<p>
+			A line needs to be put into the sitemap file for each archive. The format is:<br /><span class="code">"archive_name": ["archive/folder", num_docs_to_process_at_once]</span>.<br />
+			The line can be put in any section, but the archives are roughly ordered from small to large. If the archive has either a lot of documents, or each document has a large
+			amount of text, it should be placed lower in the file. The <span class="code">archive_name</span> must EXACTLY match the archive in the RDF. You cannot mix
+			archives in the same folder. The <span class="code">archive/folder</span> is the path that the RDF is, relative to the sitemap.yml file.
+			The <span class="code">num_docs_to_process_at_once</span> should probably initially be 1000, then adjusted as needed. If you know that there is
+			no full text, or that the full text is particularly small, then you can increase the number. After you've run the archive, at the bottom of the *_compare_text.log file
+			there are some statistics about the size of the full text. You can use those numbers to tune this. The larger the number, the faster the comparison runs,
+			but it may also run out of memory. The correct number is hard to say, but the one that corresponds to 5 megs is probably ok.
+		</p>
+	</li>
+	<li>Check the RDF in to SVN
+		<p>
+			The RDF should be saved in a logical folder in the RDF section of the SVN repository. Usually it will either be at a top level folder (just under
+			<span class="code">~/index/rdf/</span> if it is a one-off archive, or a single subfolder deeper if it is part of a larger collection. After checking it in from your machine, then it
+			must be checked out on the ARC Catalog staging server. <span class="code">ssh</span> onto the ARC Catalog staging machine, <span class="code">cd ~/index/rdf</span> to the rdf folder,
+				and do <span class="code">svn up</span> to get all the latest RDF.
+		</p>
+	</li>
+	<li>Debugging the RDF
+		<p>
+			The first time you run a particular set of RDF, you will probably want to do a test run to see if there are errors in the XML format, or missing
+			required fields. The following command will run through the indexing process without actually saving anything so it runs fast and there is
+			no risk:<br />
+			<span class="code">rake solr_index:debug archive=archive_name</span><br />
+			(Note: all commands should be run from <span class="code">cd ~/www/catalog</span> on the server.) This will create this file:
+			<span class="code">log/archive_name_error.log</span>. Study that file to see if the RDF is acceptable and repeat this step as necessary.
+		</p>
+	</li>
+	<li>Getting the (raw) full text (that is, "spidering")
+		<p>
+			Some archives contain all the data inside the RDF, either because they don't have full text, or because the full text was embedded in the RDF.
+			Other archives, however, require getting the full text from a website. If the RDF contains the element <span class="code">&lt;collex:text&gt;</span>
+			and that element contains a URL, then this step is required to get the data. Run this:<br />
+			<span class="code">rake solr_index:spider_rdf_text archive=archive_name</span><br />
+			That will leave all the text that it found in the folder <span class="code">~/index/rawtext/archive_name</span>. Unfortunately, this data
+			is often dirty in that it will contain html or other things that should not be included. If you determine that the data is completely clean, it
+			can be copied over to <span class="code">~/index/fulltext/archive_name</span> and the following step can be skipped.
+		</p>
+	</li>
+	<li>Process the raw text
+		<p>
+			At the moment, this step needs to be done by hand because there is no telling what is messy about the data. Any text processing tool can
+			be used, but so far, we've extended the rdf-indexer for each archive we've encountered. The final result, though, should be a set of files in
+			<span class="code">~/index/fulltext/archive_name</span> that is completely clean of extraneous material and is ready to be put in
+			the index.
+		</p>
+	</li>
+	<li>Indexing an archive
+		<p>
+			After the RDF is debugged and the fulltext is retrieved and cleaned, then you can index, using this command:<br />
+			<span class="code">rake solr_index:index archive=archive_name</span><br />
+			This will leave a number of files in <span class="code">cd ~/www/catalog/log/</span> that start with <span class="code">archive_name</span>.
+			Study these files to see if there are any errors.
+		</p>
+	</li>
+	<li>Test manually
+		<p>
+			The indexing process only creates a test archive. It is not in the general index yet. To see the result of the indexing, you must open the
+			staging version of Collex in a browser, log in, then go to the admin page and click "Temporarily use the testing index for searches". You
+			can then see if the index is acceptable. At this point, you can go to <%= link_to "Archives", "/archives", { class: 'example_link' } %>
+			to add the archive to the resource tree.
+		</p>
+	</li>
+	<li>Deploying the index
+		<p>
+			There are actually three copies of the solr index: there is a copy on production, but in staging, there is both a mirror of the deployed index, and also the test index. The
+			above steps only put the new content in the test index. There is a step to copy that new content to the regular staging index, and a step
+			to copy that new content to production. It is important to copy the content to the staging index, because future reindexing steps will use
+			that to run tests against. To copy to the staging index:<br />
+			<span class="code">rake solr_index:merge_archive archive=archive_name</span><br />
+			After that finishes, you should see the archive on the staging server.
+		</p>
+		<p>
+			To deploy it to production, there are two steps, one to run on the indexing server, and one to run on the production server. Run this on the indexing server:
+			<span class="code">rake solr_index:package archive=archive_name</span><br />
+			This will request the login password for getting on the server. Then, after that finishes, ssh into the production ARC Catalog, and run this:
+			<span class="code">rake solr_index:install archive=archive_name</span><br />
+			If, after installing an archive, you decide you don't want it in the index after all, you can remove an archive with:
+			<span class="code">rake solr_index:remove archive=archive_name</span><br />
+			Note that you will have to repeat the step of adding the archive to the resource tree for the production server.
+		</p>
+	</li>
+</ol>
+<h3>Refreshing Text</h3>
+<p>When you want to download the full text again (after you have been informed that the content has changed).</p>
+<ol>
+	<li>TODO</li>
+	<li>spider</li>
+	<li>process text</li>
+	<li>index</li>
+	<li>study log files</li>
+	<li>test manually</li>
+	<li>deploy</li>
+</ol>
+<h3>Reindexing an Archive</h3>
+<p>When the RDF is modified, but the full text doesn't have to be downloaded again.</p>
+<ol>
+	<li>Follow the steps for refreshing text, starting at the Index step.</li>
+</ol>
+<h3>Reindexing the entire index</h3>
+<p>When the version of solr is updated, or a schema change has been done.</p>
+<ol>
+	<li>TODO</li>
+	<li>make snapshot of all log files</li>
+	<li>create new batch files</li>
+	<li>restart solr</li>
+	<li>run batch files</li>
+	<li>compare log files.</li>
+	<li>study log files</li>
+	<li>test manually</li>
+	<li>deploy</li>
+</ol>
+<p>TODO: flesh out the descriptions below.</p>
+<table class="help">
+	<tr>
+		<th>Common Commands</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td>rake&nbsp;ecco:typewright_enable</td>
+		<td>Mark texts for typewright (param: file=/text/file/path/one/item/per/line)</td>
+	</tr>
+	<tr>
+		<td>rake&nbsp;solr:examine</td>
+		<td>examine solr document, both in the regular index and the reindexing index (param: uri=XXX text=yes|no)</td>
+	</tr>
+	<tr>
+		<td>rake&nbsp;solr:remove_archive</td>
+		<td>removes the archive from the resources index (param: archive=XXX,YYY)</td>
+	</tr>
+	<tr>
+		<td>rake&nbsp;solr_index:archive_test</td>
+		<td>Test one RDF archive (param: archive=XXX,YYY)</td>
+	</tr>
+	<tr>
+		<td>rake&nbsp;solr_index:debug</td>
+		<td>Do the initial indexing of a folder to the archive_* core (param: archive=XXX,YYY)</td>
+	</tr>
+	<tr>
+		<td>rake&nbsp;solr_index:index</td>
+		<td>Index documents from the rdf folder to the reindex core (param: archive=XXX,YYY)</td>
+	</tr>
+	<tr>
+		<td>rake&nbsp;solr_index:index_and_test</td>
+		<td>Index and test one rdf archive (param: archive=XXX,YYY)</td>
+	</tr>
+	<tr>
+		<td>rake&nbsp;solr_index:merge_archive</td>
+		<td>Merge one archive into the "resources" index (param: archive=XXX,YYY)</td>
+	</tr>
+	<tr>
+		<td>rake&nbsp;solr_index:spider_rdf_text</td>
+		<td>Spider the archive for the full text and place results in rawtext.</td>
+	</tr>
+</table>

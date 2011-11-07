@@ -65,3 +65,6 @@ folders:
   marc: /path/marc
   ecco: /path/ecco
   rdf_indexer: /path/to/rdf-indexer
+
+production:
+  ssh: "nines@arc.performantsoftware.com"

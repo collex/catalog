@@ -277,3 +277,12 @@ table.ascii_table td {
 table.ascii_table .important {
 	background-color: #eeeeee;
 }
+
+#tab_indexing li {
+	list-style: inherit;
+	font-weight: bold;
+}
+
+#tab_indexing li p {
+	font-weight: normal;
+}

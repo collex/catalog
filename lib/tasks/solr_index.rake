@@ -295,4 +295,51 @@ namespace :solr_index do
 	task :merge_archive => :environment do
 		do_archive(:as_one) { |archives| merge_archive(archives) }
 	end
+
+	desc "Package an individual archive and send it to a server. (archive=XXX,YYY) This gets it ready to be installed on the other server with the sister script: solr:install"
+	task :package => :environment do
+		do_archive { |archive|
+			index = "archive_#{archive}"
+			filename = backup_archive(index)
+			cmd_line("scp #{filename} #{PRODUCTION_SSH}:uploaded_data/#{dest_filename_of_zipped_index(index)}")
+		}
+	end
+
+	desc "This assumes a list of gzipped archives in the ~/uploaded_data folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
+	task :install => :environment do
+		indexes = []
+		do_archive { |archive|
+			solr = Solr.factory_create(:live)
+			folder = "#{ENV['HOME']}/uploaded_data"
+			index = "archive_#{archive}"
+			index_path = "#{folder}/#{index}"
+			indexes.push(index_path)
+			cmd_line("cd #{folder} && tar xvfz #{index}.tar.gz")
+			cmd_line("rm -r -f #{index_path}")
+			cmd_line("mv #{folder}/index #{index_path}")
+			File.open("#{Rails.root}/log/archive_installations.log", 'a') {|f| f.write("Installed: #{today.getlocal().strftime("%b %d, %Y %I:%M%p")} Created: #{File.mtime(index_path).getlocal().strftime("%b %d, %Y %I:%M%p")} #{archive}\n") }
+			solr.remove_archive(archive, false)
+		}
+
+		if indexes.length > 0
+			# delete the cache
+			TaskUtilities.delete_file("#{Rails.root}/cache/num_docs.txt")
+
+			solr.merge_archives(indexes)
+			solr.commit()
+		end
+	end
+
+	desc "removes the archive from the resources index (param: archive=XXX,YYY)"
+	task :remove  => :environment do
+		do_archive { |archive|
+			solr = Solr.factory_create(:live)
+			solr.remove_archive(archive, false)
+		}
+		if !solr.blank?
+			solr.commit()
+			solr.optimize()
+		end
+	end
+
 end
