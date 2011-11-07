@@ -80,44 +80,105 @@
 			After that finishes, you should see the archive on the staging server.
 		</p>
 		<p>
-			To deploy it to production, there are two steps, one to run on the indexing server, and one to run on the production server. Run this on the indexing server:
+			To deploy it to production, there are two steps, one to run on the indexing server, and one to run on the production server. Run this on the indexing server:<br />
 			<span class="code">rake solr_index:package archive=archive_name</span><br />
-			This will request the login password for getting on the server. Then, after that finishes, ssh into the production ARC Catalog, and run this:
+			This will request the login password for getting on the server. Then, after that finishes, ssh into the production ARC Catalog, and run this:<br />
 			<span class="code">rake solr_index:install archive=archive_name</span><br />
-			If, after installing an archive, you decide you don't want it in the index after all, you can remove an archive with:
+			If, after installing an archive, you decide you don't want it in the index after all, you can remove an archive with:<br />
 			<span class="code">rake solr_index:remove archive=archive_name</span><br />
 			Note that you will have to repeat the step of adding the archive to the resource tree for the production server.
 		</p>
 	</li>
 </ol>
 <h3>Refreshing Text</h3>
-<p>When you want to download the full text again (after you have been informed that the content has changed).</p>
+<p>Use these steps when you want to download the full text again (after you have been informed that the content has changed).</p>
 <ol>
-	<li>TODO</li>
-	<li>spider</li>
-	<li>process text</li>
-	<li>index</li>
-	<li>study log files</li>
-	<li>test manually</li>
-	<li>deploy</li>
+	<li>Spidering and processing
+		<p>
+			Use the same two procedures for spidering and processing above (steps #4 and #5).
+		</p>
+	</li>
+	<li>Reindexing
+		<p>
+			Because there is already an index, we would like to make sure that only the parts of the index that we intended to change
+			have, in fact, been changed. The following command both performs the indexing and the testing:<br />
+			<span class="code">rake solr_index:index_and_test archive=archive_name</span><br />
+			This will leave a number of files in <span class="code">cd ~/www/catalog/log/</span> that start with <span class="code">archive_name</span>.
+			Any change to the index will be flagged as an error. If you understand what the change was (that is, any text that is updated will be flagged), then
+			there is no problem, but if an unusual error appears, then you may have introduced a regression error and it should be explained or fixed.
+		</p>
+	</li>
+	<li>Deploying
+		<p>The same steps for testing and deploying that were outlined above (steps #7, #8) should be done for deploying. You will not have
+		to add the archive to the resource tree a second time, though.
+		</p>
+	</li>
 </ol>
 <h3>Reindexing an Archive</h3>
 <p>When the RDF is modified, but the full text doesn't have to be downloaded again.</p>
 <ol>
-	<li>Follow the steps for refreshing text, starting at the Index step.</li>
+	<li>Follow the steps for refreshing text, except that you don't have to do the spidering steps.</li>
 </ol>
 <h3>Reindexing the entire index</h3>
-<p>When the version of solr is updated, or a schema change has been done.</p>
+<p>There are a number of reasons that the entire index must be reindexed. These include: when the version of solr is updated, when
+	a schema change in solr has been done, when a bug in the indexing process as been discovered, and when an improvement to the indexing
+	process has been done.
+</p>
+<p>
+	Because reindexing takes some time, it is recommended to test the reindexing on a small same of archives first, so that you know the work
+	is debugged before reindexing the entire index.
+</p>
 <ol>
-	<li>TODO</li>
-	<li>make snapshot of all log files</li>
-	<li>create new batch files</li>
-	<li>restart solr</li>
-	<li>run batch files</li>
-	<li>compare log files.</li>
-	<li>study log files</li>
-	<li>test manually</li>
-	<li>deploy</li>
+	<li>Snapshot of all log files
+		<p>
+			To make sure that no regression errors sneak in, and that the intended change actually happened, first store all the log files in <span class="code">cd ~/www/catalog/log/</span>
+			somewhere else. They will all get recreated, and we want to run a diff program on them to make sure we understand what the indexing process did.
+		</p>
+	</li>
+	<li>Create new batch files
+		<p>
+			Once in a while, it is good to regenerate the indexing batch files. They will get out of date when new archives are added. Use this to regenerate them:<br />
+			<span class="code">rake solr_index:create_reindexing_task_list</span><br />
+			This will create a number of files in <span class="code">cd ~/www/catalog/tmp/</span> that are a convenience to reindexing.
+		</p>
+	</li>
+	<li>Restart solr
+		<p>
+			If there were schema changes, you must restart solr. This will vary depending on how solr has been set up, but on the servers, it will
+			generally be by restarting the solr service, like this: <span class="code">sudo /sbin/service solr restart</span> On your local machine,
+			it might be using the rake task: <span class="code">rake solr:restart</span>
+		</p>
+	</li>
+	<li>Run reindexing batch files
+		To reindex everything, run:<br />
+		<span class="code">tmp/batch_all.sh</span><br />
+		To reindex some indexes, run one of the smaller batch files:<br />
+		<span class="code">tmp/batch1.sh</span><br />
+		You may also run any of the commands in those batch files independently.
+	</li>
+	<li>Compare and study log files
+		<p>
+			After reindexing, use a diff tool to compare the new log files with the original files.
+		</p>
+	</li>
+	<li>Merging
+		<p>
+			When you are satisfied with the test index, you need to merge all the archives into the staging index. This can be done with:<br />
+			<span class="code">tmp/merge_all.sh</span><br />
+			It is safest to stop solr, delete the entire resources index, and restart solr before running this, but if you are sure that there have been
+			no archives deleted, this isn't necessary.
+		</p>
+	</li>
+	<li>Deploying
+		<p>You can deploy all the archives as above, but that will be really tedious for each archive. Instead, you should just copy the entire archive
+			over to the production machine, then re-add the exhibits:<br />
+			TODO remove exhibits
+			TODO zip resources
+			TODO copy to server
+			TODO install resources
+			TODO add exhibits
+		</p>
+	</li>
 </ol>
 <p>TODO: flesh out the descriptions below.</p>
 <table class="help">
