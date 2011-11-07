@@ -172,54 +172,51 @@
 	<li>Deploying
 		<p>You can deploy all the archives as above, but that will be really tedious for each archive. Instead, you should just copy the entire archive
 			over to the production machine, then re-add the exhibits:<br />
-			TODO remove exhibits
-			TODO zip resources
-			TODO copy to server
-			TODO install resources
-			TODO add exhibits
+			Remove all exhibits, since they will be the exhibits from the staging site.<br />
+			<span class="code">rake solr_index:delete_exhibits</span><br />
+			That will take a while. Then zip up the index and send it to the server.<br />
+			<span class="code">rake solr_index:package_resources</span><br />
+			That will take a while, too. Then ssh to the production server and install the new index.<br />
+			<span class="code">rake solr:replace_resources</span><br />
+			This will take a long time, too, and the production server will be down during part of that time. Then re-add the exhibits, by logging into
+			each of the federation's Collex, and running:<br />
+			<span class="code">rake indexing:all_exhibits</span><br />
 		</p>
 	</li>
 </ol>
-<p>TODO: flesh out the descriptions below.</p>
 <table class="help">
 	<tr>
-		<th>Common Commands</th>
+		<th>Other Commands</th>
 		<th>Description</th>
 	</tr>
 	<tr>
+		<td>all tasks with archive parameter</td>
+		<td>The archive parameter can be either a single archive, or a comma separated list of archives (for example: rossetti,bierce) Depending on the
+			OS, you may have to put quotes around the archive list.</td>
+	</tr>
+	<tr>
 		<td>rake&nbsp;ecco:typewright_enable</td>
-		<td>Mark texts for typewright (param: file=/text/file/path/one/item/per/line)</td>
+		<td>Mark texts for typewright (param: file=/text/file/path/one/item/per/line) This is expecting a text file with a list of 10-digit numbers, one per line.
+			The numbers are the document numbers for the objects that should be typewright enabled.</td>
 	</tr>
 	<tr>
 		<td>rake&nbsp;solr:examine</td>
-		<td>examine solr document, both in the regular index and the reindexing index (param: uri=XXX text=yes|no)</td>
+		<td>examine solr document, both in the regular index and the reindexing index (param: uri=XXX text=yes|no) If you have the URI
+			of a document, then you can see all the info that is saved in solr about it. Because the text will quickly overwhelm all other fields, there
+			is the option of suppressing it. This shows the results in both the regular index and the testing index (if they exist.)
+		</td>
 	</tr>
 	<tr>
-		<td>rake&nbsp;solr:remove_archive</td>
+		<td>rake&nbsp;solr_index:remove_archive</td>
 		<td>removes the archive from the resources index (param: archive=XXX,YYY)</td>
 	</tr>
 	<tr>
 		<td>rake&nbsp;solr_index:archive_test</td>
-		<td>Test one RDF archive (param: archive=XXX,YYY)</td>
+		<td>Test one RDF archive (param: archive=XXX,YYY). This tests the archive without rebuilding it. Its only effect is to refresh the .log files.</td>
 	</tr>
 	<tr>
-		<td>rake&nbsp;solr_index:debug</td>
-		<td>Do the initial indexing of a folder to the archive_* core (param: archive=XXX,YYY)</td>
+		<td>rake&nbsp;solr:backup</td>
+		<td>Backup the solr index specified. Leave a tar file in the backups folder. (param: index=XXX) [i.e. index=archive_rossetti]</td>
 	</tr>
-	<tr>
-		<td>rake&nbsp;solr_index:index</td>
-		<td>Index documents from the rdf folder to the reindex core (param: archive=XXX,YYY)</td>
-	</tr>
-	<tr>
-		<td>rake&nbsp;solr_index:index_and_test</td>
-		<td>Index and test one rdf archive (param: archive=XXX,YYY)</td>
-	</tr>
-	<tr>
-		<td>rake&nbsp;solr_index:merge_archive</td>
-		<td>Merge one archive into the "resources" index (param: archive=XXX,YYY)</td>
-	</tr>
-	<tr>
-		<td>rake&nbsp;solr_index:spider_rdf_text</td>
-		<td>Spider the archive for the full text and place results in rawtext.</td>
-	</tr>
+
 </table>

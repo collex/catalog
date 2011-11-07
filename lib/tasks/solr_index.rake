@@ -305,6 +305,12 @@ namespace :solr_index do
 		}
 	end
 
+	desc "Package the main archive and send it to a server. (archive=XXX,YYY) This gets it ready to be installed on the other server with the sister script: solr:install"
+	task :package_resources => :environment do
+		filename = backup_archive('resources')
+		cmd_line("scp #{filename} #{PRODUCTION_SSH}:uploaded_data/#{dest_filename_of_zipped_index(index)}")
+	end
+
 	desc "This assumes a list of gzipped archives in the ~/uploaded_data folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
 	task :install => :environment do
 		indexes = []
@@ -342,4 +348,17 @@ namespace :solr_index do
 		end
 	end
 
+	desc "removes all exhibits from the resources index"
+	task :delete_exhibits => :environment do
+		solr = Solr.factory_create(:live)
+		archives = solr.get_archive_list()
+		archives.each { |archive|
+			if archive.index('exhibit_') == 0
+				puts archive
+				solr.remove_archive(archive, false)
+			end
+		}
+		solr.commit()
+		solr.optimize()
+	end
 end

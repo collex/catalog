@@ -122,6 +122,23 @@ namespace :solr do
 		finish_line(start_time)
 	end
 
+	desc "This will delete the current index and replace it with the new index that was placed in ~/uploaded_data"
+	task :replace_resources => :environment do
+		start_time = Time.now()
+		puts "This will zip up the current archive and replace it with the new archive."
+		puts "Solr will be down for part of this time, but as much as possible will be done with solr still online."
+		puts "~~~~~ Unzip new archive and put it in the correct place."
+		cmd_line("rm -R ~/uploaded_data/index")
+		cmd_line("cd ~/uploaded_data && tar xvfz #{filename_of_zipped_index()}")
+		cmd_line("mv ~/uploaded_data/index #{SOLR_PATH}/solr/data/resources/index_new")
+		cmd_line("sudo /sbin/service solr stop")
+		cmd_line("mv #{SOLR_PATH}/solr/data/resources/index ~/uploaded_data/index")
+		cmd_line("mv #{SOLR_PATH}/solr/data/resources/index_new #{SOLR_PATH}/solr/data/resources/index")
+		cmd_line("sudo /sbin/service solr start")
+		cmd_line("cd ~/uploaded_data && tar cvfz resources_old.tar.gz index")
+		finish_line(start_time)
+	end
+
 	#desc "This assumes a gzipped archive in the resources folder named like this: YYYY.MM.DD.index.tar.gz"
 	#task :install_index => :environment do
 	#	today = Time.now()
