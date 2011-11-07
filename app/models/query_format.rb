@@ -317,7 +317,7 @@ class QueryFormat
 	end
 
 	def self.transform_year(key,val)
-		return { 'q' => self.insert_field_name("year_sort", val) }
+		return { 'q' => self.insert_field_name("year", val) }
 	end
 
 	def self.transform_archive(key,val)
