@@ -10,9 +10,11 @@ table.help th {
 	padding: 4px;
 	font-family: verdana, arial, helvetica, sans-serif;
 	color: #8b9a49;
+	font-weight: bold;
 }
 
 table.help td {
 	border: 1px solid #cccccc;
 	padding: 4px;
+	font-size: 14px;
 }

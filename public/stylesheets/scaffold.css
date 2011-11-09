@@ -118,7 +118,8 @@ h2 {
 h3 {
 	font-family: verdana, arial, helvetica, sans-serif;
 	padding-top: 16px;
-	padding-bottom: 8px;
+	font-weight: bold;
+	padding-bottom: 13px;
 	color: #8b9a49;
 }
 
@@ -278,11 +279,23 @@ table.ascii_table .important {
 	background-color: #eeeeee;
 }
 
+#tab_indexing ol {
+	padding-left: 28px;
+}
+
 #tab_indexing li {
 	list-style: inherit;
 	font-weight: bold;
 }
 
 #tab_indexing li p {
+	font-size: 14px;
 	font-weight: normal;
+	padding-bottom: 3px;
+	padding-top: 13px;
+}
+
+#tab_indexing p {
+    font-size: 14px;
+    margin-bottom: 28px;
 }
