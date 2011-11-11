@@ -105,7 +105,7 @@ class QueryFormat
 
 	def self.autocomplete_format()
 		format = {
-				'field' => { :name => 'Field', :param => :field, :default => 'content', :transformation => get_proc(:transform_field) },
+				'field' => { :name => 'Field', :param => :field, :default => 'content', :transformation => get_proc(:transform_field_ascii) },
 				'frag' => { :name => 'Fragment to Match', :param => :frag, :default => nil, :transformation => get_proc(:transform_frag) },
 				'max' => { :name => 'Maximum matches to return', :param => :max, :default => '15', :transformation => get_proc(:transform_max_matches) },
 
@@ -324,15 +324,15 @@ class QueryFormat
 #		return { 'q' => self.insert_field_name("archive", val) }
 		arc = val[1..-1]
 		arc = "\"#{arc}\"" if arc.include?(' ')
-		return { 'q' => val[0] + "archive:" + arc }
+		return { 'fq' => val[0] + "archive:" + arc }
 	end
 
 	def self.transform_genre(key,val)
-		return { 'q' => self.insert_field_name("genre", val) }
+		return { 'fq' => self.insert_field_name("genre", val) }
 	end
 
 	def self.transform_federation(key,val)
-		return { 'q' => self.insert_field_name("federation", val) }
+		return { 'fq' => self.insert_field_name("federation", val) }
 	end
 
 	def self.transform_other(key,val)
@@ -344,7 +344,7 @@ class QueryFormat
 			facet = mapper[pair[1]]
 			results.push("#{qualifier}#{facet}:true") if !facet.blank?
 		}
-		return { 'q' => results.join(' AND ') }
+		return { 'fq' => results.join(' AND ') }
 	end
 
 	def self.transform_sort(key,val)
@@ -370,6 +370,10 @@ class QueryFormat
 
 	def self.transform_field(key,val)
 		return { key => val }
+	end
+
+	def self.transform_field_ascii(key,val)
+		return { key => val + "_ascii" }
 	end
 
 	def self.transform_nil(key,val)
