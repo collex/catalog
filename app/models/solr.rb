@@ -49,7 +49,7 @@ class Solr
 				raise "Bad parameter in Solr.factory_create"
 			end
 		else	# if a federation is passed, then we are using the local index
-			name = is_test ? "test" : ""
+			name = is_test == :test ? "test" : ""
 			name += federation + "LocalContent"
 		end
 		return Solr.new(name)
