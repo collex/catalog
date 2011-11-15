@@ -173,6 +173,10 @@ class QueryFormat
 
 			# single valued fields
 			#'image' => { :name => 'image', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'archive' => { :name => 'archive', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'archive_name' => { :name => 'archive_name', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'archive_url' => { :name => 'archive_url', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
+			'archive_thumbnail' => { :name => 'archive_thumbnail', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
 			'source' => { :name => 'source', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
 			'text' => { :name => 'text', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
 			'text_url' => { :name => 'text_url', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
@@ -389,7 +393,7 @@ class QueryFormat
 	end
 
 	def self.transform_id(key,val)
-		return { :uri => "#{self.id_to_uri(val)}$[PAGE_NUM]$", :archive => self.id_to_archive(val) }
+		return { :uri => "#{self.id_to_uri(val)}$[PAGE_NUM]$" }
 	end
 
 	def self.transform_frag(key,val)

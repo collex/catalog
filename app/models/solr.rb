@@ -381,6 +381,17 @@ class Solr
 		end
 	end
 
+	def remove_exhibit(exhibit, commit_now)
+		begin
+			@solr.delete_by_query("+uri:#{exhibit}/*")
+			if commit_now
+				@solr.commit()
+			end
+		rescue Exception => e
+			raise SolrException.new(e.to_s)
+		end
+	end
+
 	def merge_archives(archives)
 		#http://localhost:8983/solr/admin/cores?action=mergeindexes&core=core0&srcCore=core1&srcCore=core2
 		solr = RSolr.connect( :url=> SOLR_URL )

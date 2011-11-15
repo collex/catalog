@@ -46,6 +46,44 @@ class ExhibitsController < ApplicationController
 		end
 	end
 
+	# GET /exhibits
+	# GET /exhibits.xml
+	def index
+		if params[:format] != 'xml'
+			render_error("Must call this through the web service", :forbidden)
+		else
+			federation = Federation.find_by_name(params[:federation])
+			ip = request.headers['REMOTE_ADDR']
+			if federation && ip == federation.ip
+				begin
+					is_test = Rails.env == 'test' ? :test : :live
+					solr = Solr.factory_create(is_test)
+					uri = QueryFormat.id_to_uri('*').gsub("$[FEDERATION_SITE]$", federation.site).gsub(':', '\\:')
+					query = { 'q' => "uri:#{uri}/0", fq: "federation:#{federation.name}", 'rows' => 9999999 }
+					results = solr.search(query, { field_list: [ 'uri' ]})
+					@exhibits = []
+					if !results[:hits].blank?
+						results[:hits].each { | hit|
+							uri = hit['uri'].gsub(/\/0$/, '')
+							@exhibits.push(uri)
+						}
+					end
+
+					respond_to do |format|
+						format.xml { render :template => '/exhibits/index' }
+					end
+				rescue ArgumentError => e
+					render_error(e.to_s)
+				rescue SolrException => e
+					render_error(e.to_s, e.status())
+				end
+			else
+				render_error("You do not have permission to do this.", :unauthorized)
+			end
+		end
+
+	end
+
   # POST /exhibits
   # POST /exhibits.xml
 	def create
@@ -60,14 +98,22 @@ class ExhibitsController < ApplicationController
 					QueryFormat.transform_raw_parameters(params)
 					query = QueryFormat.create_solr_query(query_params, params)
 					page = params[:page]
-					id = params[:id]
+					query['archive'] = QueryFormat.id_to_archive(query['archive']).gsub("$[FEDERATION_NAME]$", federation.name)
 					query[:uri] = query[:uri].gsub("$[FEDERATION_SITE]$", federation.site).gsub("$[PAGE_NUM]$", page ? "/#{page}" : "")
-					query[:archive] = QueryFormat.id_to_archive(id).gsub("$[FEDERATION_NAME]$", federation.name)
+					#query[:archive] = QueryFormat.id_to_archive(id).gsub("$[FEDERATION_NAME]$", federation.name)
+					archive_url = query['archive_url']
+					archive_name = query['archive_name']
+					archive_thumbnail = query['archive_thumbnail']
+					query.delete('archive_url')
+					query.delete('archive_name')
+					query.delete('archive_thumbnail')
 					query['genre'] = query['genre'].split(';') if !query['genre'].blank? && query['genre'].include?(';')
 					commit = params[:commit] == 'immediate'
 					type = params[:type]
 					boost = type == 'partial' ? 3.0 : 2.0
 					@uri = query[:uri]
+					query['freeculture'] = true
+					query['has_full_text'] = true
 
 					is_test = Rails.env == 'test' ? :test : :live
 					solr = Solr.factory_create(is_test)
@@ -79,8 +125,8 @@ class ExhibitsController < ApplicationController
 						if parent == nil
 							parent = Archive.create({ typ: 'node', parent_id: 0, name: parent_name})
 						end
-						archive = Archive.find_by_handle(query[:archive])
-						rec = { typ: 'archive', parent_id: parent.id, handle: query[:archive], name: query['title'] }
+						archive = Archive.find_by_handle(query['archive'])
+						rec = { typ: 'archive', parent_id: parent.id, handle: query['archive'], name: archive_name, site_url: archive_url, thumbnail: archive_thumbnail }
 						if archive
 							archive.update_attributes(rec)
 						else
@@ -114,14 +160,14 @@ class ExhibitsController < ApplicationController
 				begin
 					commit = params[:commit] == 'immediate'
 					id = params[:id]
-					archive = QueryFormat.id_to_archive(id).gsub("$[FEDERATION_NAME]$", federation.name)
+					uri = QueryFormat.id_to_uri(id).gsub("$[FEDERATION_SITE]$", federation.site).gsub(':', '\\:')
 
 					is_test = Rails.env == 'test' ? :test : :live
 					solr = Solr.factory_create(is_test)
-					solr.remove_archive(archive, commit)
+					solr.remove_exhibit(uri, commit)
 
-					node = Archive.find_by_handle(archive)
-					node.destroy if !node.blank?
+					#node = Archive.find_by_handle(archive)
+					#node.destroy if !node.blank?
 						
 					respond_to do |format|
 						format.xml { render :template => '/exhibits/destroy' }
