@@ -22,12 +22,12 @@ class LocalsController < ApplicationController
 		visible = query['visible']
 		if visible
 			visible = visible.gsub("AND", "OR")
-			visible = " AND (#{visible} OR visible_to_everyone:true)"
+			visible = "(#{visible} OR visible_to_everyone:true)"
 		else
-			visible = " AND visible_to_everyone:true"
+			visible = "visible_to_everyone:true"
 		end
 		if query['q']
-			query['q'] = query['q'] + visible
+			query['q'] = query['q'] + " AND " + visible
 		else
 			query['q'] = visible
 		end
