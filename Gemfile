@@ -18,6 +18,8 @@ gem "rsolr"
 
 gem 'paperclip'
 
+gem 'exception_notification'
+
 # Use unicorn as the web server
 # gem 'unicorn'
 
