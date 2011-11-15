@@ -23,6 +23,9 @@ class SearchController < ApplicationController
 			render_error(e.to_s)
 		rescue SolrException => e
 			render_error(e.to_s, e.status())
+		rescue Exception => e
+			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
 	end
 
@@ -66,6 +69,9 @@ class SearchController < ApplicationController
 			render_error(e.to_s)
 		rescue SolrException => e
 			render_error(e.to_s, e.status())
+		rescue Exception => e
+			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
 	end
 
@@ -89,6 +95,9 @@ class SearchController < ApplicationController
 			render_error(e.to_s)
 		rescue SolrException => e
 			render_error(e.to_s, e.status())
+		rescue Exception => e
+			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
 	end
 
@@ -112,6 +121,9 @@ class SearchController < ApplicationController
 			render_error(e.to_s)
 		rescue SolrException => e
 			render_error(e.to_s, e.status())
+		rescue Exception => e
+			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
 	end
 
