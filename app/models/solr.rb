@@ -220,7 +220,7 @@ class Solr
 	def adjust_facet_counts(facet, src_options, prior_facets)
 		# if the search included that facet, then do the search again without it to get the facet totals.
 		# if the search didn't include that facet, then we already have the totals, so there's nothing to do.
-		return prior_facets if src_options['fq'].include?(facet + ':') == nil
+		return prior_facets if !src_options.blank? && src_options['fq'].include?(facet + ':') == nil
 
 		# trim out any archive constraints. To get counts, we want them all
 		options = {}
@@ -230,7 +230,7 @@ class Solr
 		options[:fl] = 'uri'
 		options['facet.field'] = [ facet ]
 		options['rows'] = 1
-		options['fq'] = options['fq'].gsub(/[\+-]#{facet}:\w+( AND )?/, '')
+		options['fq'] = options['fq'].gsub(/[\+-]#{facet}:\w+( AND )?/, '') if !options['fq'].blank?
 		options.delete('fq') if options['fq'].blank?
 
 		ret = select(options)
