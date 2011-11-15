@@ -301,27 +301,27 @@ class QueryFormat
 	end
 
 	def self.transform_title(key,val)
-		return { 'q' => self.diacritical_query_data("title", val) }
+		return { 'fq' => self.diacritical_query_data("title", val) }
 		#return { 'q' => self.insert_field_name("title", val.downcase()) }
 	end
 
 	def self.transform_author(key,val)
-		return { 'q' => self.diacritical_query_data("author", val) }
+		return { 'fq' => self.diacritical_query_data("author", val) }
 		#return { 'q' => self.insert_field_name("author", val.downcase()) }
 	end
 
 	def self.transform_editor(key,val)
-		return { 'q' => self.diacritical_query_data("editor", val) }
+		return { 'fq' => self.diacritical_query_data("editor", val) }
 		#return { 'q' => self.insert_field_name("editor", val.downcase()) }
 	end
 
 	def self.transform_publisher(key,val)
-		return { 'q' => self.diacritical_query_data("publisher", val) }
+		return { 'fq' => self.diacritical_query_data("publisher", val) }
 		#return { 'q' => self.insert_field_name("publisher", val.downcase()) }
 	end
 
 	def self.transform_year(key,val)
-		return { 'q' => self.insert_field_name("year", val) }
+		return { 'fq' => self.insert_field_name("year", val) }
 	end
 
 	def self.transform_archive(key,val)
