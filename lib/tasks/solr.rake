@@ -100,7 +100,7 @@ namespace :solr do
 	end
 
 	def dest_filename_of_zipped_index(archive)
-		return "~/backups/#{archive}.tar.gz"
+		return "~/uploaded_data/#{archive}.tar.gz"
 	end
 
 	def backup_archive(archive)

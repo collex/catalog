@@ -301,14 +301,14 @@ namespace :solr_index do
 		do_archive { |archive|
 			index = "archive_#{archive}"
 			filename = backup_archive(index)
-			cmd_line("scp #{filename} #{PRODUCTION_SSH}:uploaded_data/#{dest_filename_of_zipped_index(index)}")
+			cmd_line("scp #{filename} #{PRODUCTION_SSH}:#{dest_filename_of_zipped_index(index)}")
 		}
 	end
 
 	desc "Package the main archive and send it to a server. (archive=XXX,YYY) This gets it ready to be installed on the other server with the sister script: solr:install"
 	task :package_resources => :environment do
 		filename = backup_archive('resources')
-		cmd_line("scp #{filename} #{PRODUCTION_SSH}:uploaded_data/#{dest_filename_of_zipped_index(index)}")
+		cmd_line("scp #{filename} #{PRODUCTION_SSH}:#{dest_filename_of_zipped_index('resources')}")
 	end
 
 	desc "This assumes a list of gzipped archives in the ~/uploaded_data folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
