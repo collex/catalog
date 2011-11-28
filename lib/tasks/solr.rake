@@ -129,7 +129,7 @@ namespace :solr do
 		puts "Solr will be down for part of this time, but as much as possible will be done with solr still online."
 		puts "~~~~~ Unzip new archive and put it in the correct place."
 		cmd_line("rm -R ~/uploaded_data/index")
-		cmd_line("cd ~/uploaded_data && tar xvfz #{filename_of_zipped_index()}")
+		cmd_line("cd ~/uploaded_data && tar xvfz #{dest_filename_of_zipped_index('resources')}")
 		cmd_line("mv ~/uploaded_data/index #{SOLR_PATH}/solr/data/resources/index_new")
 		cmd_line("sudo /sbin/service solr stop")
 		cmd_line("mv #{SOLR_PATH}/solr/data/resources/index ~/uploaded_data/index")
