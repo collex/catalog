@@ -385,7 +385,7 @@ class QueryFormat
 	end
 
 	def self.id_to_uri(id)
-		return "http://$[FEDERATION_SITE]$/peer-reviewed-exhibit/#{id}"
+		return "$[FEDERATION_SITE]$/peer-reviewed-exhibit/#{id}"
 	end
 
 	def self.id_to_archive(id)
