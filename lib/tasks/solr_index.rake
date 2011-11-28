@@ -338,8 +338,8 @@ namespace :solr_index do
 
 	desc "removes the archive from the resources index (param: archive=XXX,YYY)"
 	task :remove  => :environment do
+		solr = Solr.factory_create(:live)
 		do_archive { |archive|
-			solr = Solr.factory_create(:live)
 			solr.remove_archive(archive, false)
 		}
 		if !solr.blank?
