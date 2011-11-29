@@ -284,7 +284,10 @@ class Solr
 
 			return response['response']['docs'][0]
 		else
-			raise SolrException.new("Cannot find the object \"#{options[:q].sub('uri:','')}\"", :not_found)
+			q = options[:q]
+			q = options['q'] if q.blank?
+			q = '' if q.blank?
+			raise SolrException.new("Cannot find the object \"#{q.sub('uri:','')}\"", :not_found)
 		end
 	end
 
