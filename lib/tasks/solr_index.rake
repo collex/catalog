@@ -136,7 +136,7 @@ namespace :solr_index do
 				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_duplicates.log")
 
 				folders[:folders].each { |folder|
-					cmd_line("cd #{Rails.root}/lib/tasks/rdf-indexer/target && java -Xmx3584m -jar rdf-indexer.jar -logDir \"#{log_dir}\" -source #{RDF_PATH}/#{folder} -archive \"#{archive}\" #{flags}")
+					cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{RDF_PATH}/#{folder} -archive \"#{archive}\" #{flags}")
 				}
 			end
 		end
@@ -171,7 +171,7 @@ namespace :solr_index do
 		TaskUtilities.delete_file("#{log_dir}/#{safe_name}_skipped.log")
 
 		# launch the tool
-		cmd_line("cd #{Rails.root}/lib/tasks/rdf-indexer/target && java -Xmx3584m -jar rdf-indexer.jar -logDir \"#{log_dir}\" -archive \"#{archive}\" -mode compare #{flags} -pageSize #{page_size}")
+		cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -archive \"#{archive}\" -mode compare #{flags} -pageSize #{page_size}")
 
 	end
 
@@ -389,18 +389,18 @@ namespace :solr_index do
 			text_path = arr.join('/')
 
 			# clear out old log files
-			safe_name = CollexEngine::archive_to_core_name(archive)
+			safe_name = Solr::archive_to_core_name(archive)
 			log_dir = "#{Rails.root}/log"
 			case type
 				when :clean_raw
-					delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
+					TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
 				when :clean_full
-					delete_file("#{log_dir}/#{safe_name}_clean_full_error.log")
+					TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_full_error.log")
 			end
-			delete_file("#{log_dir}/#{safe_name}_progress.log")
-			delete_file("#{log_dir}/#{safe_name}_error.log")
+			TaskUtilities.delete_file("#{log_dir}/#{safe_name}_progress.log")
+			TaskUtilities.delete_file("#{log_dir}/#{safe_name}_error.log")
 
-			cmd_line("cd #{Rails.root}/lib/tasks/rdf-indexer/target && java -Xmx3584m -jar rdf-indexer.jar -logDir \"#{log_dir}\" -source #{text_path} -archive \"#{archive}\" #{flags}")
+			cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{text_path} -archive \"#{archive}\" #{flags}")
 
 		end
 		finish_line(start_time)

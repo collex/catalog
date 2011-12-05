@@ -42,20 +42,28 @@ namespace :indexer do
 		end
 	end
 
+	def indexer_path()
+		return "#{Rails.root}/lib/tasks/rdf-indexer/target"
+	end
+
+	def indexer_name()
+		return "rdf-indexer.jar"
+	end
+
 	desc "build rdf-indexer file for packaging (this cleans, builds, and copies it)"
 	task :build => :environment do
 		start_time = Time.now
 		indexer_path = INDEXER_PATH
 		src = "#{indexer_path}/target"
-		dst = "#{Rails.root}/lib/tasks/rdf-indexer/target"
+		dst = indexer_path()
 		puts "~~~~~~~~~~~ Copying #{src} to #{dst}..."
 		mkdir_safe(dst)
 		mkdir_safe("#{dst}/lib")
 		cmd_line("cd #{indexer_path} && mvn -DskipTests=true clean package")
 		cmd_line("rm #{dst}/lib/*.jar")
-		cmd_line("rm #{dst}/rdf-indexer.jar")
+		cmd_line("rm #{dst}/#{indexer_name()}")
 		cmd_line("cp #{src}/lib/*.jar #{dst}/lib/")
-		cmd_line("cp #{src}/rdf-indexer.jar #{dst}/rdf-indexer.jar")
+		cmd_line("cp #{src}/#{indexer_name()} #{dst}/#{indexer_name()}")
 		finish_line(start_time)
 	end
 end
