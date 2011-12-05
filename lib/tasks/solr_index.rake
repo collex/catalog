@@ -361,4 +361,72 @@ namespace :solr_index do
 		solr.commit()
 		solr.optimize()
 	end
+
+	def clean_text(msg, archive, type, encoding)
+		start_time = Time.now
+		flags = nil
+		dir_name = nil
+		case type
+			when :clean_raw
+				flags = "-mode clean_raw -encoding #{encoding}" if encoding != nil
+				flags = "-mode clean_raw" if encoding == nil
+				dir_name = "rawtext"
+				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/#{archive}_progress.log and log/#{archive}_clean_raw_error.log]"
+			when :clean_full
+				flags = "-mode clean_full"
+				dir_name = "fulltext"
+				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/#{archive}_progress.log and log/#{archive}_clean_full_error.log]"
+		end
+
+		if flags == nil
+			puts "Call with either :clean_raw or :clean_full"
+		else
+
+			# determine path to text files for cleaning
+			arr = RDF_PATH.split('/')
+			arr.pop()
+			arr.push(dir_name)
+			text_path = arr.join('/')
+
+			# clear out old log files
+			safe_name = CollexEngine::archive_to_core_name(archive)
+			log_dir = "#{Rails.root}/log"
+			case type
+				when :clean_raw
+					delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
+				when :clean_full
+					delete_file("#{log_dir}/#{safe_name}_clean_full_error.log")
+			end
+			delete_file("#{log_dir}/#{safe_name}_progress.log")
+			delete_file("#{log_dir}/#{safe_name}_error.log")
+
+			cmd_line("cd #{Rails.root}/lib/tasks/rdf-indexer/target && java -Xmx3584m -jar rdf-indexer.jar -logDir \"#{log_dir}\" -source #{text_path} -archive \"#{archive}\" #{flags}")
+
+		end
+		finish_line(start_time)
+	end
+
+
+	desc "Clean archive raw text and place results in fulltext, ready for indexing. No indexing performed. (param: archive=XXX, (opt)encoding=XXX)"
+	task :clean_raw_text => :environment do
+		archive = ENV['archive']
+		encoding = ENV['encoding']
+		encoding = "UTF-8" if encoding == nil
+		if archive == nil
+			puts "Usage: call with archive=archive, (opt)encoding=encoding"
+		else
+			clean_text("Clean raw text", archive, :clean_raw, encoding)
+		end
+	end
+
+	desc "Clean archive full text. No indexing performed. (param: archive=XXX)"
+	task :clean_full_text => :environment do
+		archive = ENV['archive']
+		if archive == nil
+			puts "Usage: call with archive=archive"
+		else
+			clean_text("Clean full text", archive, :clean_full, nil)
+		end
+	end
+
 end
