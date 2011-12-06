@@ -106,13 +106,13 @@ namespace :solr_index do
 		case type
 			when :spider
 				flags = "-mode spider"
-				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/#{archive}_progress.log and log/#{archive}_spider_error.log]"
+				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_spider_error.log]"
 			when :index
 				flags = "-mode index -delete"
-				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/#{archive}_progress.log and log/#{archive}_error.log]"
+				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_error.log]"
 			when :debug
 				flags = "-mode test"
-				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/#{archive}_progress.log and log/#{archive}_error.log]"
+				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_error.log]"
 		end
 
 		if flags == nil
@@ -130,7 +130,7 @@ namespace :solr_index do
 					when :index, :debug
 						TaskUtilities.delete_file("#{log_dir}/#{safe_name}_error.log")
 				end
-				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_progress.log")
+				TaskUtilities.delete_file("#{log_dir}/progress/#{safe_name}_progress.log")
 				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_error.log")
 				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_link_data.log")
 				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_duplicates.log")
@@ -362,71 +362,82 @@ namespace :solr_index do
 		solr.optimize()
 	end
 
-	def clean_text(msg, archive, type, encoding)
-		start_time = Time.now
-		flags = nil
-		dir_name = nil
-		case type
-			when :clean_raw
-				flags = "-mode clean_raw -encoding #{encoding}" if encoding != nil
-				flags = "-mode clean_raw" if encoding == nil
-				dir_name = "rawtext"
-				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/#{archive}_progress.log and log/#{archive}_clean_raw_error.log]"
-			when :clean_full
-				flags = "-mode clean_full"
-				dir_name = "fulltext"
-				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/#{archive}_progress.log and log/#{archive}_clean_full_error.log]"
-		end
+	#def clean_text(msg, archive, type, encoding)
+	#	start_time = Time.now
+	#	flags = nil
+	#	dir_name = nil
+	#	case type
+	#		when :clean_raw
+	#			flags = "-mode clean_raw -encoding #{encoding}" if encoding != nil
+	#			flags = "-mode clean_raw" if encoding == nil
+	#			dir_name = "rawtext"
+	#			puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_clean_raw_error.log]"
+	#		when :clean_full
+	#			flags = "-mode clean_full"
+	#			dir_name = "fulltext"
+	#			puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_clean_full_error.log]"
+	#	end
+	#
+	#	if flags == nil
+	#		puts "Call with either :clean_raw or :clean_full"
+	#	else
+	#
+	#		# determine path to text files for cleaning
+	#		arr = RDF_PATH.split('/')
+	#		arr.pop()
+	#		arr.push(dir_name)
+	#		text_path = arr.join('/')
+	#
+	#		# clear out old log files
+	#		safe_name = Solr::archive_to_core_name(archive)
+	#		log_dir = "#{Rails.root}/log"
+	#		case type
+	#			when :clean_raw
+	#				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
+	#			when :clean_full
+	#				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_full_error.log")
+	#		end
+	#		TaskUtilities.delete_file("#{log_dir}/#{safe_name}_progress.log")
+	#		TaskUtilities.delete_file("#{log_dir}/#{safe_name}_error.log")
+	#
+	#		cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{text_path} -archive \"#{archive}\" #{flags}")
+	#
+	#	end
+	#	finish_line(start_time)
+	#end
 
-		if flags == nil
-			puts "Call with either :clean_raw or :clean_full"
-		else
-
-			# determine path to text files for cleaning
-			arr = RDF_PATH.split('/')
-			arr.pop()
-			arr.push(dir_name)
-			text_path = arr.join('/')
-
-			# clear out old log files
+	desc "Clean archive text and place results in fulltext, ready for indexing; No indexing performed; (param: archive=XXX,YYY)"
+	task :clean_text => :environment do
+		do_archive { |archive|
 			safe_name = Solr::archive_to_core_name(archive)
 			log_dir = "#{Rails.root}/log"
-			case type
-				when :clean_raw
-					TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
-				when :clean_full
-					TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_full_error.log")
+			TaskUtilities.delete_file("#{log_dir}/progress/#{safe_name}_progress.log")
+			TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
+			case archive
+				when 'cali'
+					source = 'fulltext'
+					mode = 'clean_full'
+					custom = '-custom CaliCleaner'
+				when 'locEphemera'
+					source = 'rawtext'
+					mode = 'clean_raw'
+					custom = '-custom LocEphemeraCleaner'
+				when 'ncaw'
+					source = 'rawtext'
+					mode = 'clean_raw'
+					custom = '-custom NcawCleaner'
+				when 'nineteen'
+					source = 'rawtext'
+					mode = 'clean_raw'
+					custom = '-custom NineteenCleaner'
+				else
+					puts "WARNING: No custom text cleaning was defined for this archive!"
+					source = 'rawtext'
+					mode = 'clean_raw'
+					custom = ''
 			end
-			TaskUtilities.delete_file("#{log_dir}/#{safe_name}_progress.log")
-			TaskUtilities.delete_file("#{log_dir}/#{safe_name}_error.log")
-
-			cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{text_path} -archive \"#{archive}\" #{flags}")
-
-		end
-		finish_line(start_time)
-	end
-
-
-	desc "Clean archive raw text and place results in fulltext, ready for indexing. No indexing performed. (param: archive=XXX, (opt)encoding=XXX)"
-	task :clean_raw_text => :environment do
-		archive = ENV['archive']
-		encoding = ENV['encoding']
-		encoding = "UTF-8" if encoding == nil
-		if archive == nil
-			puts "Usage: call with archive=archive, (opt)encoding=encoding"
-		else
-			clean_text("Clean raw text", archive, :clean_raw, encoding)
-		end
-	end
-
-	desc "Clean archive full text. No indexing performed. (param: archive=XXX)"
-	task :clean_full_text => :environment do
-		archive = ENV['archive']
-		if archive == nil
-			puts "Usage: call with archive=archive"
-		else
-			clean_text("Clean full text", archive, :clean_full, nil)
-		end
+			cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{RDF_PATH}/../#{source} -archive \"#{archive}\" -mode #{mode} #{custom}")
+		}
 	end
 
 end
