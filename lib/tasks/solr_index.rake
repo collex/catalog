@@ -319,7 +319,7 @@ namespace :solr_index do
 			folder = "#{ENV['HOME']}/uploaded_data"
 			index = "archive_#{archive}"
 			index_path = "#{folder}/#{index}"
-			indexes.push(index_path)
+			indexes.push(index)
 			cmd_line("cd #{folder} && tar xvfz #{index}.tar.gz")
 			cmd_line("rm -r -f #{index_path}")
 			cmd_line("mv #{folder}/index #{index_path}")
