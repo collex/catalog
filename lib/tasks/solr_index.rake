@@ -314,8 +314,8 @@ namespace :solr_index do
 	desc "This assumes a list of gzipped archives in the ~/uploaded_data folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
 	task :install => :environment do
 		indexes = []
+		solr = Solr.factory_create(:live)
 		do_archive { |archive|
-			solr = Solr.factory_create(:live)
 			folder = "#{ENV['HOME']}/uploaded_data"
 			index = "archive_#{archive}"
 			index_path = "#{folder}/#{index}"
