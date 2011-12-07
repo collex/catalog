@@ -322,7 +322,8 @@ namespace :solr_index do
 			indexes.push(index_path)
 			cmd_line("cd #{folder} && tar xvfz #{index}.tar.gz")
 			cmd_line("rm -r -f #{index_path}")
-			cmd_line("mv #{folder}/index #{index_path}/")
+			cmd_line("mkdir #{index_path}")
+			cmd_line("mv #{folder}/index #{index_path}/index")
 			File.open("#{Rails.root}/log/archive_installations.log", 'a') {|f| f.write("Installed: #{Time.now().getlocal().strftime("%b %d, %Y %I:%M%p")} Created: #{File.mtime(index_path).getlocal().strftime("%b %d, %Y %I:%M%p")} #{archive}\n") }
 			solr.remove_archive(archive, false)
 		}
