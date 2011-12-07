@@ -388,7 +388,7 @@ class Solr
 			if internal
 				solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :srcCore => archives } })
 			else
-				solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, indexDir: => archives } })
+				solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :indexDir => archives } })
 			end
 			commit()
 		rescue RSolr::Error::Http => e
