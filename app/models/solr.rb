@@ -381,11 +381,15 @@ class Solr
 		end
 	end
 
-	def merge_archives(archives)
+	def merge_archives(archives, internal=true)
 		#http://localhost:8983/solr/admin/cores?action=mergeindexes&core=core0&srcCore=core1&srcCore=core2
 		solr = RSolr.connect( :url=> SOLR_URL )
 		begin
-			solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :srcCore => archives } })
+			if internal
+				solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :srcCore => archives } })
+			else
+				solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, indexDir: => archives } })
+			end
 			commit()
 		rescue RSolr::Error::Http => e
 			commit()
