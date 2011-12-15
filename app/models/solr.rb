@@ -208,13 +208,15 @@ class Solr
 			options['fq'] = fq
 		end
 		# add the variable to the facet field
-		options['facet.field'].each_with_index { |op, i|
-			if op == 'archive'
-				options['facet.field'][i] = '{!ex=arch}archive'
-			elsif op == 'federation'
-				options['facet.field'][i] = '{!ex=fed}federation'
-			end
-		}
+		if !options['facet.field'].blank?
+			options['facet.field'].each_with_index { |op, i|
+				if op == 'archive'
+					options['facet.field'][i] = '{!ex=arch}archive'
+				elsif op == 'federation'
+					options['facet.field'][i] = '{!ex=fed}federation'
+				end
+			}
+		end
 
 		ret = select(options)
 
