@@ -194,6 +194,28 @@ class Solr
 		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
 		options = add_field_list_param(options, fields)
 		key_field = overrides[:key_field] ? overrides[:key_field] : 'uri'
+
+		# do separate 'fq' fields for each and add the tag var
+		if !options['fq'].blank?
+			fq = options['fq'].split(' ')
+			fq.each_with_index { |op, i|
+				if op.include?("federation:")
+					fq[i] = '{!tag=fed}' + op
+				elsif op.include?("archive:")
+					fq[i] = '{!tag=arch}' + op
+				end
+			}
+			options['fq'] = fq
+		end
+		# add the variable to the facet field
+		options['facet.field'].each_with_index { |op, i|
+			if op == 'archive'
+				options['facet.field'][i] = '{!ex=arch}archive'
+			elsif op == 'federation'
+				options['facet.field'][i] = '{!ex=fed}federation'
+			end
+		}
+
 		ret = select(options)
 
 		massage_hits(ret)
@@ -211,8 +233,8 @@ class Solr
 		end
 
 		facets = facets_to_hash(ret)
-		facets['federation'] = adjust_federation_counts(options, facets['federation'])
-		facets['archive'] = adjust_archive_counts(options, facets['archive'])
+		#facets['federation'] = adjust_federation_counts(options, facets['federation'])
+		#facets['archive'] = adjust_archive_counts(options, facets['archive'])
 
 		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
 	end
@@ -220,7 +242,7 @@ class Solr
 	def adjust_facet_counts(facet, src_options, prior_facets)
 		# if the search included that facet, then do the search again without it to get the facet totals.
 		# if the search didn't include that facet, then we already have the totals, so there's nothing to do.
-		return prior_facets if !src_options['fq'].blank? && src_options['fq'].include?(facet + ':') == nil
+		return prior_facets if !src_options['fq'].blank? && !src_options['fq'].include?(facet + ':')
 
 		# trim out any archive constraints. To get counts, we want them all
 		options = {}
@@ -230,7 +252,7 @@ class Solr
 		options[:fl] = 'uri'
 		options['facet.field'] = [ facet ]
 		options['rows'] = 1
-		options['fq'] = options['fq'].gsub(/[\+-]#{facet}:\w+( AND )?/, '') if !options['fq'].blank?
+		options['fq'] = options['fq'].gsub(/[\+-]#{facet}:\"?[\w ]+\"?( AND )?/, '') if !options['fq'].blank?
 		options.delete('fq') if options['fq'].blank?
 
 		ret = select(options)
