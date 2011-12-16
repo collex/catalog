@@ -23,7 +23,7 @@ namespace :deploy do
 	desc "Do all tasks that routinely need to be done when anything changes in the source repository -- the style of update is in site.yml"
 	task :update => :environment do
 		puts "Getting latest code..."
-		puts `svn up`
+		puts `git pull`
 		run_bundler()
 		Rake::Task['db:migrate'].invoke
 		Rake::Task['deploy:update_xsd'].invoke
