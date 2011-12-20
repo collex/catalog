@@ -26,12 +26,24 @@
 		values into your browser to interactively test your parameters. If you leave off the ".xml" in the following calls,
 		the results will be formatted better for a browser.
 	</p>
+	<div class="special_notice">
+	<h3>The ARC Catalog offers metadata from free-culture resources only.</h3>
+	<p>
+		<%= link_to "NINES",  "http://www.nines.org/about/scholarship/other-resources/", { class: 'ext', target: '_blank' } %> and
+		<%= link_to "18thConnect", "http://www.18thconnect.org/about/community/major-contributors/", { class: 'ext', target: '_blank' } %>
+		have made agreements with a number of commercial providers to offer metadata and some full-text searching of their
+		materials through the Collex interface. The objects from these archives have been flagged in the
+		<%= link_to "metadata", "http://www.performantsoftware.com/nines_wiki/index.php/Submitting_RDF#.3Ccollex:freeculture.3E", { class: 'ext', target: '_blank' } %>
+		as proprietary, and will not be returned in queries submitted through the ARC Catalog.
+	</p>
+	<p>We will continue to revisit and review our agreements in the coming years, and post updates as the situation develops.</p>
+	</div>
+
+	<h3>Input format</h3>
 	<p>
 		Note that some characters are not allowed to be sent as part of a URL. If you want to use those characters they need
 		to be escaped using a % and the hex code of the character. For instance, a plus sign should be encoded as <span class="code">%2B</span>.
 	</p>
-
-	<h3>Input format</h3>
 	<ul>
 		<li>The input format follows the same syntax as URLs. In particular:</li>
 		<li>The query parameters begin with a question mark.</li>
