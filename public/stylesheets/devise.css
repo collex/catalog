@@ -1,0 +1,11 @@
+#user_new {
+	border: 2px solid #001E51;
+	background-color: #EEE;
+	border-radius: 4px;
+	padding: 16px;
+	width: 300px;
+}
+
+#user_new div {
+	padding-bottom: 12px;
+}
