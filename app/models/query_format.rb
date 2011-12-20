@@ -440,7 +440,7 @@ class QueryFormat
 		return { 'q' => "group_id:#{val}" }
 	end
 
-	def self.create_solr_query(format, params)
+	def self.create_solr_query(format, params, request_ip)
 		# A raw parameter is one that is received by this web service.
 		# It needs to be transformed into a solr parameter.
 		# Format is a hash of a raw parameter that is one of the ones above.
@@ -448,6 +448,16 @@ class QueryFormat
 		# We will transform them into query.
 		# If a parameter doesn't match, an exception is thrown.
 		# Defaults are added if it doesn't exist and a default was specified in the format.
+
+		# If this isn't an authorized call, then only return free culture items.
+		if request_ip && !Federation.request_from_federation(request_ip)
+			if params['o'].blank?
+				params['o'] = '+freeculture'
+			else
+				params['o'] = params['o'].gsub(/[+-]freeculture/, '') + '+freeculture'
+			end
+		end
+
 		query = {}
 		params.each { |key,val|
 			definition = format[key]

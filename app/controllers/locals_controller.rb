@@ -43,7 +43,7 @@ class LocalsController < ApplicationController
 			begin
 				query_params = QueryFormat.locals_format()
 				QueryFormat.transform_raw_parameters(params)
-				query = QueryFormat.create_solr_query(query_params, params)
+				query = QueryFormat.create_solr_query(query_params, params, nil)
 				query.merge!(QueryFormat.transform_highlight("hl", "on")) if params[:q]
 				straighten_out_visible(query)
 
@@ -56,7 +56,7 @@ class LocalsController < ApplicationController
 					params.delete(:object_type)
 					params[:max] = "1"
 					QueryFormat.transform_raw_parameters(params)
-					query = QueryFormat.create_solr_query(query_params, params)
+					query = QueryFormat.create_solr_query(query_params, params, nil)
 					straighten_out_visible(query)
 					r2 = solr.search(query, { :field_list => [ 'key' ], :key_field => 'key', :no_facets => true })
 					@results[:total_documents] = r2[:total]
@@ -117,7 +117,7 @@ class LocalsController < ApplicationController
 			begin
 				query_params = QueryFormat.add_locals_format()
 				QueryFormat.transform_raw_parameters(params)
-				fields = QueryFormat.create_solr_query(query_params, params)
+				fields = QueryFormat.create_solr_query(query_params, params, nil)
 				fields[:key] = "#{params['object_type']}_#{params['object_id']}"
 				fields[:title_sort] = params['title']
 				fields[:content_ascii] = params[:content]

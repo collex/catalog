@@ -5,7 +5,7 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.catalog_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			query = QueryFormat.create_solr_query(query_params, params)
+			query = QueryFormat.create_solr_query(query_params, params, request.headers['REMOTE_ADDR'])
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			# tank citations
@@ -48,7 +48,7 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.autocomplete_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			query = QueryFormat.create_solr_query(query_params, params)
+			query = QueryFormat.create_solr_query(query_params, params, request.headers['REMOTE_ADDR'])
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
@@ -81,7 +81,7 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.names_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			query = QueryFormat.create_solr_query(query_params, params)
+			query = QueryFormat.create_solr_query(query_params, params, request.headers['REMOTE_ADDR'])
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
@@ -107,7 +107,7 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.details_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			query = QueryFormat.create_solr_query(query_params, params)
+			query = QueryFormat.create_solr_query(query_params, params, nil)
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)

@@ -99,7 +99,7 @@ class ExhibitsController < ApplicationController
 				begin
 					query_params = QueryFormat.exhibit_format()
 					QueryFormat.transform_raw_parameters(params)
-					query = QueryFormat.create_solr_query(query_params, params)
+					query = QueryFormat.create_solr_query(query_params, params, nil)
 					page = params[:page]
 					query['archive'] = QueryFormat.id_to_archive(query['archive']).gsub("$[FEDERATION_NAME]$", federation.name)
 					query[:uri] = query[:uri].gsub("$[FEDERATION_SITE]$", federation.site).gsub("$[PAGE_NUM]$", page ? "/#{page}" : "")
