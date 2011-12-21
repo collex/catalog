@@ -76,7 +76,7 @@ class Solr
 		arr = uri.split('/')
 		index = arr[arr.length-2]
 
-		puts "SOLR: [#{index}] #{ret.request[:data]}" if noisy
+		ActiveRecord::Base.logger.info("*** SOLR: [#{index}] #{ret.request[:data]}") if noisy
 
 		return ret
 	end
@@ -198,13 +198,22 @@ class Solr
 		# do separate 'fq' fields for each and add the tag var
 		if !options['fq'].blank?
 			fq = options['fq'].split(' ')
+			# we only want one field for all the federations, though. We need to put those back.
+			fed_idx = -1
 			fq.each_with_index { |op, i|
 				if op.include?("federation:")
-					fq[i] = '{!tag=fed}' + op
+					if fed_idx == -1
+						fq[i] = '{!tag=fed}' + op
+						fed_idx = i
+					else
+						fq[fed_idx] += " OR #{op}"
+						fq[i] = nil
+					end
 				elsif op.include?("archive:")
 					fq[i] = '{!tag=arch}' + op
 				end
 			}
+			fq.compact!
 			options['fq'] = fq
 		end
 		# add the variable to the facet field
