@@ -348,7 +348,7 @@ class QueryFormat
 			facet = mapper[pair[1]]
 			results.push("#{qualifier}#{facet}:true") if !facet.blank?
 		}
-		return { 'fq' => results.join(' AND ') }
+		return { 'fq' => results.join(' ') }
 	end
 
 	def self.transform_sort(key,val)
