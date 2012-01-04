@@ -189,12 +189,7 @@ class Solr
 		end
 	end
 
-	def search(options, overrides = {})
-		options = add_facet_param(options, @facet_fields) if overrides[:no_facets] == nil
-		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
-		options = add_field_list_param(options, fields)
-		key_field = overrides[:key_field] ? overrides[:key_field] : 'uri'
-
+	def process_fq(options)
 		# do separate 'fq' fields for each and add the tag var
 		if !options['fq'].blank?
 			# we can't split spaces that are quoted. We just want to split spaces that appear before + or -
@@ -218,6 +213,17 @@ class Solr
 			fq.compact!
 			options['fq'] = fq
 		end
+
+	end
+
+	def search(options, overrides = {})
+		options = add_facet_param(options, @facet_fields) if overrides[:no_facets] == nil
+		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
+		options = add_field_list_param(options, fields)
+		key_field = overrides[:key_field] ? overrides[:key_field] : 'uri'
+
+		process_fq(options)
+
 		# add the variable to the facet field
 		if !options['facet.field'].blank?
 			options['facet.field'].each_with_index { |op, i|
@@ -293,6 +299,8 @@ class Solr
 		options[:start] = 0
 		options[:rows] = 0
 		options = add_facet_param(options, [facet], prefix)
+		process_fq(options)
+
 		response = select(options)
 		return facets_to_hash(response)[facet]
 	end
