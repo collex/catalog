@@ -452,6 +452,7 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		var doUpload = function(panel) {
 			// Define a function to handle the start of a transaction
 			function start(id, args) {
+				displayMessage('gd_upload_dlg', 'error', '');
 			}
 
 			// Define a function to handle the response data.
