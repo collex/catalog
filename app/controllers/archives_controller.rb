@@ -95,7 +95,7 @@ class ArchivesController < ApplicationController
 			if params[:file] == 'upload'
 				@archive.carousel_image = params[:archive][:carousel_image]
 				@archive.save
-				if @archive.errors && @archive.errors.length > 0
+				if @archive.errors && @archive.errors.count > 0
 					err = ""
 					@archive.errors.each { |key,val| err += "#{key}: #{val}"}
 					render :text => "ERROR;#{err}"

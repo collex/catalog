@@ -481,7 +481,7 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 		body += "<input id='_" + makeId(params.id) + "' type='file' name='" + params.id + "' size='35'></div>";
 		var auth = getAuthenticityToken();
 		if (params.method)
-			body += "<input id='_method' type='hidden' name='_method' value=params.method>";
+			body += "<input id='_method' type='hidden' name='_method' value=" + params.method + ">";
 		body += "<input id='authenticity_token' type='hidden' name='authenticity_token' value='" + auth.authenticity_token + "'>";
 		body += "</form>";
 
