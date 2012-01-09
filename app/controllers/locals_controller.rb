@@ -120,7 +120,7 @@ class LocalsController < ApplicationController
 				fields = QueryFormat.create_solr_query(query_params, params, nil)
 				fields[:key] = "#{params['object_type']}_#{params['object_id']}"
 				fields[:title_sort] = params['title']
-				fields[:content_ascii] = params[:content]
+				#fields[:content_ascii] = params[:content]
 
 				is_test = Rails.env == 'test' ? :test : :live
 				solr = Solr.factory_create(is_test, federation.name)
