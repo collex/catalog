@@ -79,6 +79,22 @@ namespace :solr do
 		dump_hit("REINDEX", hit, no_text) if hit
 	end
 
+	desc "dump a bunch of objects at once from the resources index (param: uri=uri,uri...)"
+	task :dump => :environment do
+		uri = ENV['uri']
+		no_text = true
+		solr = Solr.factory_create(:live)
+		uris = uri.split(',')
+		uris.each { |uri|
+			begin
+				hit = solr.details({ :q => "uri:#{uri}" }, { :field_list => [] })
+				dump_hit("RESOURCES", hit, no_text) if hit
+			rescue SolrException => e
+				puts "Error: #{e}"
+			end
+		}
+	end
+
 	desc "Optimize the index passed in [core=XXX]"
 	task :optimize => :environment do
 		core = ENV['core']
