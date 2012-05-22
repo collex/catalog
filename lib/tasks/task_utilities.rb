@@ -47,4 +47,13 @@ class TaskUtilities
 		return sh
 	end
 
+	def finish_line(start_time)
+		duration = Time.now-start_time
+		if duration >= 60
+			str = "Finished in #{"%.2f" % (duration/60)} minutes."
+		else
+			str = "Finished in #{"%.2f" % duration} seconds."
+		end
+		puts str
+	end
 end

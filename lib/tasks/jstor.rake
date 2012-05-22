@@ -31,6 +31,7 @@ namespace :jstor do
 		all = {}
 		genres = []
 		puts "~~~~~~~~~~~ Generating RDF for #{archive} from #{path} into #{folder}..."
+		count = 0
 		File.open(path, "r").each_line { |line|
 			doc = JSON.parse(line)
 			if test
@@ -39,7 +40,7 @@ namespace :jstor do
 					all[key].push(value)
 				}
 			end
-			genre = doc['subject_weights'].join('')
+			genre = doc['subject_weights'].present? ? doc['subject_weights'].join('') : ""
 			arr = genre.split('|')
 			arr.each { |item|
 				genres.push(item.split("^")[0])
@@ -64,12 +65,24 @@ namespace :jstor do
 				file.puts("\t\t<collex:freeculture>false</collex:freeculture>\n")
 				file.puts("\t\t<collex:fulltext>true</collex:fulltext>\n")
 
-				file.puts("\t\t<dc:title>#{doc['article_title'].join('')}</dc:title>\n")
+				if doc['article_title'].present?
+					title = doc['article_title'].join('').gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+				elsif doc['reviewed_works'].present?
+					title = "Review: "
+					works = []
+					doc['reviewed_works'].each {|work|
+						works.push(work.split('|')[0])
+					}
+					title += works.join('; ').gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+				else
+					title = ""
+				end
+				file.puts("\t\t<dc:title>#{title}</dc:title>\n")
 				doc['authors'].each { |author|
 					str = "#{author['stringname']} #{author['givennames']} #{author['surname']}"
-					file.puts("\t\t<role:AUT>#{str}</role:AUT>\n")
+					file.puts("\t\t<role:AUT>#{str.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")}</role:AUT>\n")
 				} if doc['authors'].present?
-				file.puts("\t\t<role:PBL>#{doc['publishers'].join('')}</role:PBL>\n") if doc['publishers'].present?
+				file.puts("\t\t<role:PBL>#{doc['publishers'].join('').gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")}</role:PBL>\n") if doc['publishers'].present?
 				file.puts("\t\t<dc:language>#{doc['languages'].join('')}</dc:language>\n") if doc['languages'].present?
 
 				file.puts("\t\t<collex:genre>Periodical</collex:genre>\n")
@@ -81,7 +94,7 @@ namespace :jstor do
 				source.push("No. #{doc['issue'].join('')}") if doc['issue'].present?
 				source.push("pp. #{doc['page_range'].join('')}") if doc['page_range'].present?
 				source = source.join(" ")
-				file.puts("\t\t<dc:source>#{source}</dc:source>\n")
+				file.puts("\t\t<dc:source>#{source.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")}</dc:source>\n")
 
 				file.puts("\t\t<dc:date>\n")
 				file.puts("\t\t\t<collex:date>\n")
@@ -90,11 +103,14 @@ namespace :jstor do
 				file.puts("\t\t\t</collex:date>\n")
 				file.puts("\t\t</dc:date>\n")
 
-				file.puts("\t\t<collex:text>#{doc['text'].join('').gsub("&", "&amp;")}</collex:text>\n") if doc['text'].present?
+				file.puts("\t\t<collex:text>#{doc['text'].join('').gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")}</collex:text>\n") if doc['text'].present?
 				file.puts("\t</jstor:article>\n")
 				file.puts("</rdf:RDF>\n")
 			}
+			count += 1
+			print '.' if count % 25 == 0
 		}
+		puts ""
 		if test
 			all.each { |key, arr|
 				puts "========================================="
