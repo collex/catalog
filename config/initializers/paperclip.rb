@@ -11,9 +11,9 @@ if File.exists?(config_file)
 	#
 	# TODO-PER: This is a monkey patch to get Paperclip working. It might not be needed in future versions.
 	#
-	if defined? ActionDispatch::Http::UploadedFile
-	  ActionDispatch::Http::UploadedFile.send(:include, Paperclip::Upfile)
-	end
+	#if defined? ActionDispatch::Http::UploadedFile
+	#  ActionDispatch::Http::UploadedFile.send(:include, Paperclip::Upfile)
+	#end
 
 else
 	puts "***"
