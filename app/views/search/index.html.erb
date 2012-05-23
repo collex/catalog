@@ -1,3 +1,15 @@
+<style type="text/css">
+table.results td {
+	max-width: 100px;
+	overflow: hidden;
+}
+
+#everything.content {
+	width: inherit;
+	min-width: 1024px;
+}
+</style>
+
 <%= make_home_path %>
 <div class="tab_content">
 	<p id="notice"><%= notice %></p>
@@ -16,7 +28,7 @@
 	<% @results[:hits].each { |hit| %>
 	<tr>
 		<% columns.each { |col| %>
-		<td><%= hit[col] %></td>
+		<td><span title="<%= hit[col] %>"><%= hit[col] %></span></td>
 		<% } %>
 	</tr>
 	<% } %>
