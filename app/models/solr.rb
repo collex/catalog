@@ -30,7 +30,7 @@ class Solr
 		end
 		@core = core # "#{SOLR_CORE_PREFIX}/#{core}"
 		@solr = RSolr.connect( :url=>"#{SOLR_URL}/#{core}" )
-		@field_list = [ "uri", "archive", "date_label", "genre", "source", "image", "thumbnail", "title", "alternative", "url",
+		@field_list = [ "uri", "archive", "date_label", 'year', "genre", "source", "image", "thumbnail", "title", "alternative", "url",
 			"role_ART", "role_AUT", "role_EDT", "role_PBL", "role_TRL", "role_EGR", "role_ETR", "role_CRE", "freeculture",
 			"is_ocr", "federation", "has_full_text", "source_xml", 'typewright' ]
 		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright']
