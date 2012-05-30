@@ -444,7 +444,7 @@ class Solr
 
 	def remove_object(uri, commit_now)
 		begin
-			@solr.delete_by_query("+uri:#{uri}")
+			@solr.delete_by_query("+key:#{uri}")
 			if commit_now
 				@solr.commit()
 			end

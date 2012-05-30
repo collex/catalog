@@ -126,7 +126,11 @@ class LocalsController < ApplicationController
 				solr = Solr.factory_create(is_test, federation.name)
 
 				commit = params[:commit] == 'immediate'
-				@results = solr.add_object(fields, 1.0, commit)
+				if fields['title'].blank? && fields['section'].blank? && fields['text'].blank? # if most of this is blank, then we are actually deleting it.
+					@results = solr.remove_object(fields[:key], commit)
+				else
+					@results = solr.add_object(fields, 1.0, commit)
+				end
 
 				respond_to do |format|
 					format.html # index.html.erb
