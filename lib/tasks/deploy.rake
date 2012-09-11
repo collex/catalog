@@ -60,13 +60,14 @@ namespace :deploy do
 	end
 
 	def run_bundler()
-		gemfile = "#{Rails.root}/Gemfile"
-		lock = "#{Rails.root}/Gemfile.lock"
-		if is_out_of_date(gemfile, lock)
-			puts "Updating gems..."
-			puts `bundle update`
-			`touch #{lock}`	# If there were no changes, the file isn't changed, so it will appear out of date every time this is run.
-		end
+    puts `bundle install`
+		#gemfile = "#{Rails.root}/Gemfile"
+		#lock = "#{Rails.root}/Gemfile.lock"
+		#if is_out_of_date(gemfile, lock)
+		#	puts "Updating gems..."
+		#	puts `bundle update`
+		#	`touch #{lock}`	# If there were no changes, the file isn't changed, so it will appear out of date every time this is run.
+		#end
 	end
 
 	def is_out_of_date(src, dst)
