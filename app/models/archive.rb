@@ -1,5 +1,8 @@
 class Archive < ActiveRecord::Base
-	has_attached_file :carousel_image, :styles => { :normal => '300x300' }
+	has_attached_file :carousel_image,
+                    :styles => { :normal => '300x300' },
+                    :path => ":rails_root/public/system/:attachment/:id/:style/:filename",
+                    :url => "/system/:attachment/:id/:style/:filename"
 	# to create a cropped image, use :thumb=> "100x100#".
 
 	def self.get_tree()
