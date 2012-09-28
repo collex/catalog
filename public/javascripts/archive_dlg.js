@@ -71,7 +71,7 @@ YUI().use('node', function(Y) {
 				[ { text: 'This is a label that sites and other categories can be attached to.', klass: 'instructions' } ],
 				[ { text: 'Category Name:', klass: 'left' }, { input: 'archive[name]', klass: 'right' } ],
 				[ { text: 'Parent Category:', klass: 'left' }, { select: 'archive[parent_id]', klass: 'right', options: [ { value: -1, text: 'Loading categories. Please Wait...' } ] } ],
-				[ { text: 'Include in Carousel?', klass: 'left' }, { checkbox: 'archive[carousel_include]', klass: 'right' } ],
+                [ { text: 'Include in Carousel?', klass: 'left', display_carousels: true },{ text: '&nbsp;', klass: 'right'} ],
 				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ],
 				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_image]', alt: 'Thumbnail', klass: 'thumb', removeButton: 'Remove Thumbnail' } ],
 			]
@@ -106,7 +106,7 @@ YUI().use('node', function(Y) {
 				[ { text: 'Site URL:', klass: 'left' }, { input: 'archive[site_url]', klass: 'right' } ],
 				[ { text: 'Thumbnail URL:', klass: 'left' }, { input: 'archive[thumbnail]', klass: 'right' } ],
 				[ { text: 'Parent Category:', klass: 'left' }, { select: 'archive[parent_id]', klass: 'right', options: [ { value: -1, text: 'Loading categories. Please Wait...' } ] } ],
-				[ { text: 'Include in Carousel?', klass: 'left' }, { checkbox: 'archive[carousel_include]', klass: 'right' } ],
+                [ { text: 'Include in Carousel?', klass: 'left', display_carousels: true },{ text: '&nbsp;', klass: 'right'} ],
 				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ],
 				[ { text: 'Carousel Thumbnail:', klass: 'left' }, { image: 'archive[carousel_image]', alt: 'Thumbnail', klass: 'thumb', removeButton: 'Remove Thumbnail' } ],
 			]
@@ -134,7 +134,7 @@ YUI().use('node', function(Y) {
 				[ { text: 'Site URL:', klass: 'left' }, { input: 'archive[site_url]', klass: 'right' } ],
 				[ { text: 'Thumbnail URL:', klass: 'left' }, { input: 'archive[thumbnail]', klass: 'right' } ],
 				[ { text: 'Parent Category:', klass: 'left' }, { select: 'archive[parent_id]', klass: 'right', options: [ { value: -1, text: 'Loading categories. Please Wait...' } ] } ],
-				[ { text: 'Include in Carousel?', klass: 'left' }, { checkbox: 'archive[carousel_include]', klass: 'right' } ],
+                [ { text: 'Include in Carousel?', klass: 'left', display_carousels: true },{ text: '&nbsp;', klass: 'right'} ],
 				[ { text: 'Carousel Description:', klass: 'left' }, { textarea: 'archive[carousel_description]', klass: 'right' } ]
 			]
 		}

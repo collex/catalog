@@ -33,9 +33,12 @@ module ArchivesHelper
 	end
 
 	def format_site(site, indent)
+    if site.carousels.exists?
+      carousel_names = site.carousels.collect{|c| c.name}.compact.join(', ');
+    end
 		return content_tag(:div, { :class => 'row' }) do
 			content_tag(:div, "#{site[:name]} [#{site[:handle]}]", { :class=> "left indent#{indent}" }) +
-				content_tag(:div, "#{site[:carousel_include] == 1 ? 'Yes' : ''}", { :class => 'middle' }) +
+				content_tag(:div, "#{site.carousels.exists? ? carousel_names : ' '}", { :class => 'middle' }) +
 				content_tag(:div, raw(site_links(site[:id], site[:name], false)), { :class => 'right' })
 		end
 	end

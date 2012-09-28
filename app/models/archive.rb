@@ -3,7 +3,9 @@ class Archive < ActiveRecord::Base
                     :styles => { :normal => '300x300' },
                     :path => ":rails_root/public/system/:attachment/:id/:style/:filename",
                     :url => "/system/:attachment/:id/:style/:filename"
-	# to create a cropped image, use :thumb=> "100x100#".
+                    # to create a cropped image, use :thumb=> "100x100#".
+  has_and_belongs_to_many :carousels
+  attr_accessor :carousel_list
 
 	def self.get_tree()
 		nodes = Archive.find_all_by_typ('node')
@@ -82,6 +84,6 @@ class Archive < ActiveRecord::Base
 		nodes = nodes.map { |node| {:name => node['name'], :value => node['id']} }
 		nodes.unshift({:name => "[root]", :value => 0})
 		return nodes
-	end
+  end
 
 end

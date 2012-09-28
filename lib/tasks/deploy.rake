@@ -36,7 +36,22 @@ namespace :deploy do
 		puts "Updating xsd files..."
 		safe_mkdir("#{Rails.root}/public/xsd")
 		copy_dir( "#{Rails.root}/features/xsd", "#{Rails.root}/public/xsd" )
-	end
+  end
+
+  desc "Migrate old way of creating carousels (carousel_include) to the new way with the archives_carousels table."
+  task :migrate_data_to_archives_carousels_table => :environment do
+    archives = Archive.all
+    archives.each { |archive|
+      if archive.carousel_include == 1
+        if archive.carousels
+          archive.carousels.delete_all
+        end
+        Carousel.all.each { |carousel|
+          archive.carousels << carousel
+        }
+      end
+    }
+  end
 
 	################################
 	# Utilities

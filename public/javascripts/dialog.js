@@ -87,6 +87,9 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 	function setDataOnForm(idPrefix, data) {
 		for (var property in data) {
 			if (data.hasOwnProperty(property)) {
+                if (typeof(data[property]) == 'object') {
+                    setDataOnForm(idPrefix+'_'+property, data[property])
+                }
 				var el = Y.one('#'+ idPrefix+ '_'+property);
 				if (el) {
 					var node = el._node;
@@ -291,7 +294,7 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 	}
 
 	function name2Id(name) {
-		return name.replace(/\[/, '_').replace(/\]/, '');
+		return name.replace(/\[/g, '_').replace(/\]/g, '');
 	}
 
 	function makeId(name) {
@@ -398,6 +401,29 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 			return;
 		}
 		closeWindow(dlg);
+        // TODO: Add in rows here if needed!!
+        if (!dlgDescription.carousels_added) {
+            var carousel_row = -1;
+            dlgDescription.rows.forEach(
+                    function(element, index) {
+                        if (element[0].display_carousels) {
+                            carousel_row = index;
+                        }
+                    })
+            if (carousel_row >= 0 && data.all_carousels) {
+
+                var dlgTopRows = dlgDescription.rows.splice(0,carousel_row+1);
+                var dlgBottomRows = dlgDescription.rows;
+                data.all_carousels.forEach(
+                    function(element, index) {
+                        dlgTopRows.push([{ text: element.carousel.name, klass: 'left-indented' },
+                                         { checkbox: 'archive[carousel_list['+element.carousel.id+']]', klass: 'right-narrow' }]);
+                    }
+                )
+                dlgDescription.rows = dlgTopRows.concat(dlgBottomRows);
+                dlgDescription.carousels_added = true;
+            }
+        }
 		var panel = constructDlg(dlgDescription, params);
 		if (dlgDescription.populate)
 			dlgDescription.populate(panel, data);

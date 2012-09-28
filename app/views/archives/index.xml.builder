@@ -50,7 +50,7 @@ xml.resource_tree do
 				xml.site_url archive[:site_url]
 				xml.text!("\n      ")
 				xml.thumbnail archive[:thumbnail]
-				if archive[:carousel_include].to_i == 1
+				if archive.carousels.exists?
 					xml.text!("\n      ")
 					xml.carousel do
 						xml.text!("\n        ")
@@ -60,6 +60,11 @@ xml.resource_tree do
 						end
 						xml.description archive[:carousel_description]
 						xml.text!("\n      ")
+            xml.federations do
+              archive.carousels.each do |carousel|
+                xml.federation carousel.name
+              end
+            end
 					end
 				end
 				xml.text!("\n    ")

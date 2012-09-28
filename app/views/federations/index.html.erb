@@ -23,18 +23,19 @@
 		  <td><%= image_tag federation.thumbnail.url(:thumb) %></td>
 		  <td><%= federation.site %></td>
 	<% if user_signed_in? %>
-		  <td><%= federation.ip %></td>
+	    <td><%= federation.ip %></td>
 		<td><%= link_to 'Show', federation %>&nbsp;
 		<%= link_to 'Edit', edit_federation_path(federation) %>&nbsp;
 		<%= link_to 'Destroy', federation, :confirm => 'Are you sure?', :method => :delete %></td>
+        <td>
+        </td>
 	<% end %>
 	  </tr>
 	<% end %>
 	</table>
 
 	<% if user_signed_in? %>
-	<br />
-
-	<%= link_to 'New Federation', new_federation_path %>
+	    <br />
+	    <%= link_to 'New Federation', new_federation_path %>
 	<% end %>
 </div>

@@ -63,8 +63,16 @@ class ArchivesController < ApplicationController
 			item = @archive.attributes
 			if @archive.carousel_image_file_name
 				item[:carousel_image] = @archive.carousel_image.url(:normal)
-			end
-			render :json => {:item => item, :categories => Archive.get_category_list()}
+      end
+      if not @archive.carousels.empty?
+        item[:carousel_list] = {}
+        @archive.carousels.each{ |c|
+          item[:carousel_list][c.id] = 1
+        }
+      end
+			render :json => {:item => item,
+                       :categories => Archive.get_category_list(),
+                       :all_carousels => Carousel.all}
 		else
 			render :json => {:item => { :handle => params[:id] }, :categories => Archive.get_category_list()}
 		end
@@ -109,10 +117,18 @@ class ArchivesController < ApplicationController
 				render :text => "OK"
 			end
 		else
-			params[:archive][:carousel_include] = 1 if params[:archive][:carousel_include] == 'true'
+			#params[:archive][:carousel_include] = 1 if params[:archive][:carousel_include] == 'true'
 
 			respond_to do |format|
 				if @archive.update_attributes(params[:archive])
+          if params[:archive][:carousel_list]
+            @archive.carousels.delete_all
+            params[:archive][:carousel_list].to_hash().each { |key, value|
+              if value.downcase == 'true'
+                @archive.carousels << Carousel.find(key)
+              end
+            }
+          end
 					format.html { redraw() }
 					format.xml { head :ok }
 				else
@@ -120,7 +136,8 @@ class ArchivesController < ApplicationController
 					format.xml { render :xml => @archive.errors, :status => :unprocessable_entity }
 				end
 			end
-		end
+    end
+
 	end
 
   # DELETE /archives/1

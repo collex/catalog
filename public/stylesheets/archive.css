@@ -25,24 +25,37 @@ div.site_list div.header {
 	padding-top: 2px;
 	padding-bottom: 2px;
 	border-bottom: solid 1px #966C54;
-	height: 20px;
+	min-height: 20px;
+    height: auto !important;
+    overflow: hidden;
+    display: block;
+    width: 99%;
+}
+
+.site_list .row:hover {
+    background: rgb(255, 254, 224);
 }
 
 .site_list .left {
 	float: left;
-	width: 600px;
+	width: 500px;
 	overflow: hidden;
-	position: absolute;
-	height: 20px;
+	position: relative;
+	/*height: 20px;*/
+    display: inline;
 }
 
 .site_list .middle {
 	float: left;
-	margin-left: 700px;
+	/*margin-left: 550px;*/
+    width: 25%;
+    display: inline-block;
+    padding-left: 2em;
 }
 
 .site_list .right {
-	margin-left: 800px;
+    float: right;
+	/*margin-left: 800px;*/
 }
 
 .site_list img {
@@ -81,6 +94,13 @@ div.site_list div.header {
 	width: 10em;
 }
 
+.yui3-panel .left-indented {
+    text-align: right;
+    float: left;
+    padding-right: .5em;
+    width: 17em;
+}
+
 .yui3-panel .instructions {
 	font-style: italic;
 	color: #777;
@@ -96,6 +116,9 @@ div.site_list div.header {
 
 .archive_dlg .right {
 	width: 300px;
+}
+.archive_dlg .narrow {
+    width: 100px;
 }
 
 .archive_dlg input[readonly=readonly] {

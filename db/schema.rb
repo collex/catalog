@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120822222546) do
+ActiveRecord::Schema.define(:version => 20120925192639) do
 
   create_table "archives", :force => true do |t|
     t.string   "typ"
@@ -30,6 +30,17 @@ ActiveRecord::Schema.define(:version => 20120822222546) do
     t.datetime "updated_at"
   end
 
+  create_table "archives_carousels", :id => false, :force => true do |t|
+    t.integer "carousel_id"
+    t.integer "archive_id"
+  end
+
+  create_table "carousels", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "federations", :force => true do |t|
     t.string   "name"
     t.string   "ip"
@@ -40,6 +51,7 @@ ActiveRecord::Schema.define(:version => 20120822222546) do
     t.datetime "thumbnail_updated_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "carousel_id"
   end
 
   create_table "genres", :force => true do |t|
