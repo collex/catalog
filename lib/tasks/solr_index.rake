@@ -434,6 +434,10 @@ namespace :solr_index do
 					source = 'rawtext'
 					mode = 'clean_raw'
 					custom = '-custom WrightAmFicCleaner'
+        when 'walters'
+          source = 'rawtext'
+          mode = 'clean_raw'
+          custom = ''
 				else
 					puts "WARNING: No custom text cleaning was defined for this archive!"
 					source = 'rawtext'
