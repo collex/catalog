@@ -37,7 +37,7 @@ class QueryFormat
 		verifications = {
 			:term => { :exp => /^([+\-]("#{w}( #{w})*"|#{w}))+$/u, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
 			:frag => { :exp => /^("#{w}( #{w})*"|#{w})$/u, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
-			:year => { :exp => /^([+\-]\d\d\d\d)$/, :friendly => "[+-] A four digit date." },
+      :year => { :exp => /^([+\-]\d{1,4}(\s+[tT][oO]\s+\d{1,4})?)$/, :friendly => "[+-] A 1 to 4 digit date." },
 			:archive => { :exp => /^([+\-]\w[\w\- ]*)$/, :friendly => "[+-] One of the predefined archive abbreviations." },
 			:genre => { :exp => /^([+\-]\w[ \w]*)+$/, :friendly => "[+-] One or more of the predefined genres." },
 			:genre2 => { :exp => /^(\w[ \w]*)+(;(\w[ \w]*)+)*$/, :friendly => "One or more of the predefined genres separated by semicolons." },
@@ -281,7 +281,21 @@ class QueryFormat
 		}
 		pairs.last.push("") if pairs.last.length == 1
 		return pairs
-	end
+  end
+
+  def self.range_query_data(field, val, boost=nil)
+    # this is of the format ([+|-]match)+
+    # we want to break it into its component parts
+    pairs = self.make_pairs(val, /[\+-]/)
+
+    results = []
+    pairs.each {|pair|
+      match = pair[1].sub(/\bto\b/i, 'TO')      # change '1700 to 1900' to '1700 TO 1900'
+      match = "[#{match}]" if match.include?(' ') && !match.include?('"')
+      results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{boost ? "^#{boost}" : ''}")
+    }
+    return results.join(" ")
+  end
 
 	def self.insert_field_name(field, val, boost=nil)
 		# this is of the format ([+|-]match)+
@@ -321,7 +335,7 @@ class QueryFormat
 	end
 
 	def self.transform_year(key,val)
-		return { 'fq' => self.insert_field_name("year", val) }
+    return { 'fq' => self.range_query_data("year", val) }
 	end
 
 	def self.transform_archive(key,val)
