@@ -32,7 +32,12 @@ class Solr
 		@solr = RSolr.connect( :url=>"#{SOLR_URL}/#{core}" )
 		@field_list = [ "uri", "archive", "date_label", 'year', "genre", "source", "image", "thumbnail", "title", "alternative", "url",
 			"role_ART", "role_AUT", "role_EDT", "role_PBL", "role_TRL", "role_EGR", "role_ETR", "role_CRE", "role_OWN", "freeculture",
-			"is_ocr", "federation", "has_full_text", "source_xml", "provenance", "discipline", 'typewright' ]
+			"is_ocr", "federation", "has_full_text", "source_xml", "provenance", "discipline", 'typewright',
+      "role_ARC", "role_BND", "role_BKD", "role_BKP", "role_CLL", "role_CTG", "role_COL", "role_CLR", "role_CWT", "role_COM", "role_CMT",
+      # "role_CRE",
+      "role_DUB", "role_FAC", "role_ILU", "role_ILL", "role_LTG", "role_PRT", "role_POP", "role_PRM",
+      "role_RPS", "role_RBR", "role_SCR", "role_SCL", "role_TYD", "role_TYG", "role_WDE", "role_WDC"
+    ]
 		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright']
 	end
 
