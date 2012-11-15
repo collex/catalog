@@ -62,6 +62,7 @@ class QueryFormat
 			:decimal_array => { :exp => /^\d+(,\d+)*$/, :friendly => "An integer or array of integers separated by commas."},
 			:local_sort => { :exp => /^(title|last_modified) (asc|desc)$/, :friendly => "One of title or last_modified followed by one of asc or desc." },
 			:last_modified => { :exp => /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ." },
+      :fuz_value => { :exp => /^[+-]?(0*\.\d+)|(0|1)(\.0+)?$/, :friendly => "A value between [0, 1]"}
       #:role => { :exp => /^...[+-].*$/, :friendly => "ROLE as 3 Letter Abbr [+-] any text."}
 		}
 
@@ -85,8 +86,10 @@ class QueryFormat
 
 	def self.catalog_format()
 		format = {
-				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
-				't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
+				'q' => { :name => 'Query', :param => :term, :default => nil, :can_fuz => true, :transformation => get_proc(:transform_query) },
+        'fuz_q' => { :name => 'Query Fuzz Value', :param => :fuz_value, :default => nil, :transformation => get_proc(:transform_nil) },
+				't' => { :name => 'Title', :param => :term, :default => nil, :can_fuz => true, :transformation => get_proc(:transform_title) },
+        'fuz_t' => { :name => 'Title Fuzz Value', :param => :fuz_value, :default => nil, :transformation => get_proc(:transform_nil) },
 				'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
 				'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
 				'pub' => { :name => 'Publisher', :param => :term, :default => nil, :transformation => get_proc(:transform_publisher) },
@@ -242,14 +245,14 @@ class QueryFormat
 	  self.method( method_sym ).to_proc
 	end
 
-	def self.diacritical_query_data(field, val)
+	def self.diacritical_query_data(field, val, fuz=nil)
 		v = val.downcase()
-		return "#{insert_field_name(field, v, 20)} #{insert_field_name("#{field}_ascii", v)}"
+		return "#{insert_field_name(field, v, 20, fuz)} #{insert_field_name("#{field}_ascii", v, nil, fuz)}"
 	end
 
-	def self.transform_query(key,val)
+	def self.transform_query(key, val, fuz=nil)
 		# To find diacriticals, the main search strips them off, then we include an optional boosted search with them
-		return { 'q' => self.diacritical_query_data("content", val) }
+		return { 'q' => self.diacritical_query_data("content", val, fuz) }
 	end
 
 	#partitions a string based on regex.  matches are included in results
@@ -307,7 +310,7 @@ class QueryFormat
     return results.join(" ")
   end
 
-	def self.insert_field_name(field, val, boost=nil)
+	def self.insert_field_name(field, val, boost=nil, fuz=nil)
 		# this is of the format ([+|-]match)+
 		# we want to break it into its component parts
 		pairs = self.make_pairs(val, /[\+-]/)
@@ -316,7 +319,7 @@ class QueryFormat
 		pairs.each {|pair|
 			match = pair[1]
 			match = "\"#{match}\"" if !!match.match(/\W/) && !match.include?('"')  # check for non-word character
-			results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{boost ? "^#{boost}" : ''}")
+			results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{fuz ? "~#{fuz}" : ''}#{boost ? "^#{boost}" : ''}")
 		}
 		return results.join(" ")
 #		str = val[1..val.length]
@@ -324,8 +327,8 @@ class QueryFormat
 #		return "#{val[0]}#{field}:#{str}"
 	end
 
-	def self.transform_title(key,val)
-		return { 'fq' => self.diacritical_query_data("title", val) }
+	def self.transform_title(key,val,fuz=nil)
+		return { 'fq' => self.diacritical_query_data("title", val, fuz) }
 		#return { 'q' => self.insert_field_name("title", val.downcase()) }
 	end
 
@@ -494,7 +497,22 @@ class QueryFormat
 			else
 				params['o'] = params['o'].gsub(/[+-]freeculture/, '') + '+freeculture'
 			end
-		end
+    end
+
+    fuz_values = {}
+    params.select{ |key, value| key.match(/^fuz_/) != nil}.each { |key, val|
+      definition = format[key]
+      raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
+      raise(ArgumentError, "Bad parameter (#{key}): (#{definition[:name]}) was passed as an array.") if val.kind_of?(Array) && definition[:can_be_array] != true
+      if val.kind_of?(Array)
+        val.each { |v|
+          raise(ArgumentError, "Bad parameter (#{key}): (#{v}). Must match: #{definition[:exp]}") if definition[:exp].match(v) == nil
+        }
+      else
+        raise(ArgumentError, "Bad parameter (#{key}): (#{val}). Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
+      end
+      fuz_values[key.sub(/^fuz_/, '')] = val.sub(/[+-]/, '')
+    }
 
 		query = {}
 		params.each { |key,val|
@@ -507,8 +525,16 @@ class QueryFormat
 				}
 			else
 				raise(ArgumentError, "Bad parameter (#{key}): (#{val}). Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
-			end
-			solr_hash = definition[:transformation].call(key,val)
+      end
+      if definition[:can_fuz]
+        if fuz_values[key]
+          solr_hash = definition[:transformation].call(key,val, fuz_values[key])
+        else
+          solr_hash = definition[:transformation].call(key,val, nil)
+        end
+      else
+        solr_hash = definition[:transformation].call(key,val)
+      end
 			query.merge!(solr_hash) {|key, oldval, newval|
 				oldval + " " + newval
 			}
