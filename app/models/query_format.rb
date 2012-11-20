@@ -319,7 +319,19 @@ class QueryFormat
 		pairs.each {|pair|
 			match = pair[1]
 			match = "\"#{match}\"" if !!match.match(/\W/) && !match.include?('"')  # check for non-word character
-			results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{fuz ? "~#{fuz}" : ''}#{boost ? "^#{boost}" : ''}")
+      result = '';
+      if boost.nil?
+        result = "#{pair[0]}"
+      end
+      result += "#{field}:#{match}"
+      if (not fuz.nil?) and !match.match(/\s/)  # we can't fuzzy search on a multi-word query
+        result += "~#{fuz}"
+      end
+      if not boost.nil?
+        result += "^#{boost}"
+      end
+      results.push(result)
+			#results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{fuz ? "~#{fuz}" : ''}#{boost ? "^#{boost}" : ''}")
 		}
 		return results.join(" ")
 #		str = val[1..val.length]
