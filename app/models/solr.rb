@@ -138,7 +138,11 @@ class Solr
 
 	def get_archive_list()
 		return get_facet_list('archive')
-	end
+  end
+
+  def get_language_list()
+    return get_facet_list('language')
+  end
 
 	def get_totals()
 		federations = get_federation_list()
@@ -317,7 +321,17 @@ class Solr
 		add_facet_param(options, [ "role_AUT", "role_EDT", "role_PBL" ], "")
 		response = select(options)
 		return facets_to_hash(response)
-	end
+  end
+
+  def languages(options)
+    if options.empty?
+      options = { :q=>"*:*", :rows => 1 }
+    end
+    options[:fl] = "language"
+    add_facet_param(options, [ "language" ], "")
+    response = select(options)
+    return facets_to_hash(response)
+  end
 
 	def details(options, overrides = {})
 		fields = overrides[:field_list] ? overrides[:field_list] : @field_list

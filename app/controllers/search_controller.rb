@@ -99,7 +99,36 @@ class SearchController < ApplicationController
 			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
 			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
-	end
+  end
+
+  # GET /search/languages.xml
+  def languages
+    # For the moment just return a list of all languages
+    query_params = QueryFormat.languages_format()
+    begin
+      QueryFormat.transform_raw_parameters(params)
+      query = QueryFormat.create_solr_query(query_params, params, request.headers['REMOTE_ADDR'])
+
+      is_test = Rails.env == 'test' ? :test : :live
+      is_test = :shards if params[:test_index]
+      solr = Solr.factory_create(is_test)
+
+      @results = solr.languages(query)
+
+      respond_to do |format|
+        #format.html # languages.html.erb
+        format.xml # { render :xml => { :languages => @results } }
+      end
+
+      rescue ArgumentError => e
+        render_error(e.to_s)
+      rescue SolrException => e
+        render_error(e.to_s, e.status())
+      rescue Exception => e
+        ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+        render_error("Something unexpected went wrong.", :internal_server_error)
+    end
+  end
 
 	# GET /searches/details
 	# GET /searches/details.xml

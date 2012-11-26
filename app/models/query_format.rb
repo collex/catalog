@@ -62,8 +62,9 @@ class QueryFormat
 			:decimal_array => { :exp => /^\d+(,\d+)*$/, :friendly => "An integer or array of integers separated by commas."},
 			:local_sort => { :exp => /^(title|last_modified) (asc|desc)$/, :friendly => "One of title or last_modified followed by one of asc or desc." },
 			:last_modified => { :exp => /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ." },
-      :fuz_value => { :exp => /^[+-]?(0*\.\d+)|(0|1)(\.0+)?$/, :friendly => "A value between [0, 1]"}
-      #:role => { :exp => /^...[+-].*$/, :friendly => "ROLE as 3 Letter Abbr [+-] any text."}
+      :fuz_value => { :exp => /^[+\-]?(0*\.\d+)|(0|1)(\.0+)?$/, :friendly => "A value between [0, 1]"},
+      :language => { :exp => /^([+\-][^+\-]+)+$/, :friendly => "[+-] Languages separated by ||" }
+
 		}
 
 		return verifications[typ]
@@ -103,9 +104,9 @@ class QueryFormat
 				'max' => { :name => 'Maximum Results', :param => :max, :default => '30', :transformation => get_proc(:transform_max) },
 				'hl' => { :name => 'Highlighting', :param => :highlighting, :default => 'off', :transformation => get_proc(:transform_highlight) },
 				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
-        # 'r' => { :name => 'Role', :param => :role, :default => nil, :transformation => get_proc(:transform_role)},
         'r_own' => { :name => 'Owner', :param => :string, :default => nil, :transformation => get_proc(:transform_role_owner)},
-        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)}
+        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)},
+        'lang' => { :name => 'Language', :param => :language, :default => nil, :transformation => get_proc(:transform_language)}
 		}
 		return self.add_to_format(format)
 	end
@@ -127,9 +128,9 @@ class QueryFormat
 				'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
 				'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) },
 				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
-        # 'r' => { :name => 'Role', :param => :role, :default => nil, :transformation => get_proc(:transform_role)},
         'r_own' => { :name => 'Owner', :param => :string, :default => nil, :transformation => get_proc(:transform_role_owner)},
-        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)}
+        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)},
+        'lang' => { :name => 'Language', :param => :language, :default => nil, :transformation => get_proc(:transform_language)}
 		}
 		return self.add_to_format(format)
 	end
@@ -147,12 +148,29 @@ class QueryFormat
 				'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
 				'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) },
 				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
-        # 'r' => { :name => 'Role', :param => :role, :default => nil, :transformation => get_proc(:transform_role)},
         'r_own' => { :name => 'Owner', :param => :string, :default => nil, :transformation => get_proc(:transform_role_owner)},
-        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)}
+        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)},
+        'lang' => { :name => 'Language', :param => :language, :default => nil, :transformation => get_proc(:transform_language)}
 		}
 		return self.add_to_format(format)
-	end
+  end
+
+  def self.languages_format()
+    format = {
+        'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
+        't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
+        'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
+        'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
+        'pub' => { :name => 'Publisher', :param => :term, :default => nil, :transformation => get_proc(:transform_publisher) },
+        'y' => { :name => 'Year', :param => :year, :default => nil, :transformation => get_proc(:transform_year) },
+        'a' => { :name => 'Archive', :param => :archive, :default => nil, :transformation => get_proc(:transform_archive) },
+        'g' => { :name => 'Genre', :param => :genre, :default => nil, :transformation => get_proc(:transform_genre) },
+        'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
+        'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) },
+        'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
+    }
+    return self.add_to_format(format)
+  end
 
 	def self.details_format()
 		format = {
@@ -317,8 +335,21 @@ class QueryFormat
 
 		results = []
 		pairs.each {|pair|
-			match = pair[1]
-			match = "\"#{match}\"" if !!match.match(/\W/) && !match.include?('"')  # check for non-word character
+      match = ''
+      pair[1].split(/\s*\|\|\s*/).each{ |m|           # handle || symbol
+        if !!m.match(/\W/) && !m.include?('"')  # check for non-word character
+          match += "\"#{m}\""
+        else
+          match += "#{m}"
+        end
+        match += " || "
+      }
+      match.sub!(/ \|\| $/, '')
+
+      if !!match.match(/\|\|/) and !match.match(/^\(.*\)$/)
+        match = "(#{match})"
+      end
+
       result = '';
       if boost.nil?
         result = "#{pair[0]}"
@@ -373,6 +404,10 @@ class QueryFormat
 
   def self.transform_role_artist(key, val)
     return self.transform_role('role_ART', val)
+  end
+
+  def self.transform_language(key, val)
+    return { 'fq' => self.insert_field_name('language', val)}
   end
 
 	def self.transform_archive(key,val)
