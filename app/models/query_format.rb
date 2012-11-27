@@ -368,7 +368,55 @@ class QueryFormat
 #		str = val[1..val.length]
 #		str = "\"#{str}\"" if str.include?(' ')
 #		return "#{val[0]}#{field}:#{str}"
-	end
+  end
+
+  def self.insert_field_name_one_pair(field, val, boost=nil, fuz=nil)
+    # this is of the format ([+|-]match)+
+    # we want to break it into its component parts
+    pairs = []
+    if val.match(/^\+/)
+      pairs.push(['+', val.sub(/^\+/, '')])
+    elsif val.match(/^-/)
+      pairs.push(['-', val.sub(/^-/, '')])
+    end
+    #pairs = self.make_pairs(val, /[\+-]/)
+
+    results = []
+    pairs.each {|pair|
+      match = ''
+      pair[1].split(/\s*\|\|\s*/).each{ |m|           # handle || symbol
+        if !!m.match(/\W/) && !m.include?('"')  # check for non-word character
+          match += "\"#{m}\""
+        else
+          match += "#{m}"
+        end
+        match += " || "
+      }
+      match.sub!(/ \|\| $/, '')
+
+      if !!match.match(/\|\|/) and !match.match(/^\(.*\)$/)
+        match = "(#{match})"
+      end
+
+      result = '';
+      if boost.nil?
+        result = "#{pair[0]}"
+      end
+      result += "#{field}:#{match}"
+      if (not fuz.nil?) and !match.match(/\s/)  # we can't fuzzy search on a multi-word query
+        result += "~#{fuz}"
+      end
+      if not boost.nil?
+        result += "^#{boost}"
+      end
+      results.push(result)
+      #results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{fuz ? "~#{fuz}" : ''}#{boost ? "^#{boost}" : ''}")
+    }
+    return results.join(" ")
+    #		str = val[1..val.length]
+    #		str = "\"#{str}\"" if str.include?(' ')
+    #		return "#{val[0]}#{field}:#{str}"
+  end
 
 	def self.transform_title(key,val,fuz=nil)
 		return { 'fq' => self.diacritical_query_data("title", val, fuz) }
@@ -407,7 +455,7 @@ class QueryFormat
   end
 
   def self.transform_language(key, val)
-    return { 'fq' => self.insert_field_name('language', val)}
+    return { 'fq' => self.insert_field_name_one_pair('language', val)}
   end
 
 	def self.transform_archive(key,val)
