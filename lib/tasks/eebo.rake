@@ -50,7 +50,7 @@ namespace :eebo do
       puts "\nNumber of documents added to typewright: #{num_added}"
       puts "Number of documents not found: #{num_missing}"
       puts "All items processed into the test index. If the test index looks correct, then merge it into the live index with:"
-      puts "rake solr_index:merge_archive archive=EEBO"
+      puts "rake solr_index:merge_archive archive=#{archive}"
       finish_line(start_time)
 
     elsif file == nil
