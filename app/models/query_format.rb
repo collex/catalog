@@ -250,7 +250,7 @@ class QueryFormat
 				'group_id' => { :name => 'Group ID', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
 				'title' => { :name => 'title', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
 				'text' => { :name => 'text', :param => :string_optional, :default => nil, :transformation => get_proc(:transform_field) },
-				'last_modified' => { :name => 'Last Modified', :param => :last_modified, :default => nil, :transformation => get_proc(:transform_field) },
+				'last_modified' => { :name => 'Last Modified', :param => :last_modified, :default => nil, :transformation => get_proc(:transform_last_modified) },
 				'visible_to_everyone' => { :name => 'Visible to Everyone', :param => :boolean, :default => nil, :transformation => get_proc(:transform_field) },
 				'visible_to_group_member' => { :name => 'Visible to Member', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
 				'visible_to_group_admin' => { :name => 'Visible to Admin', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
@@ -511,6 +511,12 @@ class QueryFormat
     val = "\"#{val}\"" if !!val.match(/\W/) && !val.include?('"')
 		return { key => val }
 	end
+
+  def self.transform_last_modified(key, val)
+    # check for space and enclose in quotes
+    val = "\"#{val}\"" if !!val.match(/\s/) && !val.include?('"')
+    return { key => val }
+  end
 
 	def self.transform_field_ascii(key,val)
 		return { key => val + "_ascii" }
