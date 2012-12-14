@@ -434,7 +434,7 @@ class Solr
 
 	def remove_exhibit(exhibit, commit_now)
 		begin
-			@solr.delete_by_query("+uri:#{exhibit}/*")
+			@solr.delete_by_query("+uri:#{exhibit}\\/*")
 			if commit_now
 				@solr.commit()
 			end

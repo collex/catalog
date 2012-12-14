@@ -166,7 +166,7 @@ class ExhibitsController < ApplicationController
 				begin
 					commit = params[:commit] == 'immediate'
 					id = params[:id]
-					uri = QueryFormat.id_to_uri(id).gsub("$[FEDERATION_SITE]$", federation.site).gsub(':', '\\:')
+					uri = QueryFormat.id_to_uri(id).gsub("$[FEDERATION_SITE]$", federation.site).gsub(':', '\\:').gsub('/', '\\/')
 
 					is_test = Rails.env == 'test' ? :test : :live
 					solr = Solr.factory_create(is_test)
