@@ -445,7 +445,7 @@ class Solr
 
 	def merge_archives(archives, internal=true)
 		#http://localhost:8983/solr/admin/cores?action=mergeindexes&core=core0&srcCore=core1&srcCore=core2
-		solr = RSolr.connect( :url=> SOLR_URL )
+		solr = RSolr.connect( :url=> SOLR_URL, :read_timeout => 200, :open_timeout => 200 )
 		begin
 			if internal
 				solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :srcCore => archives } })
@@ -458,7 +458,7 @@ class Solr
 			str = e.to_s
 			arr = str.split("\nBacktrace:")
 			raise SolrException.new(arr[0])
-		end
+    end
 	end
 
 	def remove_object(uri, commit_now)
