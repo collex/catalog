@@ -100,6 +100,10 @@ class ExhibitsController < ApplicationController
 					query_params = QueryFormat.exhibit_format()
 					QueryFormat.transform_raw_parameters(params)
 					query = QueryFormat.create_solr_query(query_params, params, nil)
+
+          # remove quotes surrounding values,  quotes are not needed when updating solr with xml
+          query.each {|key,val| val.class == String ? val.gsub!(/(^")|("$)/, '') : val}
+
 					page = params[:page]
 					query['archive'] = QueryFormat.id_to_archive(query['archive']).gsub("$[FEDERATION_NAME]$", federation.name)
 					query[:uri] = query[:uri].gsub("$[FEDERATION_SITE]$", federation.site).gsub("$[PAGE_NUM]$", page ? "/#{page}" : "")
@@ -119,6 +123,9 @@ class ExhibitsController < ApplicationController
 					query['has_full_text'] = true
 
 					is_test = Rails.env == 'test' ? :test : :live
+
+
+
 					solr = Solr.factory_create(is_test)
 					solr.add_object(query, boost, commit)
 
