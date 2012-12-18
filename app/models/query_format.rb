@@ -106,7 +106,9 @@ class QueryFormat
 				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
         'r_own' => { :name => 'Owner', :param => :string, :default => nil, :transformation => get_proc(:transform_role_owner)},
         'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)},
-        'lang' => { :name => 'Language', :param => :language, :default => nil, :transformation => get_proc(:transform_language)}
+        'lang' => { :name => 'Language', :param => :language, :default => nil, :transformation => get_proc(:transform_language)},
+        'doc_type' => { :name => 'Format', :param => :string, :default => nil, :transformation => get_proc(:transform_doc_type)},
+        'discipline' => { :name => 'Discipline', :param => :string, :default => nil, :transformation => get_proc(:transform_discipline)}
 		}
 		return self.add_to_format(format)
 	end
@@ -467,7 +469,15 @@ class QueryFormat
 
 	def self.transform_genre(key,val)
 		return { 'fq' => self.insert_field_name("genre", val) }
-	end
+  end
+
+  def self.transform_discipline(key,val)
+    return { 'fq' => self.insert_field_name("discipline", val) }
+  end
+
+  def self.transform_doc_type(key,val)
+    return { 'fq' => self.insert_field_name("doc_type", val) }
+  end
 
 	def self.transform_federation(key,val)
 		return { 'fq' => self.insert_field_name("federation", val) }

@@ -38,7 +38,7 @@ class Solr
       "role_RPS", "role_RBR", "role_SCR", "role_SCL", "role_TYD", "role_TYG", "role_WDE", "role_WDC",
       "subject"
     ]
-		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright']
+		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright', 'doc_type', 'discipline']
 	end
 
 	def self.factory_create(is_test, federation="")
