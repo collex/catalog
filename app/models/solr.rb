@@ -39,6 +39,11 @@ class Solr
       "subject"
     ]
 		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright', 'doc_type', 'discipline']
+    @role_facets = [ 'role_AUT', 'role_ART', 'role_EDT', 'role_PBL', 'role_OWN', 'role_TRL', 'role_ARC', 'role_BND', 'role_BKD',
+                     'role_BKP', 'role_CLL', 'role_CTG', 'role_COL', 'role_CLR', 'role_CWT', 'role_COM', 'role_CMT', 'role_CRE',
+                     'role_DUB', 'role_FAC', 'role_ILU', 'role_ILL', 'role_LTG', 'role_PRT', 'role_POP', 'role_PRM', 'role_RPS',
+                     'role_RBR', 'role_SCR', 'role_SCL', 'role_TYD', 'role_TYG', 'role_WDE', 'role_WDC' ]
+    @facet_fields += @role_facets  # if this causes problems make it MESA only.
 	end
 
 	def self.factory_create(is_test, federation="")
