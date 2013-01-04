@@ -27,8 +27,12 @@ namespace :deploy do
 		run_bundler()
 		Rake::Task['db:migrate'].invoke
 		Rake::Task['deploy:update_xsd'].invoke
-		puts "You will be asked for your sudo password."
-		puts `sudo /sbin/service httpd restart`
+
+		puts "You may be asked for your sudo password."
+    `mkdir -p #{Rails.root}/tmp`
+    `touch #{Rails.root}/tmp/restart.txt`
+    
+		#puts `sudo /sbin/service httpd restart`
 	end
 
 	desc "Update the xsd files to be publically available"
