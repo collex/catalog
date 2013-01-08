@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.10'
+gem 'rails', '3.2.11'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -24,7 +24,7 @@ gem 'paperclip'
 
 gem 'exception_notification'
 
-gem 'jquery-rails', '~> 2.1'
+#gem 'jquery-rails', '~> 2.1'
 
 # Deploy with Capistrano
 # gem 'capistrano'
