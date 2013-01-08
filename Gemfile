@@ -24,6 +24,8 @@ gem 'paperclip'
 
 gem 'exception_notification'
 
+#gem 'jquery-rails', '~> 2.1'
+
 # Deploy with Capistrano
 # gem 'capistrano'
 

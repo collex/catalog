@@ -31,9 +31,19 @@ class Solr
 		@core = core # "#{SOLR_CORE_PREFIX}/#{core}"
 		@solr = RSolr.connect( :url=>"#{SOLR_URL}/#{core}" )
 		@field_list = [ "uri", "archive", "date_label", 'year', "genre", "source", "image", "thumbnail", "title", "alternative", "url",
-			"role_ART", "role_AUT", "role_EDT", "role_PBL", "role_TRL", "role_EGR", "role_ETR", "role_CRE", "freeculture",
-			"is_ocr", "federation", "has_full_text", "source_xml", "provenance", 'typewright' ]
-		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright']
+			"role_ART", "role_AUT", "role_EDT", "role_PBL", "role_TRL", "role_EGR", "role_ETR", "role_CRE", "role_OWN", "freeculture",
+			"is_ocr", "federation", "has_full_text", "source_xml", "provenance", "discipline", 'typewright',
+      "role_ARC", "role_BND", "role_BKD", "role_BKP", "role_CLL", "role_CTG", "role_COL", "role_CLR", "role_CWT", "role_COM", "role_CMT",
+      "role_DUB", "role_FAC", "role_ILU", "role_ILL", "role_LTG", "role_PRT", "role_POP", "role_PRM",
+      "role_RPS", "role_RBR", "role_SCR", "role_SCL", "role_TYD", "role_TYG", "role_WDE", "role_WDC",
+      "subject"
+    ]
+		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright', 'doc_type', 'discipline']
+    @role_facets = [ 'role_AUT', 'role_ART', 'role_EDT', 'role_PBL', 'role_OWN', 'role_TRL', 'role_ARC', 'role_BND', 'role_BKD',
+                     'role_BKP', 'role_CLL', 'role_CTG', 'role_COL', 'role_CLR', 'role_CWT', 'role_COM', 'role_CMT', 'role_CRE',
+                     'role_DUB', 'role_FAC', 'role_ILU', 'role_ILL', 'role_LTG', 'role_PRT', 'role_POP', 'role_PRM', 'role_RPS',
+                     'role_RBR', 'role_SCR', 'role_SCL', 'role_TYD', 'role_TYG', 'role_WDE', 'role_WDC' ]
+    @facet_fields += @role_facets  # if this causes problems make it MESA only.
 	end
 
 	def self.factory_create(is_test, federation="")
@@ -133,7 +143,11 @@ class Solr
 
 	def get_archive_list()
 		return get_facet_list('archive')
-	end
+  end
+
+  def get_language_list()
+    return get_facet_list('language')
+  end
 
 	def get_totals()
 		federations = get_federation_list()
@@ -312,7 +326,17 @@ class Solr
 		add_facet_param(options, [ "role_AUT", "role_EDT", "role_PBL" ], "")
 		response = select(options)
 		return facets_to_hash(response)
-	end
+  end
+
+  def languages(options)
+    if options.empty?
+      options = { :q=>"*:*", :rows => 1 }
+    end
+    options[:fl] = "language"
+    add_facet_param(options, [ "language" ], "")
+    response = select(options)
+    return facets_to_hash(response)
+  end
 
 	def details(options, overrides = {})
 		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
@@ -415,7 +439,7 @@ class Solr
 
 	def remove_exhibit(exhibit, commit_now)
 		begin
-			@solr.delete_by_query("+uri:#{exhibit}/*")
+			@solr.delete_by_query("+uri:#{exhibit}\\/*")
 			if commit_now
 				@solr.commit()
 			end
@@ -426,7 +450,7 @@ class Solr
 
 	def merge_archives(archives, internal=true)
 		#http://localhost:8983/solr/admin/cores?action=mergeindexes&core=core0&srcCore=core1&srcCore=core2
-		solr = RSolr.connect( :url=> SOLR_URL )
+		solr = RSolr.connect( :url=> SOLR_URL, :read_timeout => 200, :open_timeout => 200 )
 		begin
 			if internal
 				solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :srcCore => archives } })
@@ -439,7 +463,7 @@ class Solr
 			str = e.to_s
 			arr = str.split("\nBacktrace:")
 			raise SolrException.new(arr[0])
-		end
+    end
 	end
 
 	def remove_object(uri, commit_now)

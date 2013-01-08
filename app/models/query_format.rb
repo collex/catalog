@@ -37,7 +37,7 @@ class QueryFormat
 		verifications = {
 			:term => { :exp => /^([+\-]("#{w}( #{w})*"|#{w}))+$/u, :friendly => "A list of alphanumeric terms, starting with either + or - and possibly quoted if there is a space." },
 			:frag => { :exp => /^("#{w}( #{w})*"|#{w})$/u, :friendly => "A list of alphanumeric terms, possibly quoted if there is a space." },
-			:year => { :exp => /^([+\-]\d\d\d\d)$/, :friendly => "[+-] A four digit date." },
+      :year => { :exp => /^([+\-]\d{1,4}(\s+[tT][oO]\s+\d{1,4})?)$/, :friendly => "[+-] A 1 to 4 digit date." },
 			:archive => { :exp => /^([+\-]\w[\w\- ]*)$/, :friendly => "[+-] One of the predefined archive abbreviations." },
 			:genre => { :exp => /^([+\-]\w[ \w]*)+$/, :friendly => "[+-] One or more of the predefined genres." },
 			:genre2 => { :exp => /^(\w[ \w]*)+(;(\w[ \w]*)+)*$/, :friendly => "One or more of the predefined genres separated by semicolons." },
@@ -62,6 +62,9 @@ class QueryFormat
 			:decimal_array => { :exp => /^\d+(,\d+)*$/, :friendly => "An integer or array of integers separated by commas."},
 			:local_sort => { :exp => /^(title|last_modified) (asc|desc)$/, :friendly => "One of title or last_modified followed by one of asc or desc." },
 			:last_modified => { :exp => /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ." },
+      :fuz_value => { :exp => /^[+\-]?(0*\.\d+)|(0|1)(\.0+)?$/, :friendly => "A value between [0, 1]"},
+      :language => { :exp => /^([+\-][^+\-]+)+$/, :friendly => "[+-] Languages separated by ||" }
+
 		}
 
 		return verifications[typ]
@@ -84,8 +87,10 @@ class QueryFormat
 
 	def self.catalog_format()
 		format = {
-				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
-				't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
+				'q' => { :name => 'Query', :param => :term, :default => nil, :can_fuz => true, :transformation => get_proc(:transform_query) },
+        'fuz_q' => { :name => 'Query Fuzz Value', :param => :fuz_value, :default => nil, :transformation => get_proc(:transform_nil) },
+				't' => { :name => 'Title', :param => :term, :default => nil, :can_fuz => true, :transformation => get_proc(:transform_title) },
+        'fuz_t' => { :name => 'Title Fuzz Value', :param => :fuz_value, :default => nil, :transformation => get_proc(:transform_nil) },
 				'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
 				'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
 				'pub' => { :name => 'Publisher', :param => :term, :default => nil, :transformation => get_proc(:transform_publisher) },
@@ -98,7 +103,41 @@ class QueryFormat
 				'start' => { :name => 'Starting Row', :param => :starting_row, :default => '0', :transformation => get_proc(:transform_field) },
 				'max' => { :name => 'Maximum Results', :param => :max, :default => '30', :transformation => get_proc(:transform_max) },
 				'hl' => { :name => 'Highlighting', :param => :highlighting, :default => 'off', :transformation => get_proc(:transform_highlight) },
-				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) }
+				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
+        'r_own' => { :name => 'Owner', :param => :string, :default => nil, :transformation => get_proc(:transform_role_owner)},
+        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)},
+        'lang' => { :name => 'Language', :param => :language, :default => nil, :transformation => get_proc(:transform_language)},
+        'doc_type' => { :name => 'Format', :param => :string, :default => nil, :transformation => get_proc(:transform_doc_type)},
+        'discipline' => { :name => 'Discipline', :param => :string, :default => nil, :transformation => get_proc(:transform_discipline)},
+        'role_TRL' => { :name => 'Translator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_ARC' => { :name => 'Architect', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_BND' => { :name => 'Binder', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_BKD' => { :name => 'Book Designer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_BKP' => { :name => 'Book Producer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CLL' => { :name => 'Calligrapher', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CTG' => { :name => 'Cartographer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_COL' => { :name => 'Collector', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CLR' => { :name => 'Colorist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CWT' => { :name => 'Commentator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_COM' => { :name => 'Compiler', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CMT' => { :name => 'Compositor', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CRE' => { :name => 'Creator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_DUB' => { :name => 'Dubious Author', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_FAC' => { :name => 'Facsimilist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_ILU' => { :name => 'Illuminator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_ILL' => { :name => 'Illustrator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_LTG' => { :name => 'Lithographer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_PRT' => { :name => 'Printer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_POP' => { :name => 'Printer of plates', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_PRM' => { :name => 'Printmaker', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_RPS' => { :name => 'Repository', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_RBR' => { :name => 'Rubricator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_SCR' => { :name => 'Scribe', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_SCL' => { :name => 'Sculptor', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_TYD' => { :name => 'Type Designer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_TYG' => { :name => 'Typographer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_WDE' => { :name => 'Wood Engraver', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_WDC' => { :name => 'Wood Cutter', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)}
 		}
 		return self.add_to_format(format)
 	end
@@ -119,7 +158,39 @@ class QueryFormat
 				'g' => { :name => 'Genre', :param => :genre, :default => nil, :transformation => get_proc(:transform_genre) },
 				'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
 				'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) },
-				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) }
+				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
+        'r_own' => { :name => 'Owner', :param => :string, :default => nil, :transformation => get_proc(:transform_role_owner)},
+        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)},
+        'lang' => { :name => 'Language', :param => :language, :default => nil, :transformation => get_proc(:transform_language)},
+        'role_TRL' => { :name => 'Translator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_ARC' => { :name => 'Architect', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_BND' => { :name => 'Binder', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_BKD' => { :name => 'Book Designer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_BKP' => { :name => 'Book Producer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CLL' => { :name => 'Calligrapher', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CTG' => { :name => 'Cartographer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_COL' => { :name => 'Collector', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CLR' => { :name => 'Colorist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CWT' => { :name => 'Commentator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_COM' => { :name => 'Compiler', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CMT' => { :name => 'Compositor', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_CRE' => { :name => 'Creator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_DUB' => { :name => 'Dubious Author', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_FAC' => { :name => 'Facsimilist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_ILU' => { :name => 'Illuminator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_ILL' => { :name => 'Illustrator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_LTG' => { :name => 'Lithographer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_PRT' => { :name => 'Printer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_POP' => { :name => 'Printer of plates', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_PRM' => { :name => 'Printmaker', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_RPS' => { :name => 'Repository', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_RBR' => { :name => 'Rubricator', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_SCR' => { :name => 'Scribe', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_SCL' => { :name => 'Sculptor', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_TYD' => { :name => 'Type Designer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_TYG' => { :name => 'Typographer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_WDE' => { :name => 'Wood Engraver', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'role_WDC' => { :name => 'Wood Cutter', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)}
 		}
 		return self.add_to_format(format)
 	end
@@ -136,10 +207,30 @@ class QueryFormat
 				'g' => { :name => 'Genre', :param => :genre, :default => nil, :transformation => get_proc(:transform_genre) },
 				'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
 				'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) },
-				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) }
+				'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
+        'r_own' => { :name => 'Owner', :param => :string, :default => nil, :transformation => get_proc(:transform_role_owner)},
+        'r_art' => { :name => 'Artist', :param => :string, :default => nil, :transformation => get_proc(:transform_role_artist)},
+        'lang' => { :name => 'Language', :param => :language, :default => nil, :transformation => get_proc(:transform_language)}
 		}
 		return self.add_to_format(format)
-	end
+  end
+
+  def self.languages_format()
+    format = {
+        'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
+        't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
+        'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
+        'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
+        'pub' => { :name => 'Publisher', :param => :term, :default => nil, :transformation => get_proc(:transform_publisher) },
+        'y' => { :name => 'Year', :param => :year, :default => nil, :transformation => get_proc(:transform_year) },
+        'a' => { :name => 'Archive', :param => :archive, :default => nil, :transformation => get_proc(:transform_archive) },
+        'g' => { :name => 'Genre', :param => :genre, :default => nil, :transformation => get_proc(:transform_genre) },
+        'f' => { :name => 'Federation', :param => :federation, :default => nil, :transformation => get_proc(:transform_federation) },
+        'o' => { :name => 'Other Facet', :param => :other_facet, :default => nil, :transformation => get_proc(:transform_other) },
+        'test_index' => { :name => 'Use Testing Index', :param => :boolean, :default => nil, :transformation => get_proc(:transform_nil) },
+    }
+    return self.add_to_format(format)
+  end
 
 	def self.details_format()
 		format = {
@@ -219,7 +310,7 @@ class QueryFormat
 				'group_id' => { :name => 'Group ID', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
 				'title' => { :name => 'title', :param => :string, :default => nil, :transformation => get_proc(:transform_field) },
 				'text' => { :name => 'text', :param => :string_optional, :default => nil, :transformation => get_proc(:transform_field) },
-				'last_modified' => { :name => 'Last Modified', :param => :last_modified, :default => nil, :transformation => get_proc(:transform_field) },
+				'last_modified' => { :name => 'Last Modified', :param => :last_modified, :default => nil, :transformation => get_proc(:transform_last_modified) },
 				'visible_to_everyone' => { :name => 'Visible to Everyone', :param => :boolean, :default => nil, :transformation => get_proc(:transform_field) },
 				'visible_to_group_member' => { :name => 'Visible to Member', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
 				'visible_to_group_admin' => { :name => 'Visible to Admin', :param => :decimal, :default => nil, :transformation => get_proc(:transform_field) },
@@ -232,14 +323,14 @@ class QueryFormat
 	  self.method( method_sym ).to_proc
 	end
 
-	def self.diacritical_query_data(field, val)
+	def self.diacritical_query_data(field, val, fuz=nil)
 		v = val.downcase()
-		return "#{insert_field_name(field, v, 20)} #{insert_field_name("#{field}_ascii", v)}"
+		return "#{insert_field_name(field, v, 20, fuz)} #{insert_field_name("#{field}_ascii", v, nil, fuz)}"
 	end
 
-	def self.transform_query(key,val)
+	def self.transform_query(key, val, fuz=nil)
 		# To find diacriticals, the main search strips them off, then we include an optional boosted search with them
-		return { 'q' => self.diacritical_query_data("content", val) }
+		return { 'q' => self.diacritical_query_data("content", val, fuz) }
 	end
 
 	#partitions a string based on regex.  matches are included in results
@@ -281,27 +372,114 @@ class QueryFormat
 		}
 		pairs.last.push("") if pairs.last.length == 1
 		return pairs
-	end
+  end
 
-	def self.insert_field_name(field, val, boost=nil)
+  def self.range_query_data(field, val, boost=nil)
+    # this is of the format ([+|-]match)+
+    # we want to break it into its component parts
+    pairs = self.make_pairs(val, /[\+-]/)
+
+    results = []
+    pairs.each {|pair|
+      match = pair[1].sub(/\bto\b/i, 'TO')      # change '1700 to 1900' to '1700 TO 1900'
+      match = "[#{match}]" if match.include?(' ') && !match.include?('"')
+      results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{boost ? "^#{boost}" : ''}")
+    }
+    return results.join(" ")
+  end
+
+	def self.insert_field_name(field, val, boost=nil, fuz=nil)
 		# this is of the format ([+|-]match)+
 		# we want to break it into its component parts
 		pairs = self.make_pairs(val, /[\+-]/)
 
 		results = []
 		pairs.each {|pair|
-			match = pair[1]
-			match = "\"#{match}\"" if match.include?(' ') && !match.include?('"')
-			results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{boost ? "^#{boost}" : ''}")
+      match = ''
+      pair[1].split(/\s*\|\|\s*/).each{ |m|           # handle || symbol
+        if !!m.match(/\W/) && !m.include?('"')  # check for non-word character
+          match += "\"#{m}\""
+        else
+          match += "#{m}"
+        end
+        match += " || "
+      }
+      match.sub!(/ \|\| $/, '')
+
+      if !!match.match(/\|\|/) and !match.match(/^\(.*\)$/)
+        match = "(#{match})"
+      end
+
+      result = '';
+      if boost.nil?
+        result = "#{pair[0]}"
+      end
+      result += "#{field}:#{match}"
+      if (not fuz.nil?) and !match.match(/\s/)  # we can't fuzzy search on a multi-word query
+        result += "~#{fuz}"
+      end
+      if not boost.nil?
+        result += "^#{boost}"
+      end
+      results.push(result)
+			#results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{fuz ? "~#{fuz}" : ''}#{boost ? "^#{boost}" : ''}")
 		}
 		return results.join(" ")
 #		str = val[1..val.length]
 #		str = "\"#{str}\"" if str.include?(' ')
 #		return "#{val[0]}#{field}:#{str}"
-	end
+  end
 
-	def self.transform_title(key,val)
-		return { 'fq' => self.diacritical_query_data("title", val) }
+  def self.insert_field_name_one_pair(field, val, boost=nil, fuz=nil)
+    # this is of the format ([+|-]match)+
+    # we want to break it into its component parts
+    pairs = []
+    if val.match(/^\+/)
+      pairs.push(['+', val.sub(/^\+/, '')])
+    elsif val.match(/^-/)
+      pairs.push(['-', val.sub(/^-/, '')])
+    end
+    #pairs = self.make_pairs(val, /[\+-]/)
+
+    results = []
+    pairs.each {|pair|
+      match = ''
+      pair[1].split(/\s*\|\|\s*/).each{ |m|           # handle || symbol
+        if !!m.match(/\W/) && !m.include?('"')  # check for non-word character
+          match += "\"#{m}\""
+        else
+          match += "#{m}"
+        end
+        match += " || "
+      }
+      match.sub!(/ \|\| $/, '')
+
+      if !!match.match(/\|\|/) and !match.match(/^\(.*\)$/)
+        match = "(#{match})"
+      end
+
+      result = '';
+      if boost.nil?
+        result = "#{pair[0]}"
+      end
+      result += "#{field}:#{match}"
+      if (not fuz.nil?) and !match.match(/\s/)  # we can't fuzzy search on a multi-word query
+        result += "~#{fuz}"
+      end
+      if not boost.nil?
+        result += "^#{boost}"
+      end
+      results.push(result)
+      #results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{fuz ? "~#{fuz}" : ''}#{boost ? "^#{boost}" : ''}")
+    }
+    return results.join(" ")
+    #		str = val[1..val.length]
+    #		str = "\"#{str}\"" if str.include?(' ')
+    #		return "#{val[0]}#{field}:#{str}"
+  end
+
+	def self.transform_title(key,val,fuz=nil)
+		return { 'fq' => self.diacritical_query_data("title", val, fuz) }
 		#return { 'q' => self.insert_field_name("title", val.downcase()) }
 	end
 
@@ -321,8 +499,28 @@ class QueryFormat
 	end
 
 	def self.transform_year(key,val)
-		return { 'fq' => self.insert_field_name("year", val) }
-	end
+    return { 'fq' => self.range_query_data("year", val) }
+  end
+
+  def self.transform_role(key,val)
+    return { 'fq' => self.insert_field_name(key , val) }
+  end
+
+  def self.transform_role_owner(key, val)
+    return self.transform_role('role_OWN', val)
+  end
+
+  def self.transform_role_artist(key, val)
+    return self.transform_role('role_ART', val)
+  end
+
+  def self.transform_role_generic(key, val)
+    return self.transform_role(key, val)
+  end
+
+  def self.transform_language(key, val)
+    return { 'fq' => self.insert_field_name_one_pair('language', val)}
+  end
 
 	def self.transform_archive(key,val)
 #		return { 'q' => self.insert_field_name("archive", val) }
@@ -333,7 +531,15 @@ class QueryFormat
 
 	def self.transform_genre(key,val)
 		return { 'fq' => self.insert_field_name("genre", val) }
-	end
+  end
+
+  def self.transform_discipline(key,val)
+    return { 'fq' => self.insert_field_name("discipline", val) }
+  end
+
+  def self.transform_doc_type(key,val)
+    return { 'fq' => self.insert_field_name("doc_type", val) }
+  end
 
 	def self.transform_federation(key,val)
 		return { 'fq' => self.insert_field_name("federation", val) }
@@ -373,8 +579,16 @@ class QueryFormat
 	end
 
 	def self.transform_field(key,val)
+    # check for non-word character and enclose in quotes
+    val = "\"#{val}\"" if !!val.match(/\W/) && !val.include?('"')
 		return { key => val }
 	end
+
+  def self.transform_last_modified(key, val)
+    # check for space and enclose in quotes
+    val = "\"#{val}\"" if !!val.match(/\s/) && !val.include?('"')
+    return { key => val }
+  end
 
 	def self.transform_field_ascii(key,val)
 		return { key => val + "_ascii" }
@@ -456,7 +670,22 @@ class QueryFormat
 			else
 				params['o'] = params['o'].gsub(/[+-]freeculture/, '') + '+freeculture'
 			end
-		end
+    end
+
+    fuz_values = {}
+    params.select{ |key, value| key.match(/^fuz_/) != nil}.each { |key, val|
+      definition = format[key]
+      raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
+      raise(ArgumentError, "Bad parameter (#{key}): (#{definition[:name]}) was passed as an array.") if val.kind_of?(Array) && definition[:can_be_array] != true
+      if val.kind_of?(Array)
+        val.each { |v|
+          raise(ArgumentError, "Bad parameter (#{key}): (#{v}). Must match: #{definition[:exp]}") if definition[:exp].match(v) == nil
+        }
+      else
+        raise(ArgumentError, "Bad parameter (#{key}): (#{val}). Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
+      end
+      fuz_values[key.sub(/^fuz_/, '')] = val.sub(/[+-]/, '')
+    }
 
 		query = {}
 		params.each { |key,val|
@@ -469,8 +698,16 @@ class QueryFormat
 				}
 			else
 				raise(ArgumentError, "Bad parameter (#{key}): (#{val}). Must match: #{definition[:exp]}") if definition[:exp].match(val) == nil
-			end
-			solr_hash = definition[:transformation].call(key,val)
+      end
+      if definition[:can_fuz]
+        if fuz_values[key]
+          solr_hash = definition[:transformation].call(key,val, fuz_values[key])
+        else
+          solr_hash = definition[:transformation].call(key,val, nil)
+        end
+      else
+        solr_hash = definition[:transformation].call(key,val)
+      end
 			query.merge!(solr_hash) {|key, oldval, newval|
 				oldval + " " + newval
 			}

@@ -299,9 +299,13 @@ namespace :solr_index do
 	desc "Package an individual archive and send it to a server. (archive=XXX,YYY) This gets it ready to be installed on the other server with the sister script: solr:install"
 	task :package => :environment do
 		do_archive { |archive|
-			index = "archive_#{archive}"
-			filename = backup_archive(index)
-			cmd_line("scp #{filename} #{PRODUCTION_SSH}:#{dest_filename_of_zipped_index(index)}")
+      if "#{archive}" == "EEBO" or "#{archive}" == "TEST_RDF"
+        puts "Archive #{archive} is a test archive and is not ready to be packaged."
+      else
+        index = "archive_#{archive}"
+        filename = backup_archive(index)
+        cmd_line("scp #{filename} #{PRODUCTION_SSH}:#{dest_filename_of_zipped_index(index)}")
+      end
 		}
 	end
 

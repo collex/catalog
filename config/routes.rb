@@ -37,6 +37,7 @@ CollexCatalog::Application.routes.draw do
 			get 'names'
 			get 'totals'
 			get 'details'
+      get 'languages'
 		end
 	end
 
