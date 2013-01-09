@@ -75,21 +75,23 @@ namespace :solr_index do
 		merge_list = []
 
 		rdf_folders.each { |i, rdfs|
-			sh_rdf = create_sh_file("batch#{i+1}")
-			rdfs.each {|archive,f|
-				sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E\n")
-				sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Ccommit%3E%3C/commit%3E\n")
+			if i.kind_of?(Fixnum)
+				sh_rdf = create_sh_file("batch#{i+1}")
+				rdfs.each {|archive,f|
+					sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E\n")
+					sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Ccommit%3E%3C/commit%3E\n")
 
-				sh_rdf.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
-				sh_all.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
+					sh_rdf.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
+					sh_all.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
 
-				merge_list.push(archive)
-				#if merge_list.length > 10
-				#	sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
-				#	merge_list = []
-				#end
-			}
-			sh_rdf.close()
+					merge_list.push(archive)
+					#if merge_list.length > 10
+					#	sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
+					#	merge_list = []
+					#end
+				}
+				sh_rdf.close()
+			end
 		}
 		sh_clr.close()
 		if merge_list.length > 0

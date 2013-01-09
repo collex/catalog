@@ -28,7 +28,6 @@ namespace :deploy do
 		Rake::Task['db:migrate'].invoke
 		Rake::Task['deploy:update_xsd'].invoke
 
-		puts "You may be asked for your sudo password."
     `mkdir -p #{Rails.root}/tmp`
     `touch #{Rails.root}/tmp/restart.txt`
     
