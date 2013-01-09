@@ -54,17 +54,13 @@ project_manager_email: 'manager example com'
 solr:
   url: "http://localhost:8983/solr"
   core_prefix: "localhost:8983/solr"
-  path: "/fullpath/solr_3.1"
-
-svn:
-  url_rdf: svn://nines.performantsoftware.com/nines
-  url_collex: svn://nines.performantsoftware.com/collex
+  path: "/fullpath/solr"
 
 folders:
-  rdf: /path/rdf
-  marc: /path/marc
-  ecco: /path/ecco
-  rdf_indexer: /path/to/rdf-indexer
+  rdf: "/path/rdf"
+  marc: "/path/marc"
+  ecco: "/path/ecco"
+  rdf_indexer: "/path/to/source/of/rdf-indexer"
 
 production:
   ssh: "nines@arc.performantsoftware.com"

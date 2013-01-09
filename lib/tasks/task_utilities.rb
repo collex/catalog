@@ -1,5 +1,10 @@
-class TaskUtilities
-	def self.get_folder_tree(starting_dir, directories)
+module TaskUtilities
+	def cmd_line(str)
+		puts str
+		puts `#{str}`
+	end
+
+	def get_folder_tree(starting_dir, directories)
 		#define a recursive function that will traverse the directory tree
 		# unfortunately, it looks like, at least for OS X and stuff that is returned from SVN, that file? and directory? don't work, so we have some workarounds
 		begin
@@ -32,14 +37,14 @@ class TaskUtilities
 			end
 		}
 	end
-	def self.delete_file(fname)
+	def delete_file(fname)
 		begin
 			File.delete(fname)
 		rescue
 		end
 	end
 
-	def self.create_sh_file(name)
+	def create_sh_file(name)
 		path = "#{Rails.root}/tmp/#{name}.sh"
 		sh = File.open(path, 'w')
 		sh.puts("#!/bin/sh\n")

@@ -1,8 +1,5 @@
+require "#{Rails.root}/lib/tasks/task_utilities.rb"
 namespace :solr do
-	def cmd_line(str)
-		puts str
-		puts `#{str}`
-	end
 
 	def get_solr_port
 		arr = SOLR_URL.split('/')
@@ -15,24 +12,43 @@ namespace :solr do
 		return '0000'
 	end
 
-	desc "Start the solr java app (Prerequisite for running CollexCatalog) [param: size=big if indexing something large]"
-	task :start  => :environment do
-		sz = ENV["size"]
+	def start(sz)
 		if sz && sz == 'big'
 			sz = "5120"
 		else
-			sz = "2560"
+			sz = "1280"
 		end
 		port = get_solr_port()
+		log_param = "-Djava.util.logging.config.file=etc/logging.properties"
+		cmd_line("cd #{SOLR_PATH} && java -Djetty.port=#{port} -DSTOP.PORT=8079 -DSTOP.KEY=c0113x -Xmx#{sz}m #{log_param} -jar start.jar &")
+	end
+
+	def stop
+		port = get_solr_port()
+		cmd_line("cd #{SOLR_PATH} && java -Djetty.port=#{port} -DSTOP.PORT=8079 -DSTOP.KEY=c0113x -jar start.jar --stop")
+	end
+
+	desc "Start the solr java app [param: size=big if indexing something large] (for development only! Use service when deploying)"
+	task :start, [:size]  => :environment do |t, args|
+		port = get_solr_port()
 		puts "~~~~~~~~~~~ Starting solr on #{port}..."
-		cmd_line("cd #{SOLR_PATH} && java -Djetty.port=#{port} -DSTOP.PORT=8079 -DSTOP.KEY=c0113x -Xmx#{sz}m -jar start.jar 2> #{Rails.root}/log/solr.log &")
+		sz = args.size
+		start(sz)
 	end
 
 	desc "Stop the solr java app"
 	task :stop  => :environment do
 		puts "~~~~~~~~~~~ Stopping solr..."
-		port = get_solr_port()
-		cmd_line("cd #{SOLR_PATH} && java -Djetty.port=#{port} -DSTOP.PORT=8079 -DSTOP.KEY=c0113x -jar start.jar --stop")
+		stop()
+		puts "Finished."
+	end
+
+	desc "Restart the solr java app  [param: size=big if indexing something large]"
+	task :restart, [:size]  => :environment do |t, args|
+		puts "~~~~~~~~~~~ Restarting solr..."
+		stop()
+		sz = args.size
+		start(sz)
 		puts "Finished."
 	end
 

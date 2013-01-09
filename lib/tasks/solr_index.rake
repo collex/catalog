@@ -19,6 +19,8 @@ require "#{Rails.root}/lib/tasks/task_reporter.rb"
 require "#{Rails.root}/lib/tasks/task_utilities.rb"
 
 namespace :solr_index do
+	include TaskUtilities
+
 	def get_folders(path, archive)
 		folder_file = File.join(path, "sitemap.yml")
 		site_map = YAML.load_file(folder_file)
@@ -46,7 +48,7 @@ namespace :solr_index do
 		folder_file = File.join(RDF_PATH, "sitemap.yml")
 		site_map = YAML.load_file(folder_file)
 		rdf_folders = site_map['archives']
-		sh_all = TaskUtilities.create_sh_file("batch_all")
+		sh_all = create_sh_file("batch_all")
 
 		# the archives found need to exactly match the archives in the site maps.
 		all_enum_archives = {}
@@ -65,15 +67,15 @@ namespace :solr_index do
 		#	end
 		#}
 
-		sh_clr = TaskUtilities.create_sh_file("clear_archives")
+		sh_clr = create_sh_file("clear_archives")
 		#core_archives = CollexEngine.get_archive_core_list()
 		#core_archives.each {|archive|
 		#}
-		sh_merge = TaskUtilities.create_sh_file("merge_all")
+		sh_merge = create_sh_file("merge_all")
 		merge_list = []
 
 		rdf_folders.each { |i, rdfs|
-			sh_rdf = TaskUtilities.create_sh_file("batch#{i+1}")
+			sh_rdf = create_sh_file("batch#{i+1}")
 			rdfs.each {|archive,f|
 				sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E\n")
 				sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Ccommit%3E%3C/commit%3E\n")
@@ -126,17 +128,17 @@ namespace :solr_index do
 				log_dir = "#{Rails.root}/log"
 				case type
 					when :spider
-						TaskUtilities.delete_file("#{log_dir}/#{safe_name}_spider_error.log")
+						delete_file("#{log_dir}/#{safe_name}_spider_error.log")
 					when :index, :debug
-						TaskUtilities.delete_file("#{log_dir}/#{safe_name}_error.log")
+						delete_file("#{log_dir}/#{safe_name}_error.log")
 				end
-				TaskUtilities.delete_file("#{log_dir}/progress/#{safe_name}_progress.log")
-				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_error.log")
-				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_link_data.log")
-				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_duplicates.log")
+				delete_file("#{log_dir}/progress/#{safe_name}_progress.log")
+				delete_file("#{log_dir}/#{safe_name}_error.log")
+				delete_file("#{log_dir}/#{safe_name}_link_data.log")
+				delete_file("#{log_dir}/#{safe_name}_duplicates.log")
 
 				folders[:folders].each { |folder|
-					cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{RDF_PATH}/#{folder} -archive \"#{archive}\" #{flags}")
+					cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source \"#{RDF_PATH}/#{folder}\" -archive \"#{archive}\" #{flags}")
 				}
 			end
 		end
@@ -151,24 +153,24 @@ namespace :solr_index do
 		# no mode specified = full compare on al fields.
 		# delete all log files
 		if mode.nil?
-			TaskUtilities.delete_file("#{log_dir}/#{safe_name}_compare.log")
-			TaskUtilities.delete_file("#{log_dir}/#{safe_name}_compare_text.log")
+			delete_file("#{log_dir}/#{safe_name}_compare.log")
+			delete_file("#{log_dir}/#{safe_name}_compare_text.log")
 		else
 			# if just txt compare is requested, ony delete txt log
 			if mode == "compareTxt"
 				flags = "-include text"
-				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_compare_text.log")
+				delete_file("#{log_dir}/#{safe_name}_compare_text.log")
 			end
 
 			# if non-txt compare is requested, only delete the compare log
 			if mode == "compare"
 				flags = "-ignore text"
-				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_compare.log")
+				delete_file("#{log_dir}/#{safe_name}_compare.log")
 			end
 		end
 
 		# skipped is always deleted
-		TaskUtilities.delete_file("#{log_dir}/#{safe_name}_skipped.log")
+		delete_file("#{log_dir}/#{safe_name}_skipped.log")
 
 		# launch the tool
 		cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -archive \"#{archive}\" -mode compare #{flags} -pageSize #{page_size}")
@@ -209,7 +211,7 @@ namespace :solr_index do
 	def find_duplicate_uri(folder, archive)
 		puts "~~~~~~~~~~~ Searching for duplicates in \"#{RDF_PATH}/#{folder}\" ..."
 		puts "creating folder list..."
-		directories = TaskUtilities.get_folder_tree("#{RDF_PATH}/#{folder}", [])
+		directories = get_folder_tree("#{RDF_PATH}/#{folder}", [])
 
 		directories.each { |dir|
 			TaskReporter.set_report_file("#{Rails.root}/log/#{Solr.archive_to_core_name(archive)}_duplicates.log")
@@ -333,7 +335,7 @@ namespace :solr_index do
 
 		if indexes.length > 0
 			# delete the cache
-			TaskUtilities.delete_file("#{Rails.root}/cache/num_docs.txt")
+			delete_file("#{Rails.root}/cache/num_docs.txt")
 
 			solr.merge_archives(indexes, false)
 			solr.commit()
@@ -397,12 +399,12 @@ namespace :solr_index do
 	#		log_dir = "#{Rails.root}/log"
 	#		case type
 	#			when :clean_raw
-	#				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
+	#				delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
 	#			when :clean_full
-	#				TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_full_error.log")
+	#				delete_file("#{log_dir}/#{safe_name}_clean_full_error.log")
 	#		end
-	#		TaskUtilities.delete_file("#{log_dir}/#{safe_name}_progress.log")
-	#		TaskUtilities.delete_file("#{log_dir}/#{safe_name}_error.log")
+	#		delete_file("#{log_dir}/#{safe_name}_progress.log")
+	#		delete_file("#{log_dir}/#{safe_name}_error.log")
 	#
 	#		cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{text_path} -archive \"#{archive}\" #{flags}")
 	#
@@ -415,8 +417,8 @@ namespace :solr_index do
 		do_archive { |archive|
 			safe_name = Solr::archive_to_core_name(archive)
 			log_dir = "#{Rails.root}/log"
-			TaskUtilities.delete_file("#{log_dir}/progress/#{safe_name}_progress.log")
-			TaskUtilities.delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
+			delete_file("#{log_dir}/progress/#{safe_name}_progress.log")
+			delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
 			case archive
 				when 'cali'
 					source = 'fulltext'

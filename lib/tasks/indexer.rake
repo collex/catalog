@@ -16,31 +16,9 @@
 ##########################################################################
 $KCODE = 'UTF8'
 
+require "#{Rails.root}/lib/tasks/task_utilities.rb"
+
 namespace :indexer do
-
-	def cmd_line(str)
-		puts str
-		puts `#{str}`
-	end
-
-	def finish_line(start_time)
-		duration = Time.now-start_time
-		if duration >= 60
-			str = "Finished in #{"%.2f" % (duration/60)} minutes."
-		else
-			str = "Finished in #{"%.2f" % duration} seconds."
-		end
-		#CollexEngine.report_line_if(str)
-		puts str
-	end
-
-	def mkdir_safe(folder)
-		begin
-			Dir.mkdir(folder)
-		rescue
-			# It's ok to fail: it probably means the folder already exists.
-		end
-	end
 
 	def indexer_path()
 		return "#{Rails.root}/lib/tasks/rdf-indexer/target"
@@ -57,8 +35,7 @@ namespace :indexer do
 		src = "#{indexer_path}/target"
 		dst = indexer_path()
 		puts "~~~~~~~~~~~ Copying #{src} to #{dst}..."
-		mkdir_safe(dst)
-		mkdir_safe("#{dst}/lib")
+		safe_mkpath("#{dst}/lib")
 		cmd_line("cd #{indexer_path} && mvn -DskipTests=true clean package")
 		cmd_line("rm #{dst}/lib/*.jar")
 		cmd_line("rm #{dst}/#{indexer_name()}")

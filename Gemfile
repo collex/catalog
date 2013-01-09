@@ -39,9 +39,11 @@ gem 'exception_notification'
 # put test-only gems in this group so their generators
 # and rake tasks are available in development mode:
 group :development, :test do
+	#gem "shoulda-matchers" #, "~> 1.0.0"
+	#gem 'factory_girl_rails'  #, 1.5.0
+	#gem 'simplecov'  #, '0.5.4'
 	gem 'rspec-rails'
-	gem 'cucumber'
-	gem 'cucumber-rails'
+	gem 'cucumber-rails', :require => false
 	gem 'capybara'
 	gem 'database_cleaner'
 	gem 'launchy'
