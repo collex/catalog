@@ -5,10 +5,10 @@
 	<title><%= SITE_NAME_TITLE %></title>
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.4.0/build/cssreset/reset-min.css&3.4.0/build/cssfonts/fonts-min.css&3.4.0/build/cssgrids/grids-min.css">
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.4.0/build/widget-base/assets/skins/sam/widget-base.css&3.4.0/build/widget-base/assets/skins/sam/widget-base.css&3.4.0/build/widget-stack/assets/skins/sam/widget-stack.css&3.4.0/build/widget-stack/assets/skins/sam/widget-stack.css&3.4.0/build/panel/assets/skins/sam/panel.css&3.4.0/build/panel/assets/skins/sam/panel.css">
-  <%= stylesheet_link_tag :all %>
+  <%= stylesheet_link_tag    "application", :media => "all" %>
 	<script src="http://yui.yahooapis.com/3.4.1/build/yui/yui-min.js" charset="utf-8"></script>
-	<%= javascript_include_tag 'tree_control', 'history', 'dialog', 'archive_dlg', :defaults %>
-  <%= csrf_meta_tag %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
 </head>
 <body class="yui3-skin-sam">
 <div class="banner_outer">
