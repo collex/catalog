@@ -428,7 +428,7 @@ class Solr
 
 	def remove_archive(archive, commit_now)
 		begin
-			@solr.delete_by_query("+archive:#{archive}")
+			@solr.delete_by_query("+archive:\"#{archive}\"")
 			if commit_now
 				@solr.commit()
 			end
