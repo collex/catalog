@@ -14,7 +14,7 @@ body {
 }
 
 .banner {
-	background: url('/images/banner_bg_pattern.jpg') repeat-x;
+	background: image-url('banner_bg_pattern.jpg') repeat-x;
 	height: 116px;
 	border-bottom: 1px solid white;
 }
@@ -54,7 +54,7 @@ body {
 ul.nav {
 	list-style-type: none;
 	background-color: #4b6c9c;
-	background-image: url("/images/nav_highlight_middle.png");
+	background-image: image-url("nav_highlight_middle.png");
 	background-repeat: repeat-x;
 	height: 60px;
 	border: 1px solid white;
@@ -64,7 +64,7 @@ ul.nav {
 
 ul.nav li {
 	float: left;
-	background: url("/images/nav_divider.jpg") no-repeat scroll 0 transparent;
+	background: image-url("nav_divider.jpg") no-repeat scroll 0 transparent;
 }
 
 ul.nav li:first-child {

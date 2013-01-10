@@ -52,9 +52,13 @@ namespace :copy_files do
 	desc "Copy all xsd files to the public path"
 	task :xsd do
 		puts "Updating xsd files..."
-		start_dir = "#{Rails.root}/features/xsd"
-		dest_dir = "#{Rails.root}/public/xsd"
-		safe_mkdir("#{Rails.root}/public/xsd")
+		start_dir = "#{current_path}/features/xsd"
+		dest_dir = "#{current_path}/public/xsd"
+		begin
+			Dir.mkdir(dest_dir)
+		rescue
+			# It's ok to fail: it probably means the folder already exists.
+		end
 		Dir.new(start_dir).each { |file|
 			unless file =~ /\A\./
 				`cp "#{start_dir}/#{file}" "#{dest_dir}/#{file}"`
@@ -70,5 +74,5 @@ after :deploy, "deploy:migrate"
 #after "deploy:start",   "delayed_job:start"
 #after "deploy:restart", "delayed_job:restart"
 after "deploy:finalize_update", "config:symlinks"
-after "deploy:finalize_update", "copy_files:xsd"
+#after "deploy:finalize_update", "copy_files:xsd"
 after :deploy, "passenger:restart"
