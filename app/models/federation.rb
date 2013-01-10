@@ -1,4 +1,5 @@
 class Federation < ActiveRecord::Base
+	attr_accessible :name, :ip, :site, :thumbnail
   after_initialize :check_for_carousel
   belongs_to :carousel, :inverse_of => :federation
 	has_attached_file :thumbnail,
