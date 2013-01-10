@@ -82,11 +82,15 @@ class Solr
 		rescue RSolr::Error::Http => e
 			raise SolrException.new(e.to_s)
 		end
-		uri = ret.request[:uri].to_s
-		arr = uri.split('/')
-		index = arr[arr.length-2]
 
-		ActiveRecord::Base.logger.info("*** SOLR: [#{index}] #{ret.request[:data]}") if noisy
+		if noisy
+			uri = ret.request[:uri].to_s
+			arr = uri.split('/')
+			index = arr[arr.length-2]
+			req = ret.request[:data]
+			req = req.gsub('+', ' ').gsub('%21', '!').gsub('%22', '"').gsub('%28', '(').gsub('%29', ')').gsub('%2A', '*').gsub('%2B', '+').gsub('%2C', ',').gsub('%2F', '/').gsub('%3A', ':').gsub('%3D', '=').gsub('%5B', '[').gsub('%5D', ']').gsub('%5E', '^').gsub('%7B', '{').gsub('%7D', '}')
+			ActiveRecord::Base.logger.info("*** SOLR: [#{index}] #{req}")
+		end
 
 		return ret
 	end
