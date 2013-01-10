@@ -27,7 +27,8 @@ gem 'exception_notification'
 #gem 'jquery-rails', '~> 2.1'
 
 # Deploy with Capistrano
-# gem 'capistrano'
+gem 'capistrano'
+gem 'rvm-capistrano'
 
 # Bundle the extra gems:
 # gem 'bj'
