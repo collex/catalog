@@ -16,14 +16,13 @@
 ##########################################################################
 
 namespace :ecco do
-	desc "Mark texts for typewright (param: file=/text/file/path/one/item/per/line)"
+	desc "Mark archive_ECCO texts for typewright (param: file=/text/file/path/one/item/per/line)"
 	task :typewright_enable => :environment do
 		file = ENV['file']
 		if file == nil
 			puts "Usage: call with file=/text/file\nThe text file should have a list of 10-digit numbers, with one of them per line."
 		else
 			start_time = Time.now
-			src = Solr.factory_create(:live)
 			dst = Solr.new("archive_ECCO")
 			has_dot = false
 			num_added = 0
@@ -31,7 +30,7 @@ namespace :ecco do
 			File.open(file).each_line{ |text|
 				uri = "lib\\://ECCO/#{text.strip()}"
 				begin
-					obj = src.full_object(uri)
+					obj = dst.full_object(uri)
 					obj['typewright'] = true
 					dst.add_object(obj, false, false)
 					print '.'
