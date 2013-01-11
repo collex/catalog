@@ -81,6 +81,9 @@ class Solr
 			raise SolrException.new("Cannot connect to the search engine at this time.")
 		rescue RSolr::Error::Http => e
 			raise SolrException.new(e.to_s)
+		rescue Timeout::Error => e
+			# Is there a way to reset the solr service at this point to recover?
+			raise SolrException.new(e.to_s)
 		end
 
 		if noisy
