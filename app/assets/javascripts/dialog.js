@@ -416,8 +416,8 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
                 var dlgBottomRows = dlgDescription.rows;
                 data.all_carousels.forEach(
                     function(element, index) {
-                        dlgTopRows.push([{ text: element.carousel.name, klass: 'left-indented' },
-                                         { checkbox: 'archive[carousel_list['+element.carousel.id+']]', klass: 'right-narrow' }]);
+                        dlgTopRows.push([{ text: element.name, klass: 'left-indented' },
+                                         { checkbox: 'archive[carousel_list['+element.id+']]', klass: 'right-narrow' }]);
                     }
                 )
                 dlgDescription.rows = dlgTopRows.concat(dlgBottomRows);
