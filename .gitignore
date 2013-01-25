@@ -6,3 +6,4 @@
 /.idea/
 /config/database.yml
 /config/site.yml
+/config/capistrano.yml

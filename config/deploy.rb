@@ -1,20 +1,28 @@
 # To deploy:
-# cap staging
+# cap edge
+# cap production
 
 require 'rvm/capistrano'
-set :rvm_ruby_string, 'ruby-1.9.3-p0'
-#set :rvm_type, :system
 
 require 'bundler/capistrano'
 #require "delayed/recipes"
 #require "whenever/capistrano"
+
+# Read in the site-specific information so that the initializers can take advantage of it.
+config_file = "config/capistrano.yml"
+if File.exists?(config_file)
+	set :site_specific, YAML.load_file(config_file)
+else
+	puts "***"
+	puts "*** Failed to load capistrano configuration. Did you create #{config_file}?"
+	puts "***"
+end
 
 set :repository, "git://github.com/collex/catalog.git"
 set :scm, "git"
 set :branch, "master"
 set :deploy_via, :remote_cache
 
-set :user, "arc"
 set :use_sudo, false
 
 set :normalize_asset_timestamps, false
@@ -23,14 +31,29 @@ set :rails_env, "production"
 
 #set :whenever_command, "bundle exec whenever"
 
-desc "Run tasks in production environment."
-task :staging do
-	set :application, "arc-staging.performantsoftware.com"
-	set :deploy_to, "/home/arc/www/catalog"
+def set_application(section, skin)
+	set :deploy_to, "#{site_specific[section]['deploy_base']}/#{skin}"
+	set :application, site_specific[section]['ssh_name']
+	set :user, site_specific[section]['user']
+	set :rvm_ruby_string, site_specific[section]['ruby']
+	if site_specific[section]['system_rvm']
+		set :rvm_type, :system
+	end
 
 	role :web, "#{application}"                          # Your HTTP server, Apache/etc
 	role :app, "#{application}"                          # This may be the same as your `Web` server
 	role :db,  "#{application}", :primary => true 		# This is where Rails migrations will run
+	set :skin, skin
+end
+
+desc "Run tasks in edge environment."
+task :edge do
+	set_application('edge_tamu', 'catalog')
+end
+
+desc "Run tasks in production environment."
+task :production do
+	set_application('prod_tamu', 'catalog')
 end
 
 namespace :passenger do
@@ -58,7 +81,8 @@ namespace :copy_files do
 	end
 end
 
-after :staging, 'deploy'
+after :edge, 'deploy'
+after :production, 'deploy'
 after :deploy, "deploy:migrate"
 
 #after "deploy:stop",    "delayed_job:stop"
