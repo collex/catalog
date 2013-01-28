@@ -9,12 +9,12 @@ require 'bundler/capistrano'
 #require "whenever/capistrano"
 
 # Read in the site-specific information so that the initializers can take advantage of it.
-config_file = "config/capistrano.yml"
+config_file = "config/site.yml"
 if File.exists?(config_file)
-	set :site_specific, YAML.load_file(config_file)
+	set :site_specific, YAML.load_file(config_file)['capistrano']
 else
 	puts "***"
-	puts "*** Failed to load capistrano configuration. Did you create #{config_file}?"
+	puts "*** Failed to load capistrano configuration. Did you create #{config_file} with a capistrano section?"
 	puts "***"
 end
 
@@ -91,3 +91,27 @@ after :deploy, "deploy:migrate"
 after "deploy:finalize_update", "config:symlinks"
 after "deploy:finalize_update", "copy_files:xsd"
 after :deploy, "passenger:restart"
+
+reset = "\033[0m"
+green = "\033[32m" # Green
+red = "\033[31m" # Bright Red
+
+desc "Set up the edge nines server."
+task :edge_setup do
+	set_application('edge_tamu', 'catalog')
+end
+after :edge_setup, 'deploy:setup'
+
+desc "Set up the edge server's config."
+task :edge_setup_config do
+	run "mkdir #{shared_path}/config"
+	run "touch #{shared_path}/config/database.yml"
+	run "touch #{shared_path}/config/site.yml"
+	puts ""
+	puts "#{red}!!!"
+	puts "!!! Now create the database.yml and site.yml files in the shared folder on the server."
+	puts "!!! Also create the database in mysql."
+	puts "!!!#{reset}"
+end
+
+after 'deploy:setup', :edge_setup_config
