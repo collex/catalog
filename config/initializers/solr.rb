@@ -6,8 +6,8 @@ SOLR_PATH = SITE_SPECIFIC['solr']['path']
 folders = SITE_SPECIFIC['folders']
 if folders
 	RDF_PATH = folders['rdf']
-#	MARC_PATH = folders['marc']
-#	ECCO_PATH = folders['ecco']
+	MARC_PATH = folders['marc']
+	ECCO_PATH = folders['ecco']
 	INDEXER_PATH = folders['rdf_indexer']
 end
 PRODUCTION_SSH = SITE_SPECIFIC['production']['ssh']

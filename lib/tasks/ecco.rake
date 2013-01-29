@@ -30,9 +30,10 @@ namespace :ecco do
 			File.open(file).each_line{ |text|
 				uri = "lib\\://ECCO/#{text.strip()}"
 				begin
-					obj = dst.full_object(uri)
-					obj['typewright'] = true
-					dst.add_object(obj, false, false)
+					dst.modify_object(uri, 'typewright', true)
+					#obj = dst.full_object(uri)
+					#obj['typewright'] = true
+					#dst.add_object(obj, false, false)
 					print '.'
 					has_dot = true
 					num_added += 1
@@ -91,4 +92,119 @@ namespace :ecco do
 			finish_line(start_time)
 		end
 	end
+
+	desc "Create all the RDF files for ECCO documents, using estc records and the spreadsheets and texts."
+	task :create_rdf => :environment do
+		start_time = Time.now
+		TaskReporter.set_report_file("#{Rails.root}/log/ecco_error.log")
+		puts("Processing spreadsheets...")
+		hits = []
+		process_ecco_spreadsheets(hits)
+		puts("Sorting...")
+		hits.sort! { |a,b| a['uri'] <=> b['uri'] }
+		puts("Processing fulltext...")
+		process_ecco_fulltext(hits)
+		RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/marc/ECCO", "ECCO", 500000)
+		finish_line(start_time)
+	end
+
+	def process_ecco_spreadsheets(hits, max_recs = 9999999)
+		src = Solr.new("archive_estc")
+		total_recs = 0
+		total_added = 0
+		total_already_found = 0
+		total_cant_find = 0
+		Dir["#{MARC_PATH}/ecco/*.csv"].each {|f|
+			File.open(f, 'r') { |f2|
+				text = f2.read
+				lines = text.split("\n")
+				lines.each {|line|
+					total_recs += 1
+					line = line.gsub('"', '')
+					rec = line.split(',', 2)
+					# remove zeroes from between the letter and the non-zero part of the number
+					reg_ex = /(.)0*(.+)/.match(rec[0])
+					estc_id = reg_ex[1] + reg_ex[2]
+					estc_uri = "lib://estc/#{estc_id}"
+					obj = src.get_object(estc_uri, true)
+					if obj == nil
+						TaskReporter.report_line("Can't find object: #{estc_uri}")
+						total_cant_find += 1
+					else
+						arr = rec[1].split('bookId=')
+						if arr.length == 1
+							TaskReporter.report_line("Unusual URL encountered: #{rec[1]}")
+						else
+							arr2 = arr[1].split('&')
+							obj['archive'] = "ECCO"
+							obj['url'] = [ rec[1] ]
+							ecco_id = "lib://ECCO/#{arr2[0]}"
+							obj['uri'] = ecco_id
+							TaskReporter.report_line("No year_sort: #{estc_uri} #{obj['uri']}") if obj['year_sort'] == nil
+							TaskReporter.report_line("No title_sort: #{estc_uri} #{obj['uri']}") if obj['title_sort'] == nil
+							hits.push(obj)
+							total_added += 1
+							#puts "estc: #{estc_id} ecco: #{ecco_id}"
+						end
+					end
+					puts("Total: #{total_recs} Added: #{total_added} Found: #{total_already_found} Can't find: #{total_cant_find}") if total_recs % 500 == 0
+					return if total_recs >= max_recs
+				}
+			}
+		}
+		TaskReporter.report_line("Finished: Total: #{total_recs} Added: #{total_added} Found: #{total_already_found} Can't find: #{total_cant_find}")
+	end
+
+	def process_ecco_fulltext(hits)
+		require "#{Rails.root}/lib/tasks/indexing/marc/process_gale_objects.rb"
+		include ProcessGaleObjects
+		src = Solr.new(["archive_estc"])
+		count = 0
+		GALE_OBJECTS.each {|arr|
+			filename = arr[0]
+			estc_uri = arr[1]
+			url = arr[3]
+			text = ''
+			File.open("#{ECCO_PATH}/#{filename}.txt", "r") { |f|
+				text = f.read
+			}
+			obj = src.get_object(estc_uri, true)
+			if obj == nil
+				TaskReporter.report_line("Can't find object: #{estc_uri}")
+			else
+				obj['text'] = text
+				obj['has_full_text'] = true
+				obj['freeculture'] = false
+				obj['source'] = "Full text provided by the Text Creation Partnership."
+				obj['archive'] = "ECCO"
+				obj['url'] = [ url ]
+				arr = url.split('bookId=')
+				if arr.length == 1
+					TaskReporter.report_line("Unusual URL encountered: #{url}")
+				else
+					arr2 = arr[1].split('&')
+					obj['uri'] = "lib://ECCO/#{arr2[0]}"
+					TaskReporter.report_line("No year_sort: #{estc_uri} #{obj['uri']}") if obj['year_sort'] == nil
+					TaskReporter.report_line("No title_sort: #{estc_uri} #{obj['uri']}") if obj['title_sort'] == nil
+					index = find_hit(hits, obj)
+					if index == -1
+						hits.push(obj)
+					else
+						hits[index] = obj
+					end
+				end
+			end
+			count += 1
+			TaskReporter.report_line("Processed: #{count}") if count % 500 == 0
+		}
+	end
+
+	def find_hit(hits, target)
+		hits.each_with_index { |hit, i|
+			return i if hit['uri'] == target['uri']
+			return -1 if hit['uri'] > target['uri']
+		}
+		return -1
+	end
+
 end

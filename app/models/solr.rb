@@ -395,6 +395,10 @@ class Solr
 		return facets
 	end
 
+	def modify_object(uri, field, value)
+		`curl SOLR_URL/solr/#{@core}update -H 'Content-type:application/json' -d '[{"uri":"#{uri}","#{field}":{"set":"#{value}"}}]'`
+	end
+
 	def add_object(fields, relevancy, commit_now, is_retry = false) # called by Exhibit to index exhibits
 		# this takes a hash that contains a set of fields expressed as symbols, i.e. { :uri => 'something' }
 		begin
