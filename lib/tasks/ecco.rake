@@ -126,7 +126,7 @@ namespace :ecco do
 					reg_ex = /(.)0*(.+)/.match(rec[0])
 					estc_id = reg_ex[1] + reg_ex[2]
 					estc_uri = "lib://estc/#{estc_id}"
-					obj = src.get_object(estc_uri, true)
+					obj = src.full_object(estc_uri)
 					if obj == nil
 						TaskReporter.report_line("Can't find object: #{estc_uri}")
 						total_cant_find += 1
@@ -168,7 +168,7 @@ namespace :ecco do
 			File.open("#{ECCO_PATH}/#{filename}.txt", "r") { |f|
 				text = f.read
 			}
-			obj = src.get_object(estc_uri, true)
+			obj = src.full_object(estc_uri)
 			if obj == nil
 				TaskReporter.report_line("Can't find object: #{estc_uri}")
 			else
