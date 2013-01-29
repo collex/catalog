@@ -41,7 +41,7 @@ class QueryFormat
 			:archive => { :exp => /^([+\-]\w[\w\- ]*)$/, :friendly => "[+-] One of the predefined archive abbreviations." },
 			:genre => { :exp => /^([+\-]\w[ \w]*)+$/, :friendly => "[+-] One or more of the predefined genres." },
 			:genre2 => { :exp => /^(\w[ \w]*)+(;(\w[ \w]*)+)*$/, :friendly => "One or more of the predefined genres separated by semicolons." },
-			:federation => { :exp => /^([+\-]\w[\w]*)+$/, :friendly => "[+-] One or more of the predefined federations." },
+			:federation => { :exp => /^([+\-])federation:(\(?\w+( OR \w+)*\)?)$/, :friendly => "[+-] One or more of the predefined federations." },
 			:other_facet => { :exp => /^([+\-](freeculture|fulltext|ocr|typewright))+$/, :friendly => "[+-] One of freeculture, fulltext, typewright, or ocr." },
 			:sort => { :exp => /^(title|author|year) (asc|desc)$/, :friendly => "One of title, author, or year followed by one of asc or desc." },
 			:starting_row => { :exp => /^\d+$/, :friendly => "The zero-based index of the results to start on." },
@@ -573,7 +573,11 @@ class QueryFormat
   end
 
 	def self.transform_federation(key,val)
-		return { 'fq' => self.insert_field_name("federation", val) }
+		# Federation comes in different from others. It has the the "federation:" tag already added. Also, it could have
+		# OR clauses, which legitimatedly have spaces in them, so we want to suppress the quotifying.
+		str = self.insert_field_name("federation", val.gsub("federation:", ""))
+		str = str.gsub('"', '')
+		return { 'fq' => str }
 	end
 
 	def self.transform_other(key,val)
