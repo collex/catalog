@@ -1,4 +1,5 @@
 # To deploy:
+# cap rack
 # cap edge
 # cap production
 
@@ -44,6 +45,11 @@ def set_application(section, skin)
 	role :app, "#{application}"                          # This may be the same as your `Web` server
 	role :db,  "#{application}", :primary => true 		# This is where Rails migrations will run
 	set :skin, skin
+end
+
+desc "Run tasks in edge rack environment."
+task :rack do
+	set_application('edge_rack', 'catalog')
 end
 
 desc "Run tasks in edge environment."
