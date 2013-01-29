@@ -126,11 +126,14 @@ namespace :ecco do
 					reg_ex = /(.)0*(.+)/.match(rec[0])
 					estc_id = reg_ex[1] + reg_ex[2]
 					estc_uri = "lib://estc/#{estc_id}"
-					obj = src.full_object(estc_uri)
-					if obj == nil
+					begin
+						obj = src.full_object(estc_uri)
+					rescue
 						TaskReporter.report_line("Can't find object: #{estc_uri}")
 						total_cant_find += 1
-					else
+						obj = nil
+					end
+					if obj.present?
 						arr = rec[1].split('bookId=')
 						if arr.length == 1
 							TaskReporter.report_line("Unusual URL encountered: #{rec[1]}")
@@ -168,10 +171,12 @@ namespace :ecco do
 			File.open("#{ECCO_PATH}/#{filename}.txt", "r") { |f|
 				text = f.read
 			}
-			obj = src.full_object(estc_uri)
-			if obj == nil
+			begin
+				obj = src.full_object(estc_uri)
+			rescue
 				TaskReporter.report_line("Can't find object: #{estc_uri}")
-			else
+			end
+			if obj.present?
 				obj['text'] = text
 				obj['has_full_text'] = true
 				obj['freeculture'] = false
