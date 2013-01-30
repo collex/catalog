@@ -47,6 +47,37 @@ def set_application(section, skin)
 	set :skin, skin
 end
 
+desc "Print out a menu of all the options that a user probably wants."
+task :menu do
+	tasks = {
+		'1' => { name: "cap rack", computer: 'edge_rack', skin: 'catalog' },
+		'2' => { name: "cap edge", computer: 'edge_tamu', skin: 'catalog' },
+		'3' => { name: "cap production", computer: 'prod_tamu', skin: 'catalog' }
+	}
+
+	tasks.each { |key, value|
+		puts "#{key}. #{value[:name]}"
+	}
+
+	print "Choose deployment type: "
+	begin
+		system("stty raw -echo")
+		option = STDIN.getc
+	ensure
+		system("stty -raw echo")
+	end
+	puts ""
+
+	value = tasks[option]
+	if !value.nil?
+		set_application(value[:computer], value[:skin])
+		puts "Deploying..."
+		after :menu, 'deploy'
+	else
+		puts "Not deploying. Please enter a value from 1 - 3."
+	end
+end
+
 desc "Run tasks in edge rack environment."
 task :rack do
 	set_application('edge_rack', 'catalog')
@@ -89,6 +120,7 @@ end
 
 after :edge, 'deploy'
 after :production, 'deploy'
+after :rack, 'deploy'
 after :deploy, "deploy:migrate"
 
 #after "deploy:stop",    "delayed_job:stop"
