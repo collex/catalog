@@ -159,7 +159,7 @@ namespace :ecco do
 	end
 
 	def process_ecco_fulltext(hits)
-		require "#{Rails.root}/lib/tasks/indexing/marc/process_gale_objects.rb"
+		require "#{Rails.root}/lib/tasks/indexing/marc/lib/process_gale_objects.rb"
 		include ProcessGaleObjects
 		src = Solr.new(["archive_estc"])
 		count = 0
