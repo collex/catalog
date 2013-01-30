@@ -89,7 +89,7 @@ class RegenerateRdf
 		str = "<#{main_node} rdf:about=\"#{uri}\">\n"
 		items = self.format_items(obj)
 		# list them in the same order each time
-		keys = [ 'archive', 'freeculture', 'has_full_text', 'is_ocr', 'genre', 'text', 'title', 'role_AUT', 'federation', 'role_PBL', 'date_label', 'url', 'source' ]
+		keys = [ 'archive', 'freeculture', 'has_full_text', 'is_ocr', 'genre', 'text', 'title', 'role_AUT', 'federation', 'role_PBL', 'date_label', 'url', 'source', 'doc_type', 'discipline' ]
 		keys.each {|key|
 			if items[key]
 				items[key].each {|it|
@@ -147,6 +147,16 @@ class RegenerateRdf
 				  # just ignore this -- it will be recreated
 			  when 'year_sort'
 				  # just ignore this -- it will be recreated
+				  when '_version_'
+					  # just ignore this -- it will be recreated
+				  when 'date_created'
+					  # just ignore this -- it will be recreated
+				  when 'date_updated'
+					  # just ignore this -- it will be recreated
+				  when 'doc_type'
+					  self.gen_item(ret, key, self.format_item("dc:type", val))
+				  when 'discipline'
+					  self.gen_item(ret, key, self.format_item("collex:discipline", val))
 			  when 'role_AUT'
 				  self.gen_item(ret, key, self.format_item("role:AUT", val))
 			  when 'role_PBL'
