@@ -45,8 +45,8 @@ module TaskUtilities
 	end
 
 	def create_sh_file(name)
-		safe_mkpath("#{Rails.root}/tmp")
-		path = "#{Rails.root}/tmp/#{name}.sh"
+		safe_mkpath("#{Rails.root}/log/sh")
+		path = "#{Rails.root}/log/sh/#{name}.sh"
 		sh = File.open(path, 'w')
 		sh.puts("#!/bin/sh\n")
 		`chmod +x #{path}`
