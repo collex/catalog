@@ -456,4 +456,31 @@ namespace :solr_index do
 		}
 	end
 
+	desc "Create git repositories for all archives"
+	task :create_git_repositories => :environment do
+		folder_file = File.join(RDF_PATH, "sitemap.yml")
+		site_map = YAML.load_file(folder_file)
+		rdf_folders = site_map['archives']
+		rdf_folders.each { |i, rdfs|
+			if i.kind_of?(Fixnum)
+				rdfs.each {|archive,f|
+					# create project
+					response = `curl -d "private_token=#{TAMU_KEY}&name=arc_rdf_#{archive}" https://gitlab.tamu.edu/api/v2/projects`
+					puts response
+					response = JSON.parse(response)
+					project_id = response['id']
+
+					if project_id.present?
+						# add users
+						user_list = [ 16, 18 ] # adam, dana
+						user_list.each { |user|
+							response = `curl -d "private_token=#{TAMU_KEY}&user_id=#{user}&access_level=40" https://gitlab.tamu.edu/api/v2/projects/#{project_id}/members`
+							puts response
+						}
+					end
+			}
+			end
+		}
+	end
+
 end

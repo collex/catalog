@@ -9,5 +9,6 @@ if folders
 	MARC_PATH = folders['marc']
 	ECCO_PATH = folders['ecco']
 	INDEXER_PATH = folders['rdf_indexer']
+	TAMU_KEY =  folders['tamu_key']
 end
 PRODUCTION_SSH = SITE_SPECIFIC['production']['ssh']

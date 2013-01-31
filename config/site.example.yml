@@ -61,6 +61,7 @@ folders:
   marc: "/path/marc"
   ecco: "/path/ecco"
   rdf_indexer: "/path/to/source/of/rdf-indexer"
+  tamu_key: 'private-token'
 
 production:
   ssh: "nines@arc.performantsoftware.com"
