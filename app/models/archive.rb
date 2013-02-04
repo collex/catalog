@@ -6,7 +6,7 @@ class Archive < ActiveRecord::Base
                     # to create a cropped image, use :thumb=> "100x100#".
   has_and_belongs_to_many :carousels
   attr_accessor :carousel_list
-	attr_accessible :carousel_description, :typ, :name, :parent_id
+	attr_accessible :carousel_description, :typ, :name, :parent_id, :handle, :site_url, :thumbnail
 
 	def self.get_tree()
 		nodes = Archive.find_all_by_typ('node')
