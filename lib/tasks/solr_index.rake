@@ -49,6 +49,7 @@ namespace :solr_index do
 		site_map = YAML.load_file(folder_file)
 		rdf_folders = site_map['archives']
 		sh_all = create_sh_file("batch_all")
+		sh_all.puts("TASK=solr_index:index_and_test\n")
 
 		# the archives found need to exactly match the archives in the site maps.
 		all_enum_archives = {}
@@ -77,20 +78,26 @@ namespace :solr_index do
 		rdf_folders.each { |i, rdfs|
 			if i.kind_of?(Fixnum)
 				sh_rdf = create_sh_file("batch#{i+1}")
+				sh_rdf.puts("TASK=solr_index:index_and_test\n")
+				merge_list_section = []
 				rdfs.each {|archive,f|
 					sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E\n")
 					sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Ccommit%3E%3C/commit%3E\n")
 
-					sh_rdf.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
-					sh_all.puts("rake \"archive=#{archive}\" solr_index:index_and_test\n")
+					sh_rdf.puts("rake \"archive=#{archive}\" $TASK\n")
+					sh_all.puts("rake \"archive=#{archive}\" $TASK\n")
 
 					merge_list.push(archive)
+					merge_list_section.push(archive)
 					#if merge_list.length > 10
 					#	sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
 					#	merge_list = []
 					#end
 				}
 				sh_rdf.close()
+				sh_merge_list_section = create_sh_file("merge#{i+1}")
+				sh_merge_list_section.puts("rake solr_index:merge_archive archive=\"#{merge_list_section.join(',')}\"")
+				sh_merge_list_section.close()
 			end
 		}
 		sh_clr.close()
@@ -458,6 +465,7 @@ namespace :solr_index do
 
 	desc "Create git repositories for all archives"
 	task :create_git_repositories => :environment do
+		return # don't accidentally call this -- this should have just been done once.
 		folder_file = File.join(RDF_PATH, "sitemap.yml")
 		site_map = YAML.load_file(folder_file)
 		rdf_folders = site_map['archives']
