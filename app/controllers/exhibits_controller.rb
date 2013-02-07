@@ -115,6 +115,8 @@ class ExhibitsController < ApplicationController
 					query.delete('archive_name')
 					query.delete('archive_thumbnail')
 					query['genre'] = query['genre'].split(';') if !query['genre'].blank? && query['genre'].include?(';')
+					query['discipline'] = query['discipline'].split(';') if !query['discipline'].blank? && query['discipline'].include?(';')
+					query['doc_type'] = "Interactive Resource"
 					commit = params[:commit] == 'immediate'
 					type = params[:type]
 					boost = type == 'partial' ? 3.0 : 2.0
