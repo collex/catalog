@@ -148,6 +148,8 @@
 	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_archives.xsd", { :class => 'example_link' } %></p>
 	<p><%= example_link("/genres.xml") %> : To get a list of all the possible genres</p>
 	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_genres.xsd", { :class => 'example_link' } %></p>
+    <p><%= example_link("/disciplines.xml") %> : To get a list of all the possible disciplines</p>
+    <p>The output format is described in this <%= link_to "XSD", "/xsd/meta_disciplines.xsd", { :class => 'example_link' } %></p>
 	<p><%= example_link("/federations.xml") %> : To get a list of all the possible federations, and their thumbnails.</p>
 	<p>The output format is described in this <%= link_to "XSD", "/xsd/meta_federations.xsd", { :class => 'example_link' } %></p>
 </div>
@@ -177,7 +179,7 @@
 
 <div class="admin">
 <% if user_signed_in? %>
-	<%= link_to "Manage genres", genres_path %> | <%= link_to "Manage archives", archives_path %> | <%= link_to "Manage federations", federations_path %> | <%= link_to "Log out", destroy_user_session_path %>
+        <%= link_to "Manage genres", genres_path %> | <%= link_to "Manage disciplines", disciplines_path %> | <%= link_to "Manage archives", archives_path %> | <%= link_to "Manage federations", federations_path %> | <%= link_to "Log out", destroy_user_session_path %>
 <% else %>
 <%= link_to "admin", new_user_session_path %>
 <% end %>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120925192639) do
+ActiveRecord::Schema.define(:version => 20130207191253) do
 
   create_table "archives", :force => true do |t|
     t.string   "typ"
@@ -26,8 +26,8 @@ ActiveRecord::Schema.define(:version => 20120925192639) do
     t.string   "carousel_image_content_type"
     t.integer  "carousel_image_file_size"
     t.datetime "carousel_image_updated_at"
-    t.datetime "created_at",                  :null => false
-    t.datetime "updated_at",                  :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "archives_carousels", :id => false, :force => true do |t|
@@ -41,6 +41,12 @@ ActiveRecord::Schema.define(:version => 20120925192639) do
     t.datetime "updated_at", :null => false
   end
 
+  create_table "disciplines", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
   create_table "federations", :force => true do |t|
     t.string   "name"
     t.string   "ip"
@@ -49,21 +55,20 @@ ActiveRecord::Schema.define(:version => 20120925192639) do
     t.string   "thumbnail_content_type"
     t.integer  "thumbnail_file_size"
     t.datetime "thumbnail_updated_at"
-    t.datetime "created_at",             :null => false
-    t.datetime "updated_at",             :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "carousel_id"
   end
 
   create_table "genres", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "users", :force => true do |t|
     t.string   "email",                                 :default => "", :null => false
     t.string   "encrypted_password",     :limit => 128, :default => "", :null => false
-    t.string   "password_salt",                         :default => "", :null => false
     t.string   "reset_password_token"
     t.datetime "remember_created_at"
     t.integer  "sign_in_count",                         :default => 0
@@ -71,8 +76,8 @@ ActiveRecord::Schema.define(:version => 20120925192639) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at",                                            :null => false
-    t.datetime "updated_at",                                            :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.datetime "reset_password_sent_at"
   end
 

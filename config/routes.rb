@@ -10,6 +10,7 @@ CollexCatalog::Application.routes.draw do
 	resources :federations
 
 	resources :genres
+	resources :disciplines
 
 	resources :exhibits, :only => [:index, :create, :destroy] do
 		collection do

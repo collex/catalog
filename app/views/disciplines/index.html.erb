@@ -1,0 +1,34 @@
+<%= make_home_path %>
+<div class="tab_content">
+	<p id="notice"><%= notice %></p>
+	<h2>All Disciplines</h2>
+	<%= make_xml_path(request.fullpath) %>
+
+	<table class="results">
+	  <tr>
+		<th>Name</th>
+	<% if user_signed_in? %>
+		<th></th>
+		<th></th>
+		<th></th>
+	<% end %>
+	  </tr>
+
+<% @disciplines.each do |discipline| %>
+  <tr>
+    <td><%= discipline.name %></td>
+	<% if user_signed_in? %>
+		<td><%= link_to 'Show', discipline %>&nbsp;
+		<%= link_to 'Edit', edit_discipline_path(discipline) %>&nbsp;
+		<%= link_to 'Destroy', discipline, :confirm => 'Are you sure?', :method => :delete %></td>
+	<% end %>
+  </tr>
+<% end %>
+</table>
+
+	<% if user_signed_in? %>
+<br />
+
+<%= link_to 'New Discipline', new_discipline_path %>
+	<% end %>
+</div>
