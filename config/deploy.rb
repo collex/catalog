@@ -1,7 +1,5 @@
 # To deploy:
-# cap rack
-# cap edge
-# cap production
+# cap menu
 
 require 'rvm/capistrano'
 
@@ -50,9 +48,8 @@ end
 desc "Print out a menu of all the options that a user probably wants."
 task :menu do
 	tasks = {
-		'1' => { name: "cap rack", computer: 'edge_rack', skin: 'catalog' },
-		'2' => { name: "cap edge", computer: 'edge_tamu', skin: 'catalog' },
-		'3' => { name: "cap production", computer: 'prod_tamu', skin: 'catalog' }
+		'1' => { name: "cap edge", computer: 'edge', skin: 'catalog' },
+		'2' => { name: "cap production", computer: 'prod', skin: 'catalog' }
 	}
 
 	tasks.each { |key, value|
@@ -74,23 +71,18 @@ task :menu do
 		puts "Deploying..."
 		after :menu, 'deploy'
 	else
-		puts "Not deploying. Please enter a value from 1 - 3."
+		puts "Not deploying. Please enter a value from the menu."
 	end
-end
-
-desc "Run tasks in edge rack environment."
-task :rack do
-	set_application('edge_rack', 'catalog')
 end
 
 desc "Run tasks in edge environment."
 task :edge do
-	set_application('edge_tamu', 'catalog')
+	set_application('edge', 'catalog')
 end
 
 desc "Run tasks in production environment."
 task :production do
-	set_application('prod_tamu', 'catalog')
+	set_application('prod', 'catalog')
 end
 
 namespace :passenger do
@@ -120,7 +112,6 @@ end
 
 after :edge, 'deploy'
 after :production, 'deploy'
-after :rack, 'deploy'
 after :deploy, "deploy:migrate"
 
 #after "deploy:stop",    "delayed_job:stop"
@@ -136,7 +127,7 @@ red = "\033[31m" # Bright Red
 
 desc "Set up the edge nines server."
 task :edge_setup do
-	set_application('edge_tamu', 'catalog')
+	set_application('edge', 'catalog')
 end
 after :edge_setup, 'deploy:setup'
 
