@@ -396,7 +396,7 @@ class Solr
 	end
 
 	def modify_object(uri, field, value)
-		`curl #{SOLR_URL}/solr/#{@core}update -H 'Content-type:application/json' -d '[{"uri":"#{uri}","#{field}":{"set":"#{value}"}}]' 2> /dev/null`
+		`curl #{SOLR_URL}/#{@core}/update -H 'Content-type:application/json' -d '[{"uri":"#{uri}","#{field}":{"set":"#{value}"}}]' 2> /dev/null`
 	end
 
 	def add_object(fields, relevancy, commit_now, is_retry = false) # called by Exhibit to index exhibits
