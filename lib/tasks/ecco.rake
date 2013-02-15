@@ -28,7 +28,7 @@ namespace :ecco do
 			num_added = 0
 			num_missing = 0
 			File.open(file).each_line{ |text|
-				uri = "lib\\://ECCO/#{text.strip()}"
+				uri = "lib\\\\://ECCO/#{text.strip()}"
 				begin
 					dst.modify_object(uri, 'typewright', true)
 					#obj = dst.full_object(uri)
