@@ -125,14 +125,20 @@ reset = "\033[0m"
 green = "\033[32m" # Green
 red = "\033[31m" # Bright Red
 
-desc "Set up the edge nines server."
+desc "Set up the edge catalog server."
 task :edge_setup do
 	set_application('edge', 'catalog')
 end
 after :edge_setup, 'deploy:setup'
 
+desc "Set up the production catalog server."
+task :prod_setup do
+	set_application('prod', 'catalog')
+end
+after :prod_setup, 'deploy:setup'
+
 desc "Set up the edge server's config."
-task :edge_setup_config do
+task :setup_config do
 	run "mkdir #{shared_path}/config"
 	run "touch #{shared_path}/config/database.yml"
 	run "touch #{shared_path}/config/site.yml"
@@ -143,4 +149,4 @@ task :edge_setup_config do
 	puts "!!!#{reset}"
 end
 
-after 'deploy:setup', :edge_setup_config
+after 'deploy:setup', :setup_config
