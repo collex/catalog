@@ -138,7 +138,7 @@ namespace :solr do
 	def backup_archive(archive)
 		filename = filename_of_zipped_index(archive)
 		puts "zipping index \"#{archive}\"..."
-		cmd_line("cd #{SOLR_PATH}/solr/data/#{archive} && tar cvzf #{filename} index")
+		cmd_line("cd #{SOLR_PATH}/solr/archives/#{archive} && tar cvzf #{filename} index")
 		return filename
 	end
 
@@ -162,10 +162,10 @@ namespace :solr do
 		puts "~~~~~ Unzip new archive and put it in the correct place."
 		cmd_line("rm -R ~/uploaded_data/index")
 		cmd_line("cd ~/uploaded_data && tar xvfz #{dest_filename_of_zipped_index('resources')}")
-		cmd_line("mv ~/uploaded_data/index #{SOLR_PATH}/solr/data/resources/index_new")
+		cmd_line("mv ~/uploaded_data/index #{SOLR_PATH}/solr/archives/resources/index_new")
 		cmd_line("sudo /sbin/service solr stop")
-		cmd_line("mv #{SOLR_PATH}/solr/data/resources/index ~/uploaded_data/index")
-		cmd_line("mv #{SOLR_PATH}/solr/data/resources/index_new #{SOLR_PATH}/solr/data/resources/index")
+		cmd_line("mv #{SOLR_PATH}/solr/archives/resources/index ~/uploaded_data/index")
+		cmd_line("mv #{SOLR_PATH}/solr/archives/resources/index_new #{SOLR_PATH}/solr/archives/resources/index")
 		cmd_line("sudo /sbin/service solr start")
 		cmd_line("cd ~/uploaded_data && tar cvfz resources_old.tar.gz index")
 		finish_line(start_time)
