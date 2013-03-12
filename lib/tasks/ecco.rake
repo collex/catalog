@@ -27,14 +27,19 @@ namespace :ecco do
 			has_dot = false
 			num_added = 0
 			num_missing = 0
+			count = 0
 			File.open(file).each_line{ |text|
 				uri = "lib://ECCO/#{text.strip()}"
 				begin
-					dst.modify_object(uri, 'typewright', true)
-					#obj = dst.full_object(uri)
-					#obj['typewright'] = true
-					#dst.add_object(obj, false, false)
-					print '.'
+					print "\n#{count}" if count % 1000 == 0
+					print '.' if count % 50 == 0
+					count += 1
+
+					# TODO-PER: Couldn't get the modify to work
+					#dst.modify_object(uri, 'typewright', true)
+					obj = dst.full_object(uri)
+					obj['typewright'] = true
+					dst.add_object(obj, false, false)
 					has_dot = true
 					num_added += 1
 				rescue SolrException => e
