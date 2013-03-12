@@ -32,7 +32,7 @@ admin:
 # email_prefix: What each email should be prefixed with
 exception_notifier:
   exception_recipients: [ "first@example.com", "second@example.com" ]
-  sender_address: '"Application Error" <admin@example.com>'
+  sender_address: '"Arc Catalog" <admin@example.com>'
   email_prefix: "[Project] "
 
 # For setting up email - this example uses gmail
@@ -45,6 +45,7 @@ smtp_settings:
   return_path: http://example.com
   enable_starttls_auto: true
   xsmtpapi: 'catalog'
+  domain: 'catalog.ar-c.org'
 
 project_manager_email: 'manager example com'
 
