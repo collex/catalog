@@ -43,6 +43,8 @@ smtp_settings:
   password: 'super-secret'
   authentication: :plain
   return_path: http://example.com
+  enable_starttls_auto: true
+  xsmtpapi: 'catalog'
 
 project_manager_email: 'manager example com'
 
