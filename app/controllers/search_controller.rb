@@ -5,7 +5,7 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.catalog_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			query = QueryFormat.create_solr_query(query_params, params, request.headers['REMOTE_ADDR'])
+			query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			# tank citations
@@ -48,7 +48,7 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.autocomplete_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			query = QueryFormat.create_solr_query(query_params, params, request.headers['REMOTE_ADDR'])
+			query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
 			query['field'] = "content_auto"
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
@@ -82,7 +82,7 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.names_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			query = QueryFormat.create_solr_query(query_params, params, request.headers['REMOTE_ADDR'])
+			query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
@@ -108,7 +108,7 @@ class SearchController < ApplicationController
     query_params = QueryFormat.languages_format()
     begin
       QueryFormat.transform_raw_parameters(params)
-      query = QueryFormat.create_solr_query(query_params, params, request.headers['REMOTE_ADDR'])
+      query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
 
       is_test = Rails.env == 'test' ? :test : :live
       is_test = :shards if params[:test_index]
@@ -137,7 +137,7 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.details_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			query = QueryFormat.create_solr_query(query_params, params, nil)
+			query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
