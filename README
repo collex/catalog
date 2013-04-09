@@ -61,6 +61,50 @@ documents. The actual web presence of typewright is in the "collex" project
 under subfolders named typewright.
 
 --------------------------------------
+Indexing
+
+All of the indexing is handled by executing rake tasks from the Catalog directory.
+The general workflow for indexing is as follows:
+
+Test the new RDF and see if it is error-free with this command: 
+
+rake solr_index:archive_test archive=name
+
+If results are good, these files can be indexed into a testing index with this:
+
+rake solr_index:index_and_test archive=name
+ -- or --
+rake solr_index:index archive=name
+
+The first command will index the archive and run some comparisons against pre-existing
+data in the main index. The second skips these tests.
+
+An archive that has passed through this process will be indexed, but reside in a testing
+index. To view it collex requires an admin user. Log in to collex and access the admin
+page. On it is a link that allows temporary use of the testing index, Click it. From that
+point on, the testing index will be used for all searching. Be sure to reverse this
+setting once testing is done.
+
+Once you are satisfied that the newly indexed archive is good, it must be merged into the
+main index. This is done by executing:
+rake solr_index:merge_archive archive=name
+
+When it completes, the new archive will be part of the main index.
+
+--------------------------------------
+Indexing special case
+
+The ECCO archive is a special case archive. Many of the documents within it are 
+typewright enabled. The default indexing process described above does not set the
+typewright flag. To make this setting correct, an extra rake task must be run
+after the initial index command. It is as follows:
+
+rake ecco:typewright_enable file=ecco_tw_enabled.txt
+
+Once complete, all documents that are tryewright enabled will be marked as such, and
+can be merged into the main index.
+
+--------------------------------------
 Deployment
 
 1) Download this project to your local development area.
