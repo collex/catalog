@@ -2,6 +2,9 @@
 ARC SETUP NOTES
 ===============
 
+General Requirements
+====================
+
 Host prerequesites:
 httpd / passenger
 java > 1.6
@@ -11,15 +14,29 @@ httpd virtual host configurations for each of the projects
 ssh keypair for development machine (used for deploy)
 mysql
 
+Catalog Setup
+=============
+The catalog is composed of 2 parts, solr and the RoR catalog application. The catalog
+can be configured to use a local install of solr, or point to a pre-existing installation. 
+These steps assume a full install with local instance of solr. 
 
-Checkout the projects for the inbox (https://github.com/collex/arc_inbox),
-catalog (https://github.com/collex/catalog) and 
-solr (https://github.com/collex/solr)
+SOLR
+----
+On the target host, checkout a copy of solr with: 
+	git clone git@github.com:collex/solr.git
+Follow the direction in the README to get the instance of SOLR ready. 
+Start it up as an ongoing process. Navigate to http://[host]:8983/solr and be sure you
+are presented with the solor landing page. 
 
-Follow the installation instructions found in the README of each project.
+Catalog
+-------
+Next, on your development machine, checkout a copy of the catalog with:
+	git clone git@github.com:collex/catalog.git
+Follow the installation instructions found in the README to get the catalog
+configured and deployed to your target host.
 
 If you need to create a new admin user for the catalog, move to the catalog
-directory and run 'rake users:create'
+directory on the deploy host and run 'rake users:create'
 
 Once running, access the catalog website as an admin user. Navigate to the Meta
 section and be sure all of the content for the archives, genres, disciplines
@@ -28,10 +45,18 @@ and federations is up to date.
 Pay particular attention to the IP addresses present in the federations data as
 this is used to allow access to non-free culture resources.
 
-Checkout the main collex (https://github.com/collex/collex) project
-a and follow the installation instructions found in the README. Be sure
-to deploy all of the federations; 18th, nines and mesa.
+Indexing
+========
+All of the indexing related tasks are handled by the catalog with rake tasks. Detailed
+instructions on these tasks are found in the catalog README. Here is a sumary:
 
-Install 6 copies of worpress, named wp_[federation]_about, wp_[federation]_news.
-In each of these installations, add the collex plugin.
+	rake solr_index:archive_test archive=name   : test archive for markup errors
+	rake solr_index:index archive=name          : index an archive into a testing index  
+	rake solr_index:merge_archive archive=name  : merge the test index into the main index
 
+Exceptions:
+
+The ECCO archive needs to have each typewright enabled documemnt marked as such. There is
+a specialized rake task to handle this:
+
+	 rake ecco:typewright_enable file=ecco_tw_enabled.txt
