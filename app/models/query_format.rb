@@ -199,6 +199,7 @@ class QueryFormat
 	def self.names_format()
 		format = {
 				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
+				'fuz_q' => { :name => 'Query Fuzz Value', :param => :fuz_value, :default => nil, :transformation => get_proc(:transform_nil) },
 				't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
 				'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
 				'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
