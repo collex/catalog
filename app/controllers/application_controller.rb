@@ -16,8 +16,8 @@ class ApplicationController < ActionController::Base
     @status = stat
     @original_request = request.fullpath
     respond_to do |format|
-      format.html { render :template => '/home/error', :status => @status }
-      format.xml  { render :template => '/home/error', :status => @status }
+      format.html { render :template => '/home/error', :status => @status } and return
+      format.xml  { render :template => '/home/error', :status => @status } and return
     end
   end
 
