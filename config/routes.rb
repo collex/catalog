@@ -8,9 +8,10 @@ CollexCatalog::Application.routes.draw do
 	end
 
 	resources :federations
-
 	resources :genres
 	resources :disciplines
+	
+	post '/corrections' => 'corrections#create'
 
 	resources :exhibits, :only => [:index, :create, :destroy] do
 		collection do
