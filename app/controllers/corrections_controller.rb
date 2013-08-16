@@ -1,3 +1,10 @@
+require 'rest_client'
+
+# This controller accepts POSTed document data that has been corrected by 
+# TypeWright. Solr is updated with the new data, and the corrected text is
+# written out to a separate directory so re-indexing will produce the 
+# same results
+#
 class CorrectionsController < ApplicationController
   require 'uri'
   
@@ -23,7 +30,25 @@ class CorrectionsController < ApplicationController
       doc_file_name = "#{File.basename( URI.parse(params['uri']).path)}.txt"
       File.open("#{out_path}/#{doc_file_name}", 'w') {|f| f.write(params['text']) }
       
-      render :text => "Not yet implemented", :status => :not_implemented  
+      # Grab the corrected solr record from the POST params and convert it to JSO
+      correction = []
+      correction << params[:correction]
+      doc_json = ActiveSupport::JSON.encode(correction)
+      
+      # Update SOLR by posing the json to the update url. Set the commit flag
+      # so the changes autocommit.
+      begin
+        solr_url = "#{SOLR_URL}/update/json?commit=true"
+        RestClient.post solr_url, doc_json, :content_type => "application/json"
+        render :text => "OK", :status => :ok  
+      rescue RestClient::Exception => rest_error
+         puts rest_error.response
+         render :text => rest_error.response, :status => rest_error.http_code
+      rescue Exception => e
+         puts rest_error.response
+         render :text => e, :status => :internal_server_error
+      end
+      
     else
       render :text => "You do not have permission to do this.", :status => :unauthorized 
     end
