@@ -24,10 +24,9 @@ class CorrectionsController < ApplicationController
       end
       
       # create a filename from the URI. URI format is like this:
-      # lib://ECCO/1237801200
-      # The ECCO part is already handled by the directory name above, so the
-      # only unique bit needed is the number on the end
-      doc_file_name = "#{File.basename( URI.parse(params['uri']).path)}.txt"
+      # lib://ECCO/1237801200. Strip out the colons and slashes to
+      # make the filename more friendly. Append .txt. 
+      doc_file_name = "#{params['uri'].gsub(/\//, '_S_').gsub(/:/, '_C_')}.txt"
       File.open("#{out_path}/#{doc_file_name}", 'w') {|f| f.write(params['text']) }
       
       # Grab the corrected solr record from the POST params and convert it to JSO
