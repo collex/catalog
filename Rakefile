@@ -4,5 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-load "#{Rails.root}/config/initializers/00_site_config.rb"
 CollexCatalog::Application.load_tasks
