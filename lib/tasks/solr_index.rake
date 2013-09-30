@@ -15,6 +15,7 @@
 # limitations under the License.
 ##########################################################################
 
+require 'fileutils'
 require "#{Rails.root}/lib/tasks/task_reporter.rb"
 require "#{Rails.root}/lib/tasks/task_utilities.rb"
 
@@ -315,7 +316,14 @@ namespace :solr_index do
       else
         index = "archive_#{archive}"
         filename = backup_archive(index)
-        cmd_line("scp #{filename} #{PRODUCTION_SSH}:#{dest_filename_of_zipped_index(index)}")
+        case Settings.folders.tasks_send_method
+        when 'cp'
+          FileUtils.cp(filename, dest_filename_of_zipped_index(index))
+        else
+          Net::SCP.start(Settings.production.ssh_host, Settings.production.ssh_user) do |scp|
+            scp.upload! filename, dest_filename_of_zipped_index(index)
+          end
+        end
       end
 		}
 	end
@@ -323,21 +331,28 @@ namespace :solr_index do
 	desc "Package the main archive and send it to a server. (archive=XXX,YYY) This gets it ready to be installed on the other server with the sister script: solr:install"
 	task :package_resources => :environment do
 		filename = backup_archive('resources')
-		cmd_line("scp #{filename} #{PRODUCTION_SSH}:#{dest_filename_of_zipped_index('resources')}")
+    case Settings.folders.tasks_send_method
+    when 'cp'
+      FileUtils.cp(filename, dest_filename_of_zipped_index('resources'))
+    else
+      Net::SCP.start(Settings.production.ssh_host, Settings.production.ssh_user) do |scp|
+        scp.upload! filename, dest_filename_of_zipped_index('resources')
+      end
+    end
 	end
 
-	desc "This assumes a list of gzipped archives in the ~/uploaded_data folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
+	desc "This assumes a list of gzipped archives in the #{Settings.folders.uploaded_data} folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
 	task :install => :environment do
 		indexes = []
 		solr = Solr.factory_create(:live)
 		do_archive { |archive|
-			folder = "#{ENV['HOME']}/uploaded_data"
+			folder = Settings.folders.uploaded_data
 			index = "archive_#{archive}"
 			index_path = "#{folder}/#{index}"
 			indexes.push(index_path)
 			cmd_line("cd #{folder} && tar xvfz #{index}.tar.gz")
 			cmd_line("rm -r -f #{index_path}")
-			cmd_line("mv #{folder}/index #{index_path}")
+			cmd_line("mv #{uploaded_data_index} #{index_path}")
 			File.open("#{Rails.root}/log/archive_installations.log", 'a') {|f| f.write("Installed: #{Time.now().getlocal().strftime("%b %d, %Y %I:%M%p")} Created: #{File.mtime(index_path).getlocal().strftime("%b %d, %Y %I:%M%p")} #{archive}\n") }
 			solr.remove_archive(archive, false)
 		}
