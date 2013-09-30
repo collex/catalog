@@ -64,6 +64,9 @@ folders:
   marc: "/path/marc"
   ecco: "/path/ecco"
   rdf_indexer: "/path/to/source/of/rdf-indexer"
+  backups: "~/backups"
+  uploaded_data: "~/uploaded_data"
+  tasks_send_method: "scp"
   tamu_key: 'private-token'
 
 production:
