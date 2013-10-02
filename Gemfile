@@ -43,6 +43,12 @@ gem 'jquery-rails'
 gem 'capistrano'
 gem 'rvm-capistrano'
 
+# Settings
+gem 'settingslogic', '~> 2.0'
+
+# Libraries to perform commandline tasks
+gem "net-scp"
+
 # Bundle the extra gems:
 # gem 'bj'
 # gem 'nokogiri'
