@@ -5,13 +5,35 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.catalog_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
+			
+			# NOTES: When a search is fuzzy, the query string is not analyzed by solr. 
+			# This means (among other things) no stemming is done. Since
+			# stemming happens at index-time, this can often result in no matches being found
+			# for a fuzzy search. Example: periodical gets stemmed and indexed as period.
+			# During a normal search, the query periorical also gets stemmed and matches
+			# the index. If  the search is periodical~2, the query is NOT stemmed. periodical
+			# will not match anything in the index (period) - even with the ~2, because period
+			# is more than edit distance of 2 from periodical
+			extra_query = ""
+			if params.has_key?(:fuz_q)
+  			original_q = params[:q]
+  			orig_prefix = original_q[0]
+  			orig_term = original_q[1..original_q.length]
+  			stemmed_term = Stemmer::stem_word(orig_term)
+  			#puts "STEMMED: #{orig_term} to #{stemmed_term}"
+  			params[:q] = "#{orig_prefix}#{stemmed_term}"
+  			# "content:period~2^20 +content_ascii:period~2" 
+  			extra_query = "content_auto:#{orig_term}~#{params[:fuz_q][1]}^100"
+  	  end
+  	  
 			query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
+			if !extra_query.blank?
+			   q=query['q']
+			   query['q'] = "#{extra_query} #{q}"
+			end
+			
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
-			# tank citations
-			#if query['q']
-			#	query['q'] = "(#{query['q']} -genre:Citation)^20 (#{query['q']} genre:Citation)^0.1"
-			#end
 			solr = Solr.factory_create(is_test)
 			@results = solr.search(query)
 

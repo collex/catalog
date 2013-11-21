@@ -7,6 +7,7 @@ gem 'rails', '3.2.12'
 
 gem 'mysql2'
 gem 'rest-client'
+gem 'fast-stemmer'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -20,7 +21,7 @@ group :assets do
 	gem 'uglifier', '>= 1.0.3'
 end
 
-gem 'devise'
+gem 'devise', '3.0.2'
 
 gem "rsolr"
 

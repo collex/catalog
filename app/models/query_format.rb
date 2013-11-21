@@ -63,9 +63,8 @@ class QueryFormat
 			:decimal_array => { :exp => /^\d+(,\d+)*$/, :friendly => "An integer or array of integers separated by commas."},
 			:local_sort => { :exp => /^(title|last_modified) (asc|desc)$/, :friendly => "One of title or last_modified followed by one of asc or desc." },
 			:last_modified => { :exp => /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ." },
-      :fuz_value => { :exp => /^[+\-]?(0*\.\d+)|(0|1)(\.0+)?$/, :friendly => "A value between [0, 1]"},
+      :fuz_value => { :exp => /^[+\-]?[012]?$/, :friendly => "Fuzzyness: 0 (exact match), 1 (varied spellings) or 2 (most varied spellings)"},
       :language => { :exp => /^([+\-][^+\-]+)+$/, :friendly => "[+-] Languages separated by ||" }
-
 		}
 
 		return verifications[typ]
@@ -746,7 +745,7 @@ class QueryFormat
       else
         solr_hash = definition[:transformation].call(key,val)
       end
-			query.merge!(solr_hash) {|key, oldval, newval|
+			query.merge!(solr_hash) {|k, oldval, newval|
 				oldval + " " + newval
 			}
 		}
@@ -754,7 +753,7 @@ class QueryFormat
 		format.each { |key, definition|
 			if params[key] == nil && definition[:default] != nil
 				solr_hash = definition[:transformation].call(key,definition[:default])
-				query.merge!(solr_hash) {|key, oldval, newval|
+				query.merge!(solr_hash) {|k, oldval, newval|
 					oldval + " " + newval
 				}
 			end
