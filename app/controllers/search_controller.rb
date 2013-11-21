@@ -5,8 +5,8 @@ class SearchController < ApplicationController
 		query_params = QueryFormat.catalog_format()
 		begin
 			QueryFormat.transform_raw_parameters(params)
-			
-			# NOTES: When a search is fuzzy, the query string is not analyzed by solr. 
+
+			# NOTES: When a search is fuzzy, the query string is not analyzed by solr.
 			# This means (among other things) no stemming is done. Since
 			# stemming happens at index-time, this can often result in no matches being found
 			# for a fuzzy search. Example: periodical gets stemmed and indexed as period.
@@ -16,22 +16,35 @@ class SearchController < ApplicationController
 			# is more than edit distance of 2 from periodical
 			extra_query = ""
 			if params.has_key?(:fuz_q)
-  			original_q = params[:q]
-  			orig_prefix = original_q[0]
-  			orig_term = original_q[1..original_q.length]
-  			stemmed_term = Stemmer::stem_word(orig_term)
-  			#puts "STEMMED: #{orig_term} to #{stemmed_term}"
-  			params[:q] = "#{orig_prefix}#{stemmed_term}"
-  			# "content:period~2^20 +content_ascii:period~2" 
-  			extra_query = "content_auto:#{orig_term}~#{params[:fuz_q][1]}^100"
-  	  end
-  	  
+  			   original_q = params[:q]
+     			orig_prefix = original_q[0]
+     			orig_term = original_q[1..original_q.length]
+     			stemmed_term = Stemmer::stem_word(orig_term)
+     			params[:q] = "#{orig_prefix}#{stemmed_term}"
+     			extra_query = "content_auto:#{orig_term}~#{params[:fuz_q][1]}^100"
+     	   end
+
+     	   extra_fq = ""
+         if params.has_key?(:fuz_t)
+            original_t = params[:t]
+            orig_prefix = original_t[0]
+            orig_term = original_t[1..original_t.length]
+            stemmed_term = Stemmer::stem_word(orig_term)
+            params[:t] = "#{orig_prefix}#{stemmed_term}"
+            extra_fq = "title:#{orig_term}^100"
+         end
+
 			query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
 			if !extra_query.blank?
 			   q=query['q']
 			   query['q'] = "#{extra_query} #{q}"
 			end
-			
+			if !extra_fq.blank?
+            fq=query['fq']
+            query['fq'] = "#{extra_fq} #{fq}"
+         end
+
+
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
