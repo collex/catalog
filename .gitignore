@@ -7,3 +7,16 @@
 /config/database.yml
 /config/site.yml
 /config/capistrano.yml
+
+# Ignore deployment specific Capistrano files
+/Capfile
+/config/deploy.rb
+/config/deploy/
+/lib/deploy/
+
+# Ignore files from Ruby environment management applications
+.rvmrc
+.rbenv-version
+.ruby-version
+.ruby-gemset
+
