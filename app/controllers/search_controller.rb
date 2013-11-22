@@ -21,7 +21,7 @@ class SearchController < ApplicationController
      			orig_term = original_q[1..original_q.length]
      			stemmed_term = Stemmer::stem_word(orig_term)
      			params[:q] = "#{orig_prefix}#{stemmed_term}"
-     			extra_query = "content_auto:#{orig_term}~#{params[:fuz_q][1]}^100"
+     			#extra_query = "content_auto:#{orig_term}~#{params[:fuz_q][1]}^100"
      	   end
 
      	   extra_fq = ""
@@ -31,7 +31,7 @@ class SearchController < ApplicationController
             orig_term = original_t[1..original_t.length]
             stemmed_term = Stemmer::stem_word(orig_term)
             params[:t] = "#{orig_prefix}#{stemmed_term}"
-            extra_fq = "title:#{orig_term}^100"
+            #extra_fq = "title:#{orig_term}^100"
          end
 
 			query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
