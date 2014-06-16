@@ -6,7 +6,8 @@ class Federation < ActiveRecord::Base
                     :styles => { :thumb => "220x80>" },
                     :path => ":rails_root/public/system/:attachment/:id/:style/:filename",
                     :url => "/system/:attachment/:id/:style/:filename"
-
+	validates_attachment_size :thumbnail, :less_than => 5.megabytes,  :unless => Proc.new {|m| m[:thumbnail].nil?}
+	validates_attachment_content_type :thumbnail, :content_type => ['image/jpeg', 'image/png', 'image/gif'], :unless => Proc.new {|m| m[:thumbnail].nil?}
 
 	def self.request_from_federation(ip)
 		# This checks to see if the ip address of the caller matches any of the federations.
