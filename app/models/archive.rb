@@ -8,7 +8,7 @@ class Archive < ActiveRecord::Base
 	validates_attachment_content_type :carousel_image, :content_type => ['image/jpeg', 'image/png', 'image/gif'], :unless => Proc.new {|m| m[:thumbnail].nil?}
   has_and_belongs_to_many :carousels
   attr_accessor :carousel_list
-	attr_accessible :carousel_description, :typ, :name, :parent_id, :handle, :site_url, :thumbnail
+	attr_accessible :carousel_description, :typ, :name, :parent_id, :handle, :site_url, :thumbnail, :carousel_list
 
 	def self.get_tree()
 		nodes = Archive.find_all_by_typ('node')
