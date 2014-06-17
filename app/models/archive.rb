@@ -4,6 +4,8 @@ class Archive < ActiveRecord::Base
                     :path => ":rails_root/public/system/:attachment/:id/:style/:filename",
                     :url => "/system/:attachment/:id/:style/:filename"
                     # to create a cropped image, use :thumb=> "100x100#".
+	validates_attachment_size :carousel_image, :less_than => 5.megabytes,  :unless => Proc.new {|m| m[:thumbnail].nil?}
+	validates_attachment_content_type :carousel_image, :content_type => ['image/jpeg', 'image/png', 'image/gif'], :unless => Proc.new {|m| m[:thumbnail].nil?}
   has_and_belongs_to_many :carousels
   attr_accessor :carousel_list
 	attr_accessible :carousel_description, :typ, :name, :parent_id, :handle, :site_url, :thumbnail
