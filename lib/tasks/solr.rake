@@ -127,16 +127,16 @@ namespace :solr do
 	end
 
   def uploaded_data_index
-    File.join(Settings.folders.uploaded_data, "index")
+    File.join(Rails.application.secrets.folders['uploaded_data'], "index")
   end
 
 	def filename_of_zipped_index(archive)
 		today = Time.now()
-    return File.join(Settings.folders.backups, "#{archive}.#{today.strftime('20%y.%m.%d')}.tar.gz")
+    return File.join(Rails.application.secrets.folders['backups'], "#{archive}.#{today.strftime('20%y.%m.%d')}.tar.gz")
 	end
 
 	def dest_filename_of_zipped_index(archive)
-		return File.join(Settings.folders.uploaded_data, "#{archive}.tar.gz")
+		return File.join(Rails.application.secrets.folders['uploaded_data'], "#{archive}.tar.gz")
 	end
 
 	def backup_archive(archive)
@@ -158,20 +158,20 @@ namespace :solr do
 		finish_line(start_time)
 	end
 
-	desc "This will delete the current index and replace it with the new index that was placed in #{Settings.folders.uploaded_data}"
+	desc "This will delete the current index and replace it with the new index that was placed in #{Rails.application.secrets.folders['uploaded_data']}"
 	task :replace_resources => :environment do
 		start_time = Time.now()
 		puts "This will zip up the current archive and replace it with the new archive."
 		puts "Solr will be down for part of this time, but as much as possible will be done with solr still online."
 		puts "~~~~~ Unzip new archive and put it in the correct place."
 		cmd_line("rm -R #{uploaded_data_index}")
-		cmd_line("cd #{Settings.folders.uploaded_data} && tar xvfz #{dest_filename_of_zipped_index('resources')}")
+		cmd_line("cd #{Rails.application.secrets.folders['uploaded_data']} && tar xvfz #{dest_filename_of_zipped_index('resources')}")
 		cmd_line("mv #{uploaded_data_index} #{SOLR_PATH}/solr/archives/resources/index_new")
 		cmd_line("sudo /sbin/service solr stop")
 		cmd_line("mv #{SOLR_PATH}/solr/archives/resources/index #{uploaded_data_index}")
 		cmd_line("mv #{SOLR_PATH}/solr/archives/resources/index_new #{SOLR_PATH}/solr/archives/resources/index")
 		cmd_line("sudo /sbin/service solr start")
-		cmd_line("cd #{Settings.folders.uploaded_data} && tar cvfz resources_old.tar.gz index")
+		cmd_line("cd #{Rails.application.secrets.folders['uploaded_data']} && tar cvfz resources_old.tar.gz index")
 		finish_line(start_time)
 	end
 

@@ -17,7 +17,11 @@ end
 Given /^I am logged in$/ do
 	email = "chief@administrator.com"
 	password = "passpass"
-	User.create!(:email => email, :password => password, :password_confirm => password)
+	user = User.new
+	user.email = email
+	user.password = password
+	user.password_confirmation = password
+	user.save!
   visit path_to('the login page')
   fill_in('user_email', :with => email)
   fill_in('user_password', :with => password)
@@ -30,9 +34,11 @@ Given /^I am logged in$/ do
 end
 
 Given /^I have one\s+user "([^\"]*)" with password "([^\"]*)"$/ do |email, password|
-  User.new(:email => email,
-           :password => password,
-           :password_confirmation => password).save!
+	user = User.new
+	user.email = email
+	user.password = password
+	user.password_confirmation = password
+	user.save!
 end
 
 #Given /^I am a new, authenticated user$/ do

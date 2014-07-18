@@ -9,7 +9,11 @@ namespace :users do
 			if arr.length != 2
 				puts "Usage: user=email,password"
 			else
-				user = User.create!({ :email => arr[0], :password => arr[1], :password_confirmation => arr[1] })
+				user = User.new
+				user.email = arr[0]
+				user.password = arr[1]
+				user.password_confirmation = arr[1]
+				user.save!
 				if user == nil
 					puts "User not created"
 				else

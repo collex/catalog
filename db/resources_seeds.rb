@@ -559,7 +559,7 @@ archives.each { |archive|
 	if archive[:parent_id] == ''
 		archive[:parent_id] = 0
 	else
-		parent = Archive.find_by_name(archive[:parent_id])
+		parent = Archive.find_by({ name: archive[:parent_id] })
 		if parent
 			archive[:parent_id] = parent.id
 		else
