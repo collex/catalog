@@ -82,13 +82,13 @@ defaults: &defaults
     edge:
       user: 'arc'
       ssh_name: 'ssh-name-to-login-to-server'
-      ruby: 'ruby-1.9.3-p374@catalog'
+      ruby: 'ruby-2.1.2@catalog'
       system_rvm: false
       deploy_base: '/home/arc/www'
     prod:
       user: 'arc'
       ssh_name: 'ssh-name-to-login-to-server'
-      ruby: 'ruby-1.9.3-p374@catalog'
+      ruby: 'ruby-2.1.2@catalog'
       system_rvm: false
       deploy_base: '/home/arc/www'
 
