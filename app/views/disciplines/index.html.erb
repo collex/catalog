@@ -20,7 +20,7 @@
 	<% if user_signed_in? %>
 		<td><%= link_to 'Show', discipline %>&nbsp;
 		<%= link_to 'Edit', edit_discipline_path(discipline) %>&nbsp;
-		<%= link_to 'Destroy', discipline, :confirm => 'Are you sure?', :method => :delete %></td>
+		<%= link_to 'Destroy', discipline, method: :delete, data: { confirm: 'Are you sure?' } %></td>
 	<% end %>
   </tr>
 <% end %>

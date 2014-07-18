@@ -9,7 +9,7 @@ class CorrectionsController < ApplicationController
   require 'uri'
   
   def create
-    federation = Federation.find_by_name(params[:federation])
+    federation = Federation.find_by({ name: params[:federation] })
     ip = request.headers['REMOTE_ADDR']
     if federation && ip == federation.ip
       # corrected text is stored in a the 'correctedtext' directory that is a peer

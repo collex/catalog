@@ -8,10 +8,9 @@ class Archive < ActiveRecord::Base
 	validates_attachment_content_type :carousel_image, :content_type => ['image/jpeg', 'image/png', 'image/gif'], :unless => Proc.new {|m| m[:thumbnail].nil?}
   has_and_belongs_to_many :carousels
   attr_accessor :carousel_list
-	attr_accessible :carousel_description, :typ, :name, :parent_id, :handle, :site_url, :thumbnail, :carousel_list
 
 	def self.get_tree()
-		nodes = Archive.find_all_by_typ('node')
+		nodes = Archive.where(typ: 'node')
 		nodes = nodes.map {|node|
 			{ :id => node.id, :parent_id => node.parent_id, :name => node.name, :carousel_include => node.carousel_include, :carousel_description => node.carousel_description, :children => [], :sites => [] }
 		}
@@ -30,7 +29,7 @@ class Archive < ActiveRecord::Base
 			end
 		}
 
-		archives = Archive.find_all_by_typ('archive')
+		archives = Archive.where(typ: 'archive')
 		archives.each { |archive|
 			if archive[:parent_id] == root[:id]
 				root[:sites].push(archive)
@@ -49,17 +48,17 @@ class Archive < ActiveRecord::Base
 
 	def self.compare_to_solr(solr)
 		actual = solr.get_archive_list()
-		archives = Archive.find_all_by_typ('archive')
+		archives = Archive.where(typ: 'archive')
 		archives = archives.map { |archive| archive['handle'] }
 		extra = (actual | archives) - actual
-		extra = extra.map {|site| { :handle => site, :name => Archive.find_by_handle(site).name, :id => Archive.find_by_handle(site).id } }
+		extra = extra.map {|site| { :handle => site, :name => Archive.find_by({ handle: site }).name, :id => Archive.find_by({ handle: site }).id } }
 		return { :missing => (actual | archives) - archives, :extra => extra }
 	end
 
 	def self.get_inaccessible_sites()
 		inaccessible_sites = []
-		nodes = Archive.find_all_by_typ('node')
-		archives = Archive.find_all_by_typ('archive')
+		nodes = Archive.where(typ: 'node')
+		archives = Archive.where(typ: 'archive')
 		archives.each { |node|
 			archive = node
 			while node.parent_id != 0 # parent id of 0 is accessible
@@ -82,7 +81,7 @@ class Archive < ActiveRecord::Base
 	end
 
 	def self.get_category_list
-		nodes = Archive.find_all_by_typ('node')
+		nodes = Archive.where(typ: 'node')
 		nodes = nodes.sort { |a, b| a['name'] <=> b['name'] }
 		nodes = nodes.map { |node| {:name => node['name'], :value => node['id']} }
 		nodes.unshift({:name => "[root]", :value => 0})

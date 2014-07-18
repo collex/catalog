@@ -1,86 +1,86 @@
 class FederationsController < ApplicationController
+  before_action :set_federation, only: [:show, :edit, :update, :destroy]
 #	before_filter :must_be_logged_in
 	before_filter :must_be_logged_in, :except => [:index]
 
   # GET /federations
+  # GET /federations.json
   # GET /federations.xml
   def index
     @federations = Federation.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml
-    end
   end
 
   # GET /federations/1
+  # GET /federations/1.json
   # GET /federations/1.xml
   def show
-    @federation = Federation.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @federation }
-    end
   end
 
   # GET /federations/new
   # GET /federations/new.xml
   def new
     @federation = Federation.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @federation }
-    end
   end
 
   # GET /federations/1/edit
   def edit
-    @federation = Federation.find(params[:id])
   end
 
   # POST /federations
+  # POST /federations.json
   # POST /federations.xml
   def create
-    @federation = Federation.new(params[:federation])
+    @federation = Federation.new(federation_params)
 
     respond_to do |format|
       if @federation.save
-        format.html { redirect_to(@federation, :notice => 'Federation was successfully created.') }
+        format.html { redirect_to @federation, notice: 'Federation was successfully created.' }
+        format.json { render :show, status: :created, location: @federation }
         format.xml  { render :xml => @federation, :status => :created, :location => @federation }
       else
-        format.html { render :action => "new" }
+        format.html { render :new }
+        format.json { render json: @federation.errors, status: :unprocessable_entity }
         format.xml  { render :xml => @federation.errors, :status => :unprocessable_entity }
       end
     end
   end
 
-  # PUT /federations/1
-  # PUT /federations/1.xml
+  # PATCH/PUT /federations/1
+  # PATCH/PUT /federations/1.json
+  # PATCH/PUT /federations/1.xml
   def update
-    @federation = Federation.find(params[:id])
-
     respond_to do |format|
-      if @federation.update_attributes(params[:federation])
-        format.html { redirect_to(@federation, :notice => 'Federation was successfully updated.') }
+      if @federation.update(federation_params)
+        format.html { redirect_to @federation, notice: 'Federation was successfully updated.' }
+        format.json { render :show, status: :ok, location: @federation }
         format.xml  { head :ok }
       else
-        format.html { render :action => "edit" }
+        format.html { render :edit }
+        format.json { render json: @federation.errors, status: :unprocessable_entity }
         format.xml  { render :xml => @federation.errors, :status => :unprocessable_entity }
       end
     end
   end
 
   # DELETE /federations/1
+  # DELETE /federations/1.json
   # DELETE /federations/1.xml
   def destroy
-    @federation = Federation.find(params[:id])
     @federation.destroy
-
     respond_to do |format|
-      format.html { redirect_to(federations_url) }
-      format.xml  { head :ok }
+      format.html { redirect_to federations_url, notice: 'Federation was successfully destroyed.' }
+      format.json { head :no_content }
     end
   end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_federation
+      @federation = Federation.find(params[:id])
+    end
+
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def federation_params
+      params.require(:federation).permit(:name, :ip, :site, :thumbnail)
+    end
 end
