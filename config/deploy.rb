@@ -13,9 +13,6 @@ else
 	site_specific = nil
 end
 
-# Ensure that bundle is used for rake tasks
-SSHKit.config.command_map[:rake] = "bundle exec rake"
-
 # config valid only for Capistrano 3.1
 lock '3.2.1'
 
@@ -46,7 +43,7 @@ namespace :deploy do
 		puts "Updating xsd files..."
 		source_dir = "#{release_path}/features/xsd"
 		dest_dir = "#{release_path}/public/xsd"
-		run "cp -R #{source_dir} #{dest_dir}"
+		execute :cp, "-R #{source_dir} #{dest_dir}"
     end
   end
   after :publishing, :restart
