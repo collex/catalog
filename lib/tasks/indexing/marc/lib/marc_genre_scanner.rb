@@ -1,3 +1,4 @@
+# encoding: UTF-8
 ##########################################################################
 # Copyright 2007 Applied Research in Patacriticism and the University of Virginia
 # 
@@ -18,8 +19,6 @@
 #require 'marc'
 require 'script/lib/nines_mapping.rb'
 
-# # IS THIS ACTUALLY USED ANYWHERE???
-$KCODE = 'UTF8'
 END_OF_RECORD = 0x1D.chr
 
 class MarcGenreScanner

@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-$KCODE = 'UTF8'
 
 namespace :xxx_marc do
 	desc "Read a text file in the form \"=035  \\\\$a(CU-RivES)N72335\" in RDF (param: archive=[bancroft|lilly|estc][;max_records])"

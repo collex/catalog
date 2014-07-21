@@ -1,3 +1,4 @@
+# encoding: UTF-8
 ##########################################################################
 # Copyright 2007 Applied Research in Patacriticism and the University of Virginia
 # 
@@ -17,8 +18,6 @@
 #require 'rubygems'
 #require 'solr'
 #require 'cgi'
-
-$KCODE = 'UTF8'
 
 class RefreshDoc
   

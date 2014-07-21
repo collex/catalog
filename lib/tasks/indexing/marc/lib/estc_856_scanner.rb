@@ -1,3 +1,4 @@
+# encoding: UTF-8
 ##########################################################################
 # Copyright 2007 Applied Research in Patacriticism and the University of Virginia
 # 
@@ -17,7 +18,6 @@
 #require 'rubygems'
 #require 'marc'
 
-$KCODE = 'UTF8'
 END_OF_RECORD = 0x1D.chr
 
 class Estc856Scanner
