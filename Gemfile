@@ -47,10 +47,10 @@ gem 'exception_notification'
 gem 'capistrano', require: false, group: :development
 gem 'capistrano-rvm', group: :development
 
-# group :development do
-# 	gem 'capistrano-rails', require: false
-# 	gem 'capistrano-bundler', require: false
-# end
+group :development do
+	gem 'capistrano-rails', require: false
+	gem 'capistrano-bundler', require: false
+end
 
 # Libraries to perform commandline tasks
 gem "net-scp"
