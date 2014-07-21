@@ -11,7 +11,12 @@ end
 World(WithinHelpers)
 
 Given /^I am not authenticated$/ do
-  visit('/users/sign_out') # ensure that at least
+	page.driver.submit :delete, "/users/sign_out", {}
+#  visit('/users/sign_out') # ensure that at least
+end
+
+When /^I sign out$/ do
+	page.driver.submit :delete, "/users/sign_out", {}
 end
 
 Given /^I am logged in$/ do
@@ -26,12 +31,8 @@ Given /^I am logged in$/ do
   fill_in('user_email', :with => email)
   fill_in('user_password', :with => password)
   click_button('Sign in')
-  if defined?(Spec::Rails::Matchers)
-    page.should have_content('Signed in successfully')
-  else
-    assert page.has_content?('Signed in successfully')
-  end
-end
+	expect(page).to have_content('Signed in successfully')
+ end
 
 Given /^I have one\s+user "([^\"]*)" with password "([^\"]*)"$/ do |email, password|
 	user = User.new
