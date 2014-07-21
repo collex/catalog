@@ -73,7 +73,7 @@ class LocalsController < ApplicationController
 			rescue SolrException => e
 				render_error(e.to_s, e.status())
 			rescue Exception => e
-				ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+				ExceptionNotifier.notify_exception(e, :env => request.env)
 				render_error("Something unexpected went wrong.", :internal_server_error)
 			end
 		else
@@ -141,7 +141,7 @@ class LocalsController < ApplicationController
 			rescue SolrException => e
 				render_error(e.to_s, e.status())
 			rescue Exception => e
-				ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+				ExceptionNotifier.notify_exception(e, :env => request.env)
 				render_error("Something unexpected went wrong.", :internal_server_error)
 			end
 		else
@@ -170,7 +170,7 @@ class LocalsController < ApplicationController
 			rescue SolrException => e
 				render_error(e.to_s, e.status())
 			rescue Exception => e
-				ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+				ExceptionNotifier.notify_exception(e, :env => request.env)
 				render_error("Something unexpected went wrong.", :internal_server_error)
 			end
 		else
@@ -198,7 +198,7 @@ class LocalsController < ApplicationController
 			rescue SolrException => e
 				render_error(e.to_s, e.status())
 			rescue Exception => e
-				ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+				ExceptionNotifier.notify_exception(e, :env => request.env)
 				render_error("Something unexpected went wrong.", :internal_server_error)
 			end
 		else

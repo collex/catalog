@@ -1,5 +1,6 @@
 if Rails.env.to_s != 'development'
-  CollexCatalog::Application.config.middleware.use ExceptionNotification::Rack,
+Rails.application.config.middleware.use ExceptionNotification::Rack,
+  :ignore_crawlers => %w{Googlebot bingbot EasouSpider},
   :email => {
     :email_prefix => Rails.application.secrets.exception_notifier['email_prefix'],
     :sender_address => Rails.application.secrets.exception_notifier['sender_address'],
