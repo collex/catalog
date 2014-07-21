@@ -12,7 +12,7 @@ gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4.0.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-# gem 'therubyracer',  platforms: :ruby
+gem 'therubyracer',  platforms: :ruby
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
@@ -44,9 +44,13 @@ gem 'paperclip'
 gem 'exception_notification'
 
 # Use Capistrano for deployment
-# gem 'capistrano-rails', group: :development
-gem 'capistrano'
-gem 'rvm-capistrano'
+gem 'capistrano', require: false, group: :development
+gem 'capistrano-rvm', group: :development
+
+# group :development do
+# 	gem 'capistrano-rails', require: false
+# 	gem 'capistrano-bundler', require: false
+# end
 
 # Libraries to perform commandline tasks
 gem "net-scp"
