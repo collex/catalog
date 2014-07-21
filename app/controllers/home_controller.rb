@@ -10,4 +10,8 @@ class HomeController < ApplicationController
 			render :partial => 'tabs'
 		end
 	end
+
+	def test_exception_notifier
+		raise "This is a test of the exception notification system. This is not a real error."
+	end
 end

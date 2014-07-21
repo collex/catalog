@@ -45,7 +45,9 @@ Rails.application.routes.draw do
 
 	resources :test_sort, :only => [:index]
 
-  # The priority is based upon order of creation:
+	get "/test_exception_notifier" => "home#test_exception_notifier"
+
+	# The priority is based upon order of creation:
   # first created -> highest priority.
 
   # Example of regular route:
