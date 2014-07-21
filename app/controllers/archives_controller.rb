@@ -47,6 +47,7 @@ class ArchivesController < ApplicationController
 			format.html {
 				facets()
 			}
+			format.json { render json: { archives: Archive.all }}
 			format.xml {
 				@archives = Archive.all
 			}

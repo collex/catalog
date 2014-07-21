@@ -52,6 +52,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
+				format.json { render json: { results: @results } }
 				format.xml
 			end
 		rescue ArgumentError => e
@@ -73,7 +74,7 @@ class SearchController < ApplicationController
 
 		respond_to do |format|
 			format.html # index.html.erb
-			format.json  # index.json.builder
+			format.json { render json: @totals }
 			format.xml  # index.xml.builder
 		end
 	end
@@ -100,6 +101,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
+				format.json { render json: { results: @results } }
 				format.xml
 			end
 		rescue ArgumentError => e
@@ -126,6 +128,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
+				format.json { render json: { results: @results }}
 				format.xml
 			end
 		rescue ArgumentError => e
@@ -154,6 +157,7 @@ class SearchController < ApplicationController
 
       respond_to do |format|
         #format.html # languages.html.erb
+		  format.json { render json: { results: @results }}
         format.xml # { render :xml => { :languages => @results } }
       end
 
@@ -181,6 +185,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
+				format.json { render json: { document: @document } }
 				format.xml
 			end
 		rescue ArgumentError => e

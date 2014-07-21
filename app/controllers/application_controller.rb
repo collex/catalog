@@ -19,6 +19,7 @@ class ApplicationController < ActionController::Base
 		@original_request = request.fullpath
 		respond_to do |format|
 			format.html { render :template => '/home/error', :status => @status }
+			format.json  { render json: { error_msg: @error_msg, original_request: @original_request, status: @status }, :status => @status }
 			format.xml  { render :template => '/home/error', :status => @status }
 		end
 	end

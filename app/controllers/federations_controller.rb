@@ -69,7 +69,6 @@ class FederationsController < ApplicationController
     @federation.destroy
     respond_to do |format|
       format.html { redirect_to federations_url, notice: 'Federation was successfully destroyed.' }
-      format.json { head :no_content }
     end
   end
 

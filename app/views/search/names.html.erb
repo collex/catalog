@@ -1,7 +1,8 @@
 <%= make_home_path %>
 <div class="tab_content">
 	<p id="notice"><%= notice %></p>
-	<%= make_xml_path(request.fullpath) %>
+  <%= make_xml_path(request.fullpath) %><br/>
+  <%= make_json_path(request.fullpath) %>
 	<h1>Names:</h1>
 
 	<h2>Authors</h2>

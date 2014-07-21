@@ -22,7 +22,7 @@
 </div>
 <div class="admin">
 <% if user_signed_in? %>
-	<%= link_to "Manage genres", genres_path %> | <%= link_to "Manage disciplines", disciplines_path %> | <%= link_to "Manage archives", archives_path %> | <%= link_to "Manage federations", federations_path %> | <%= link_to "Log out", destroy_user_session_path %>
+	<%= link_to "Manage genres", genres_path %> | <%= link_to "Manage disciplines", disciplines_path %> | <%= link_to "Manage archives", archives_path %> | <%= link_to "Manage federations", federations_path %> | <%= link_to "Log out", destroy_user_session_path, :method=>'delete' %>
 <% else %>
 <%= link_to "admin", new_user_session_path %>
 <% end %>
