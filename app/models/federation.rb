@@ -1,5 +1,4 @@
 class Federation < ActiveRecord::Base
-	attr_accessible :name, :ip, :site, :thumbnail
   after_initialize :check_for_carousel
   belongs_to :carousel, :inverse_of => :federation
 	has_attached_file :thumbnail,
@@ -11,7 +10,7 @@ class Federation < ActiveRecord::Base
 
 	def self.request_from_federation(ip)
 		# This checks to see if the ip address of the caller matches any of the federations.
-		fed = Federation.find_by_ip(ip)
+		fed = Federation.find_by({ ip: ip })
 		#return false
 		return fed != nil
   end

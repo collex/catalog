@@ -1,4 +1,5 @@
 class ArchivesController < ApplicationController
+  before_action :set_archive, only: [:show, :edit, :update, :destroy]
 #	before_filter :must_be_logged_in
 	before_filter :must_be_logged_in, :except => [:index]
 
@@ -39,12 +40,14 @@ class ArchivesController < ApplicationController
 	end
 
 	# GET /archives
+  # GET /archives.json
 	# GET /archives.xml
 	def index
 		respond_to do |format|
 			format.html {
 				facets()
 			}
+			format.json { render json: { archives: Archive.all }}
 			format.xml {
 				@archives = Archive.all
 			}
@@ -79,23 +82,27 @@ class ArchivesController < ApplicationController
 	end
 
 	# POST /archives
+  # POST /archives.json
 	# POST /archives.xml
 	def create
-		@archive = Archive.new(params[:archive])
+    @archive = Archive.new(archive_params)
 
 		respond_to do |format|
 			if @archive.save
 				format.html { redraw() }
+        format.json { render :show, status: :created, location: @archive }
 				format.xml { render :xml => @archive, :status => :created, :location => @archive }
 			else
 				format.html { render :action => "new" }
+        format.json { render json: @archive.errors, status: :unprocessable_entity }
 				format.xml { render :xml => @archive.errors, :status => :unprocessable_entity }
 			end
 		end
 	end
 
-	# PUT /archives/1
-	# PUT /archives/1.xml
+  # PATCH/PUT /archives/1
+  # PATCH/PUT /archives/1.json
+	# PATCH/PUT /archives/1.xml
 	def update
 		@archive = Archive.find(params[:id])
 		if params[:file]
@@ -120,7 +127,7 @@ class ArchivesController < ApplicationController
 			#params[:archive][:carousel_include] = 1 if params[:archive][:carousel_include] == 'true'
 
 			respond_to do |format|
-				if @archive.update_attributes(params[:archive])
+      if @archive.update(archive_params)
           if params[:archive][:carousel_list]
             @archive.carousels.delete_all
             params[:archive][:carousel_list].to_hash().each { |key, value|
@@ -130,9 +137,11 @@ class ArchivesController < ApplicationController
             }
           end
 					format.html { redraw() }
+        format.json { render :show, status: :ok, location: @archive }
 					format.xml { head :ok }
 				else
 					format.html { redraw() }
+        format.json { render json: @archive.errors, status: :unprocessable_entity }
 					format.xml { render :xml => @archive.errors, :status => :unprocessable_entity }
 				end
 			end
@@ -141,14 +150,25 @@ class ArchivesController < ApplicationController
 	end
 
   # DELETE /archives/1
+  # DELETE /archives/1.json
   # DELETE /archives/1.xml
   def destroy
-    @archive = Archive.find(params[:id])
     @archive.destroy
-
     respond_to do |format|
       format.html { redraw() }
+      format.json { head :no_content }
       format.xml  { head :ok }
     end
   end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_archive
+      @archive = Archive.find(params[:id])
+    end
+
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def archive_params
+      params.require(:archive).permit(:carousel_description, :typ, :name, :parent_id, :handle, :site_url, :thumbnail, :carousel_list)
+    end
 end

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 ##########################################################################
 # Copyright 2007 Applied Research in Patacriticism and the University of Virginia
 # 
@@ -22,9 +23,6 @@ require 'marc_ext/record'
 class MARC::Record
   include MARCEXT::Record
 end
-
-# # IS THIS ACTUALLY USED ANYWHERE???
-$KCODE = 'UTF8'
 
 class MarcExtractor
   

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 ##########################################################################
 # Copyright 2007 Applied Research in Patacriticism and the University of Virginia
 # 
@@ -23,8 +24,6 @@ require 'marc_ext/record'
 class MARC::Record
   include MARCEXT::Record
 end
-
-$KCODE = 'UTF8'
 
 class MarcUrlScanner
     

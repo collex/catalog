@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-$KCODE = 'UTF8'
 
 require "#{Rails.root}/lib/tasks/task_utilities.rb"
 

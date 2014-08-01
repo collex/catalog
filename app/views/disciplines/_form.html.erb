@@ -4,15 +4,15 @@
       <h2><%= pluralize(@discipline.errors.count, "error") %> prohibited this discipline from being saved:</h2>
 
       <ul>
-      <% @discipline.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
+      <% @discipline.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
       <% end %>
       </ul>
     </div>
   <% end %>
 
   <div class="field">
-    <%= f.label :name %><br />
+    <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
   <div class="actions">

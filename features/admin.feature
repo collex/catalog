@@ -42,6 +42,6 @@ Feature: Admin login
 
 	Scenario: Logging out
 		Given I am logged in
-		When I go to the sign out link
+		When I sign out
 		Then I should see "Signed out successfully"
 		And I should be on the home page

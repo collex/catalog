@@ -2,7 +2,7 @@
 <html>
 <head>
 	<link href='http://fonts.googleapis.com/css?family=Nunito' rel='stylesheet' type='text/css'>
-	<title><%= Settings.site_name_title %></title>
+	<title><%= Rails.application.secrets.skin['site_name_title'] %></title>
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.4.0/build/cssreset/reset-min.css&3.4.0/build/cssfonts/fonts-min.css&3.4.0/build/cssgrids/grids-min.css">
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.4.0/build/widget-base/assets/skins/sam/widget-base.css&3.4.0/build/widget-base/assets/skins/sam/widget-base.css&3.4.0/build/widget-stack/assets/skins/sam/widget-stack.css&3.4.0/build/widget-stack/assets/skins/sam/widget-stack.css&3.4.0/build/panel/assets/skins/sam/panel.css&3.4.0/build/panel/assets/skins/sam/panel.css">
   <%= stylesheet_link_tag    "application", :media => "all" %>
@@ -13,7 +13,7 @@
 <body class="yui3-skin-sam">
 <div class="banner_outer">
 <div class="banner">
-	<div class="title"><%= Settings.site_name_title %></div>
+	<div class="title"><%= Rails.application.secrets.skin['site_name_title'] %></div>
 	<div class="tag_line">a web service for searching the documents collected by ARC</div>
 </div>
 </div>

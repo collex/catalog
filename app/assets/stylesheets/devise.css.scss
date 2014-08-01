@@ -1,0 +1,15 @@
+#user_new, .new_user {
+	border: 2px solid #001E51;
+	background-color: #EEE;
+	border-radius: 4px;
+	padding: 16px;
+	width: 300px;
+
+	div {
+		padding-bottom: 12px;
+	}
+
+	input[type=email], input[type=password] {
+		width: 290px;
+	}
+}

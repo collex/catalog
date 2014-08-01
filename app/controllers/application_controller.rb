@@ -1,5 +1,7 @@
 class ApplicationController < ActionController::Base
-	protect_from_forgery
+  # Prevent CSRF attacks by raising an exception.
+  # For APIs, you may want to use :null_session instead.
+  protect_from_forgery with: :exception
 	before_filter :dup_params
 
 	def must_be_logged_in
@@ -17,6 +19,7 @@ class ApplicationController < ActionController::Base
 		@original_request = request.fullpath
 		respond_to do |format|
 			format.html { render :template => '/home/error', :status => @status }
+			format.json  { render json: { error_msg: @error_msg, original_request: @original_request, status: @status }, :status => @status }
 			format.xml  { render :template => '/home/error', :status => @status }
 		end
 	end

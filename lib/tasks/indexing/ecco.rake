@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-$KCODE = 'UTF8'
 
 namespace :xxx_ecco do
 	desc "Test that all ECCO objects have a 856 field (param: max_recs=XXX)"

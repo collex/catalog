@@ -316,11 +316,11 @@ namespace :solr_index do
       else
         index = "archive_#{archive}"
         filename = backup_archive(index)
-        case Settings.folders.tasks_send_method
+        case Rails.application.secrets.folders['tasks_send_method']
         when 'cp'
           FileUtils.cp(filename, dest_filename_of_zipped_index(index))
         else
-          Net::SCP.start(Settings.production.ssh_host, Settings.production.ssh_user) do |scp|
+          Net::SCP.start(Rails.application.secrets.production['ssh_host'], Rails.application.secrets.production['ssh_user']) do |scp|
             scp.upload! filename, dest_filename_of_zipped_index(index)
           end
         end
@@ -331,22 +331,22 @@ namespace :solr_index do
 	desc "Package the main archive and send it to a server. (archive=XXX,YYY) This gets it ready to be installed on the other server with the sister script: solr:install"
 	task :package_resources => :environment do
 		filename = backup_archive('resources')
-    case Settings.folders.tasks_send_method
+    case Rails.application.secrets.folders['tasks_send_method']
     when 'cp'
       FileUtils.cp(filename, dest_filename_of_zipped_index('resources'))
     else
-      Net::SCP.start(Settings.production.ssh_host, Settings.production.ssh_user) do |scp|
+      Net::SCP.start(Rails.application.secrets.production['ssh_host'], Rails.application.secrets.production['ssh_user']) do |scp|
         scp.upload! filename, dest_filename_of_zipped_index('resources')
       end
     end
 	end
 
-	desc "This assumes a list of gzipped archives in the #{Settings.folders.uploaded_data} folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
+	desc "This assumes a list of gzipped archives in the #{Rails.application.secrets.folders['uploaded_data']} folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
 	task :install => :environment do
 		indexes = []
 		solr = Solr.factory_create(:live)
 		do_archive { |archive|
-			folder = Settings.folders.uploaded_data
+			folder = Rails.application.secrets.folders['uploaded_data']
 			index = "archive_#{archive}"
 			index_path = "#{folder}/#{index}"
 			indexes.push(index_path)

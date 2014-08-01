@@ -52,6 +52,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
+				format.json { render json: { results: @results } }
 				format.xml
 			end
 		rescue ArgumentError => e
@@ -59,7 +60,7 @@ class SearchController < ApplicationController
 		rescue SolrException => e
 			render_error(e.to_s, e.status())
 		rescue Exception => e
-			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+			ExceptionNotifier.notify_exception(e, :env => request.env)
 			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
 	end
@@ -73,6 +74,7 @@ class SearchController < ApplicationController
 
 		respond_to do |format|
 			format.html # index.html.erb
+			format.json { render json: @totals }
 			format.xml  # index.xml.builder
 		end
 	end
@@ -99,6 +101,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
+				format.json { render json: { results: @results } }
 				format.xml
 			end
 		rescue ArgumentError => e
@@ -106,7 +109,7 @@ class SearchController < ApplicationController
 		rescue SolrException => e
 			render_error(e.to_s, e.status())
 		rescue Exception => e
-			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+			ExceptionNotifier.notify_exception(e, :env => request.env)
 			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
 	end
@@ -125,6 +128,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
+				format.json { render json: { results: @results }}
 				format.xml
 			end
 		rescue ArgumentError => e
@@ -132,7 +136,7 @@ class SearchController < ApplicationController
 		rescue SolrException => e
 			render_error(e.to_s, e.status())
 		rescue Exception => e
-			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+			ExceptionNotifier.notify_exception(e, :env => request.env)
 			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
   end
@@ -153,6 +157,7 @@ class SearchController < ApplicationController
 
       respond_to do |format|
         #format.html # languages.html.erb
+		  format.json { render json: { results: @results }}
         format.xml # { render :xml => { :languages => @results } }
       end
 
@@ -161,7 +166,7 @@ class SearchController < ApplicationController
       rescue SolrException => e
         render_error(e.to_s, e.status())
       rescue Exception => e
-        ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+		  ExceptionNotifier.notify_exception(e, :env => request.env)
         render_error("Something unexpected went wrong.", :internal_server_error)
     end
   end
@@ -180,6 +185,7 @@ class SearchController < ApplicationController
 
 			respond_to do |format|
 				format.html # index.html.erb
+				format.json { render json: { document: @document } }
 				format.xml
 			end
 		rescue ArgumentError => e
@@ -187,7 +193,7 @@ class SearchController < ApplicationController
 		rescue SolrException => e
 			render_error(e.to_s, e.status())
 		rescue Exception => e
-			ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+			ExceptionNotifier.notify_exception(e, :env => request.env)
 			render_error("Something unexpected went wrong.", :internal_server_error)
 		end
 	end

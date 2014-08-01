@@ -47,7 +47,7 @@ namespace :jstor do
 			}
 
 			uri = doc['doi'].join('')
-			out_file_name = uri.gsub(/[^A-Za-z-0-9]/, '.') + ".rdf"
+			out_file_name = uri.gsub(/[^A-Za-z\-0-9]/, '.') + ".rdf"
 			out_file_name = File.join(folder, out_file_name)
 
 			File.open(out_file_name, "w") { |file|

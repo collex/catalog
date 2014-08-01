@@ -19,7 +19,11 @@ module SearchHelper
 	end
 
 	def make_xml_path(url)
-		return raw("<a href=\"#{get_xml_path(request.fullpath)}\" class=\"xml_path\">See these results as XML</a>")
+		return raw("<a href=\"#{get_xml_path(url)}\" class=\"xml_path\">See these results as XML</a>")
+	end
+
+	def make_json_path(url)
+		return raw("<a href=\"#{get_xml_path(url).sub("xml", "json")}\" class=\"xml_path\">See these results as JSON</a>")
 	end
 
 	def make_home_path()

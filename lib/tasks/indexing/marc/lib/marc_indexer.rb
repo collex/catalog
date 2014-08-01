@@ -1,3 +1,4 @@
+# encoding: UTF-8
 ##########################################################################
 # Copyright 2007 Applied Research in Patacriticism and the University of Virginia
 # 
@@ -13,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-
-$KCODE = 'UTF8'
 
 require "#{Rails.root}/script/lib/nines_mapping.rb"
 require "#{Rails.root}/script/lib/title_code_exceptions.rb"

@@ -16,7 +16,7 @@ class ExhibitsController < ApplicationController
 	# They are only available from localhost, so it isn't a security hole.
 	def test_create_good()
 		if	request.headers['REMOTE_ADDR'] == '127.0.0.1'
-			federation = Federation.find_by_name(params[:federation])
+			federation = Federation.find_by({ name: params[:federation] })
 			if federation
 				request.env['REMOTE_ADDR'] = federation.ip
 				create()
@@ -32,7 +32,7 @@ class ExhibitsController < ApplicationController
 
 	def test_destroy_good()
 		if	request.headers['REMOTE_ADDR'] == '127.0.0.1'
-			federation = Federation.find_by_name(params[:federation])
+			federation = Federation.find_by({ name: params[:federation] })
 			if federation
 				request.env['REMOTE_ADDR'] = federation.ip
 				destroy()
@@ -52,7 +52,7 @@ class ExhibitsController < ApplicationController
 		if params[:format] != 'xml'
 			render_error("Must call this through the web service", :forbidden)
 		else
-			federation = Federation.find_by_name(params[:federation])
+			federation = Federation.find_by({ name: params[:federation] })
 			ip = request.headers['REMOTE_ADDR']
 			if federation && ip == federation.ip
 				begin
@@ -77,7 +77,7 @@ class ExhibitsController < ApplicationController
 				rescue SolrException => e
 					render_error(e.to_s, e.status())
 				rescue Exception => e
-					ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+					ExceptionNotifier.notify_exception(e, :env => request.env)
 					render_error("Something unexpected went wrong.", :internal_server_error)
 				end
 			else
@@ -93,7 +93,7 @@ class ExhibitsController < ApplicationController
 		if params[:format] != 'xml'
 			render_error("Must call this through the web service", :forbidden)
 		else
-			federation = Federation.find_by_name(params[:federation])
+			federation = Federation.find_by({ name: params[:federation] })
 			ip = request.headers['REMOTE_ADDR']
 			if federation && ip == federation.ip
 				begin
@@ -133,11 +133,11 @@ class ExhibitsController < ApplicationController
 
 					if type == 'whole'
 						parent_name = "#{federation.name} Exhibits"
-						parent = Archive.find_by_name(parent_name)
+						parent = Archive.find_by({ name: parent_name })
 						if parent == nil
 							parent = Archive.create({ typ: 'node', parent_id: 0, name: parent_name})
 						end
-						archive = Archive.find_by_handle(query['archive'])
+						archive = Archive.find_by({ handle: query['archive'] })
 						rec = { typ: 'archive', parent_id: parent.id, handle: query['archive'], name: archive_name, site_url: archive_url, thumbnail: archive_thumbnail }
 						if archive
 							archive.update_attributes(rec)
@@ -154,7 +154,7 @@ class ExhibitsController < ApplicationController
 				rescue SolrException => e
 					render_error(e.to_s, e.status())
 				rescue Exception => e
-					ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+					ExceptionNotifier.notify_exception(e, :env => request.env)
 					render_error("Something unexpected went wrong.", :internal_server_error)
 				end
 			else
@@ -169,7 +169,7 @@ class ExhibitsController < ApplicationController
 		if params[:format] != 'xml'
 			render_error("Must call this through the web service", :forbidden)
 		else
-			federation = Federation.find_by_name(params[:federation])
+			federation = Federation.find_by({ name: params[:federation] })
 			ip = request.headers['REMOTE_ADDR']
 			if federation && ip == federation.ip
 				begin
@@ -192,7 +192,7 @@ class ExhibitsController < ApplicationController
 				rescue SolrException => e
 					render_error(e.to_s, e.status())
 				rescue Exception => e
-					ExceptionNotifier::Notifier.exception_notification(request.env, e).deliver
+					ExceptionNotifier.notify_exception(e, :env => request.env)
 					render_error("Something unexpected went wrong.", :internal_server_error)
 				end
 			else
