@@ -629,9 +629,11 @@ class QueryFormat
 
 	def self.transform_sort(key,val)
 		arr = val.split(' ')
-		if arr[0] == 'last_modified'
-			return { 'sort' => "#{arr[0]} #{arr[1]}" }	# Hack! this one parameter isn't parallel with the others.
-		else
+		if arr[0] == 'last_modified'                       # Hack! this one parameter does not have a dedicated sort field.
+      return { 'sort' => "#{arr[0]} #{arr[1]}" }
+    elsif arr[0] == 'year'                             # Hack! solr cannot sort on date ranges so we have 2 fields reflecting the date range endpoints
+      return { 'sort' => "#{arr[0]}_sort_#{arr[1]} #{arr[1]}" }
+    else
 			return { 'sort' => "#{arr[0]}_sort #{arr[1]}" }
 		end
 	end

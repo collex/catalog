@@ -158,7 +158,7 @@ namespace :solr_index do
 
 		flags = ""
 		safe_name = Solr::archive_to_core_name(archive)
-		log_dir = "#{Rails.root}/log"
+		log_dir = "#{Rails.root}/log/index"
 
 		# no mode specified = full compare on al fields.
 		# delete all log files
