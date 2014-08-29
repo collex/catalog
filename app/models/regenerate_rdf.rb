@@ -40,7 +40,7 @@ class RegenerateRdf
 		filename = "#{output_folder}/#{file_prefix}_#{file_number}.rdf"
 		file = File.new(filename, 'w')
 		file << self.header()
-		puts "opening #{filename}..."
+		puts "Creating #{filename}..."
 		return file_number+1, file
 	end
 	
@@ -124,11 +124,12 @@ class RegenerateRdf
 				 self.gen_item(ret, key, self.format_item("collex:text", val))
 			  when 'date_label'
 				  # year and date_label are put in at the same time, so we'll look for year here and ignore it when it naturally comes up.
-				  year = obj['year']
-				  year = obj[:year] if year == nil
-				  year = obj['date_label'] if year == nil
-				  year = obj[:date_label] if year == nil
-				  self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year[i]) if year[i]}\t</collex:date></dc:date>\n") if year != nil
+				  #year = obj['year']
+				  #year = obj[:year] if year == nil
+				  #year = obj['date_label'] if year == nil
+				  #year = obj[:date_label] if year == nil
+				  #self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year[i]) if year[i]}\t</collex:date></dc:date>\n") if year != nil
+          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", val)}\t</collex:date></dc:date>\n")
 			  when 'year'
 				  #nothing here: handled above
 			  when 'uri'

@@ -124,4 +124,60 @@ namespace :eebo do
       finish_line(start_time)
     end
   end
+
+  desc "Create all the RDF files for EEBO documents, using eMOP database records."
+  task :create_rdf => :environment do
+    start_time = Time.now
+    TaskReporter.set_report_file("#{Rails.root}/log/eebo_error.log")
+    puts("Processing...")
+    hits = []
+    process_eebo_entries(hits)
+    puts("Sorting...")
+    hits.sort! { |a,b| a['uri'] <=> b['uri'] }
+    #puts("Processing fulltext...")
+    #process_eebo_fulltext(hits)
+    RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/EEBO", "EEBO", 500000)
+    finish_line(start_time)
+  end
+
+  def process_eebo_entries(hits, max_recs = 9999999)
+#  def process_eebo_entries(hits, max_recs = 2500)
+
+    total_recs = 0
+    Work.find_each do | work |
+      if work.isEEBO?
+        obj = {}
+        obj[ 'archive' ] = "EEBO"
+        obj[ 'federation' ] = "18thConnect"
+
+        obj['url'] = work.wks_eebo_url
+        #tokens = work.wks_eebo_url.split('&')
+        eebo_id = "lib://EEBO/#{"%010d" % work.wks_work_id}"
+        obj['uri'] = eebo_id
+
+        obj['title'] = work.wks_title
+        #obj['year'] = work.wks_pub_date
+        obj['date_label'] = work.wks_pub_date
+        obj['genre'] = "Citation"
+        #obj[ 'discipline'] =
+        #obj[ 'doc_type'] =
+        obj['is_ocr'] = false
+        obj['has_full_text'] = false
+        obj['freeculture'] = false
+        obj['role_AUT'] = work.wks_author
+        obj['role_PBL'] = work.wks_publisher
+
+        obj['text'] = ""
+        obj['has_full_text'] = false
+
+        hits.push(obj)
+        total_recs += 1
+        puts("Processed: #{total_recs} ...") if total_recs % 500 == 0
+        break if total_recs >= max_recs
+      end
+    end
+    puts("Total: #{total_recs}")
+
+  end
+
 end
