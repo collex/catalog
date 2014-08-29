@@ -136,7 +136,7 @@ namespace :eebo do
     hits.sort! { |a,b| a['uri'] <=> b['uri'] }
     #puts("Processing fulltext...")
     #process_eebo_fulltext(hits)
-    RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/EEBO", "EEBO", 500000)
+    RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 500000)
     finish_line(start_time)
   end
 
@@ -156,22 +156,26 @@ namespace :eebo do
         obj['uri'] = eebo_id
 
         obj['title'] = work.wks_title
-        #obj['year'] = work.wks_pub_date
+        obj['year'] = work.wks_pub_date.gsub( "-","," )
         obj['date_label'] = work.wks_pub_date
+
         obj['genre'] = "Citation"
-        #obj[ 'discipline'] =
-        #obj[ 'doc_type'] =
+        obj[ 'discipline'] = "Literature"
+        obj[ 'doc_type'] = "Codex"
+
         obj['is_ocr'] = false
         obj['has_full_text'] = false
         obj['freeculture'] = false
+
         obj['role_AUT'] = work.wks_author
         obj['role_PBL'] = work.wks_publisher
 
-        obj['text'] = ""
+        #obj['text'] = ""
         obj['has_full_text'] = false
 
         hits.push(obj)
         total_recs += 1
+        #puts( "Year: #{obj['year']}, label: #{obj['date_label']}") if obj['year'] != obj['date_label' ]
         puts("Processed: #{total_recs} ...") if total_recs % 500 == 0
         break if total_recs >= max_recs
       end
