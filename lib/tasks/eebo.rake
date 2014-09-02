@@ -129,19 +129,21 @@ namespace :eebo do
   task :create_rdf => :environment do
     start_time = Time.now
     TaskReporter.set_report_file("#{Rails.root}/log/eebo_error.log")
-    puts("Processing...")
+    puts("STATUS: processing...")
     hits = []
     process_eebo_entries(hits)
-    puts("Sorting...")
+    puts("STATUS: sorting...")
     hits.sort! { |a,b| a['uri'] <=> b['uri'] }
-    #puts("Processing fulltext...")
-    #process_eebo_fulltext(hits)
+    puts("STATUS: resolving source...")
+    resolve_eebo_source(hits)
+    puts("STATUS: processing fulltext...")
+    process_eebo_fulltext(hits)
     RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 500000)
     finish_line(start_time)
   end
 
   def process_eebo_entries(hits, max_recs = 9999999)
-#  def process_eebo_entries(hits, max_recs = 2500)
+#  def process_eebo_entries(hits, max_recs = 500)
 
     total_recs = 0
     Work.find_each do | work |
@@ -156,7 +158,7 @@ namespace :eebo do
         obj['uri'] = eebo_id
 
         obj['title'] = work.wks_title
-        obj['year'] = work.wks_pub_date.gsub( "-","," )
+        obj['year'] = fix_date( work.wks_pub_date )
         obj['date_label'] = work.wks_pub_date
 
         obj['genre'] = "Citation"
@@ -170,8 +172,11 @@ namespace :eebo do
         obj['role_AUT'] = work.wks_author
         obj['role_PBL'] = work.wks_publisher
 
-        #obj['text'] = ""
-        obj['has_full_text'] = false
+        # special fields used in the next steps
+        tokens = work.wks_eebo_directory.split( "/" )
+        obj[ 'wks_marc_record' ] = work.wks_marc_record
+        obj[ 'image_id' ] = tokens[ tokens.size - 1 ]
+        obj[ 'eebo_dir' ] = tokens[ tokens.size - 2 ]
 
         hits.push(obj)
         total_recs += 1
@@ -181,7 +186,96 @@ namespace :eebo do
       end
     end
     puts("Total: #{total_recs}")
-
   end
 
+  def resolve_eebo_source( hits )
+
+    meta = load_metadata( )
+    hits.each { | obj |
+      if meta[ obj[ 'image_id' ].to_i ].nil? == false
+        obj[ 'source' ] = meta[ obj[ 'image_id' ].to_i ]
+        #puts( "Resolved Id #{obj[ 'image_id' ]} to #{obj[ 'source' ]}")
+      else
+        puts "WARNING: cannot resolve source for image_id: #{obj[ 'image_id' ]}"
+      end
+    }
+  end
+
+  def load_metadata( )
+
+    meta = {}
+    filename = "data/extract.xml"
+    image_ids = ''
+    File.foreach(filename).with_index { |line, line_num|
+      line = line.scrub( "?" )
+
+      if line_num % 2 == 0
+         image_ids = line[/<image_id>(.*)<\/image_id>/, 1]
+         if image_ids.nil?
+            puts ( "ERROR: unexpected line #{line_num} @ #{line}")
+            return {}
+         end
+      else
+        source = line[/<source>(.*)<\/source>/, 1]
+        if source.nil?
+          puts ( "ERROR: unexpected line #{line_num} @ #{line}")
+          return {}
+        end
+
+        ids = image_ids.split( " " )
+        ids.each { |id|
+          meta[ id.to_i ] = source
+        }
+        image_ids = ''
+      end
+    }
+
+    return( meta )
+  end
+
+  def process_eebo_fulltext( hits )
+
+    hits.each { | obj |
+
+      # we have TCP text available...
+      if obj[ 'wks_marc_record'].nil? == false && obj[ 'wks_marc_record'].empty? == false
+        textfile = "/data/shared/text-xml/EEBO-TCP-document-text/#{obj['eebo_dir']}/#{obj['image_id']}.txt"
+        if File.exist?( textfile ) == true
+          obj[ 'text'] = IO.binread( textfile )
+          obj[ 'has_full_text' ] = true
+        else
+          puts "WARNING: #{textfile} does not exist or not readable"
+        end
+      else
+        obj['is_ocr'] = true
+        obj['has_full_text'] = true
+
+      end
+
+      obj.delete( 'wks_marc_record' )
+      obj.delete( 'image_id' )
+      obj.delete( 'eebo_dir' )
+    }
+  end
+
+  def fix_date( date )
+
+     tokens = date.split( "-" )
+     if tokens.length == 2
+
+        if tokens[ 0 ].length == 2
+          date_out = "#{tokens[0]}00,#{tokens[1]}"
+        elsif tokens[ 0 ].length == 0
+          date_out = tokens[1]
+        else
+          date_out = "#{tokens[0]},#{tokens[1]}"
+        end
+     else
+       date_out = date
+     end
+
+     #puts( "DATE IN: #{date}" )
+     #puts( "DATE OUT: #{date_out}" ) if date_out != date
+
+  end
 end
