@@ -181,7 +181,7 @@ namespace :eebo do
         hits.push(obj)
         total_recs += 1
         #puts( "Year: #{obj['year']}, label: #{obj['date_label']}") if obj['year'] != obj['date_label' ]
-        puts("Processed: #{total_recs} ...") if total_recs % 500 == 0
+        puts("STATUS: processed: #{total_recs} ...") if total_recs % 500 == 0
         break if total_recs >= max_recs
       end
     end
@@ -204,7 +204,7 @@ namespace :eebo do
   def load_metadata( )
 
     meta = {}
-    filename = "data/extract.xml"
+    filename = "eebo_metadata/extract.txt"
     image_ids = ''
     File.foreach(filename).with_index { |line, line_num|
       line = line.scrub( "?" )
