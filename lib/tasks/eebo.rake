@@ -241,7 +241,10 @@ namespace :eebo do
       if obj[ 'wks_marc_record'].nil? == false && obj[ 'wks_marc_record'].empty? == false
         textfile = "/data/shared/text-xml/EEBO-TCP-document-text/#{obj['eebo_dir']}/#{obj['image_id']}.txt"
         if File.exist?( textfile ) == true
-          obj[ 'text'] = IO.binread( textfile )
+          File.open( textfile, "r" ) { |f|
+            text = f.read
+            obj[ 'text'] = f.read
+          }
           obj[ 'has_full_text' ] = true
         else
           puts "WARNING: #{textfile} does not exist or not readable"
