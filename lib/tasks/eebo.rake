@@ -152,10 +152,8 @@ namespace :eebo do
         obj[ 'archive' ] = "EEBO"
         obj[ 'federation' ] = "18thConnect"
 
-        obj['url'] = work.wks_eebo_url
-        #tokens = work.wks_eebo_url.split('&')
-        eebo_id = "lib://EEBO/#{"%010d" % work.wks_work_id}"
-        obj['uri'] = eebo_id
+        obj['uri'] = "#{work.wks_eebo_url}-#{work.wks_eebo_citation_id}"
+        obj['url'] = "#{work.wks_eebo_url.gsub(/(.*):image:\d+$/, '\1')}:citation:#{work.wks_eebo_citation_id}"
 
         obj['title'] = work.wks_title
         obj['year'] = fix_date( work.wks_pub_date )
@@ -180,7 +178,6 @@ namespace :eebo do
 
         hits.push(obj)
         total_recs += 1
-        #puts( "Year: #{obj['year']}, label: #{obj['date_label']}") if obj['year'] != obj['date_label' ]
         puts("STATUS: processed: #{total_recs} ...") if total_recs % 500 == 0
         break if total_recs >= max_recs
       end
@@ -237,12 +234,14 @@ namespace :eebo do
 
     hits.each { | obj |
 
+      eebo_text_root = "/data/shared/text-xml/EEBO-TCP-document-text"
+      #eebo_text_root = "/Users/daveg/Sandboxes/collex-catalog/tmp"
+
       # we have TCP text available...
       if obj[ 'wks_marc_record'].nil? == false && obj[ 'wks_marc_record'].empty? == false
-        textfile = "/data/shared/text-xml/EEBO-TCP-document-text/#{obj['eebo_dir']}/#{obj['image_id']}.txt"
+        textfile = "#{eebo_text_root}/#{obj['eebo_dir']}/#{obj['image_id']}.txt"
         if File.exist?( textfile ) == true
           File.open( textfile, "r" ) { |f|
-            text = f.read
             obj[ 'text'] = f.read
           }
           obj[ 'has_full_text' ] = true
@@ -250,9 +249,8 @@ namespace :eebo do
           puts "WARNING: #{textfile} does not exist or not readable"
         end
       else
-        obj['is_ocr'] = true
-        obj['has_full_text'] = true
-
+        #obj['is_ocr'] = true
+        #obj['has_full_text'] = true
       end
 
       obj.delete( 'wks_marc_record' )
@@ -276,9 +274,6 @@ namespace :eebo do
      else
        date_out = date
      end
-
-     #puts( "DATE IN: #{date}" )
-     #puts( "DATE OUT: #{date_out}" ) if date_out != date
 
   end
 end
