@@ -152,8 +152,8 @@ namespace :eebo do
         obj[ 'archive' ] = "EEBO"
         obj[ 'federation' ] = "18thConnect"
 
-        obj['uri'] = "#{work.wks_eebo_url}-#{work.wks_eebo_citation_id}"
-        obj['url'] = "#{work.wks_eebo_url.gsub(/(.*):image:\d+$/, '\1')}:citation:#{work.wks_eebo_citation_id}"
+        obj['uri'] = CGI.escapeHTML( "#{work.wks_eebo_url}-#{work.wks_eebo_citation_id}" )
+        obj['url'] = CGI.escapeHTML( "#{work.wks_eebo_url.gsub(/(.*):image:\d+$/, '\1')}:citation:#{work.wks_eebo_citation_id}" )
 
         obj['title'] = work.wks_title
         obj['year'] = fix_date( work.wks_pub_date )
