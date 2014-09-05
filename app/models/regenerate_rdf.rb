@@ -38,17 +38,7 @@ class RegenerateRdf
 	private
 	def self.start_file(output_folder, file_prefix, file_number)
 
-    outdir = "#{output_folder}/#{sprintf( "%03d", file_number / 1000 )}"
-
-    if Dir.exist?( outdir ) == false
-      begin
-        Dir.mkdir( outdir )
-      rescue
-        # It's ok to fail: it probably means the folder already exists.
-      end
-    end
-
-		filename = "#{outdir}/#{file_prefix}_#{file_number}.rdf"
+		filename = "#{output_folder}/#{file_prefix}_#{sprintf( "%05d", file_number )}.rdf"
     puts "Creating #{filename}..."
 		file = File.new(filename, 'w')
 		file << self.header()
@@ -74,10 +64,9 @@ class RegenerateRdf
 		}
 	end
 
-	def self.regenerate_all(hits, output_folder, file_prefix, target_size = 250000)
+	def self.regenerate_all( hits, output_folder, file_prefix, target_size = 250000, file_number = 1000 )
 		self.safe_mkdir(output_folder)
 		size = 0
-		file_number = 1000
 		file_number, file = self.start_file(output_folder, file_prefix, file_number)
 		hits.each {|hit|
 			#puts "generating: #{hit['uri']}..."

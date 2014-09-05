@@ -136,9 +136,26 @@ namespace :eebo do
     hits.sort! { |a,b| a['uri'] <=> b['uri'] }
     puts("STATUS: resolving source...")
     resolve_eebo_source(hits)
-    puts("STATUS: processing fulltext...")
-    process_eebo_fulltext(hits)
-    RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 500000)
+
+    total_size = hits.size
+    block_size = 10000
+    block_num = 0
+    done = false
+    while done == false
+       block_start = block_num * block_size
+       if total_size > block_start + block_size
+         block_length = block_size
+       else
+         block_length = total_size - block_start
+         done = true
+       end
+       #puts( "start #{block_start}, length #{block_length}")
+       block = hits[ block_start, block_length ]
+       puts( "STATUS: processing fulltext...")
+       process_eebo_fulltext( block )
+       RegenerateRdf.regenerate_all(block, "#{RDF_PATH}/arc_rdf_eebo/#{sprintf( "%03d", block_num )}", "EEBO", 1000000, block_num * 1000 )
+       block_num += 1
+    end
     finish_line(start_time)
   end
 
