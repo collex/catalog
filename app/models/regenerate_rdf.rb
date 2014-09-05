@@ -37,10 +37,21 @@ class RegenerateRdf
 
 	private
 	def self.start_file(output_folder, file_prefix, file_number)
-		filename = "#{output_folder}/#{file_prefix}_#{file_number}.rdf"
+
+    outdir = "#{output_folder}/#{sprintf( "%03d", file_number / 1000 )}"
+
+    if Dir.exist?( outdir ) == false
+      begin
+        Dir.mkdir( outdir )
+      rescue
+        # It's ok to fail: it probably means the folder already exists.
+      end
+    end
+
+		filename = "#{outdir}/#{file_prefix}_#{file_number}.rdf"
+    puts "Creating #{filename}..."
 		file = File.new(filename, 'w')
 		file << self.header()
-		puts "Creating #{filename}..."
 		return file_number+1, file
 	end
 	
