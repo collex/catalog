@@ -38,7 +38,7 @@ class RegenerateRdf
 	private
 	def self.start_file(output_folder, file_prefix, file_number)
 
-		filename = "#{output_folder}/#{file_prefix}_#{sprintf( "%05d", file_number )}.rdf"
+		filename = "#{output_folder}/#{file_prefix}_#{sprintf( "%04d", file_number )}.rdf"
     puts "Creating #{filename}..."
 		file = File.new(filename, 'w')
 		file << self.header()
@@ -178,6 +178,12 @@ class RegenerateRdf
 				  self.gen_item(ret, key, self.format_item("collex:freeculture", val))
 			  when 'source'
 				  self.gen_item(ret, key, self.format_item("dc:source", val))
+        when 'year_sort_asc'
+          # just ignore this
+        when 'year_sort_desc'
+          # just ignore this
+        when 'typewright'
+          # just ignore this
 			  else
 				  puts "Unhandled key: #{key}=#{val.to_s}"
 			  end
