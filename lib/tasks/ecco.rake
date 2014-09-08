@@ -111,7 +111,7 @@ namespace :ecco do
 		process_ecco_fulltext(hits)
     puts("Marking for typewright...")
     mark_for_typewright( hits )
-		RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/marc/ECCO", "ECCO", 500000)
+		RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/arc_rdf_ECCO", "ECCO", 500000)
 		finish_line(start_time)
 	end
 
