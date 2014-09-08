@@ -237,7 +237,7 @@ namespace :ecco do
     filename = "ecco_tw_enabled.txt"
     File.foreach(filename) { |line|
       line.strip!
-      puts "Adding lib://ECCO/#{line}"
+      #puts "Adding lib://ECCO/#{line}"
       typewright_list.push( "lib://ECCO/#{line}" )
     }
     return( typewright_list )
