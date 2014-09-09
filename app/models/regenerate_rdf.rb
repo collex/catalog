@@ -89,7 +89,7 @@ class RegenerateRdf
 		str = "<#{main_node} rdf:about=\"#{uri}\">\n"
 		items = self.format_items(obj)
 		# list them in the same order each time
-		keys = [ 'archive', 'freeculture', 'has_full_text', 'is_ocr', 'genre', 'text', 'title', 'role_AUT', 'federation', 'role_PBL', 'date_label', 'url', 'source', 'doc_type', 'discipline' ]
+		keys = [ 'archive', 'freeculture', 'has_full_text', 'is_ocr', 'genre', 'text', 'title', 'role_AUT', 'federation', 'role_PBL', 'date_label', 'url', 'source', 'doc_type', 'discipline', 'typewright' ]
 		keys.each {|key|
 			if items[key]
 				items[key].each {|it|

@@ -222,11 +222,11 @@ namespace :ecco do
   def mark_for_typewright( hits )
 
     typewright_list = load_typewright_list( )
-    hits.each{ |hit|
+    hits.each_with_index{ |hit, i|
        if typewright_list.include? hit['uri'].strip
-         hit['typewright'] = true
+         hits[ i ]['typewright'] = true
        else
-         hit['typewright'] = false
+         hits[ i ]['typewright'] = false
        end
     }
   end
