@@ -109,7 +109,9 @@ namespace :ecco do
 		hits.sort! { |a,b| a['uri'] <=> b['uri'] }
 		puts("Processing fulltext...")
 		process_ecco_fulltext(hits)
-		RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/marc/ECCO", "ECCO", 500000)
+    puts("Marking for typewright...")
+    mark_for_typewright( hits )
+		RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/arc_rdf_ECCO", "ECCO", 500000)
 		finish_line(start_time)
 	end
 
@@ -216,5 +218,29 @@ namespace :ecco do
 		}
 		return -1
 	end
+
+  def mark_for_typewright( hits )
+
+    typewright_list = load_typewright_list( )
+    hits.each{ |hit|
+       if typewright_list.include? hit['uri'].strip
+         hit['typewright'] = true
+       else
+         hit['typewright'] = false
+       end
+    }
+  end
+
+  def load_typewright_list( )
+
+    typewright_list = []
+    filename = "ecco_tw_enabled.txt"
+    File.foreach(filename) { |line|
+      line.strip!
+      #puts "Adding lib://ECCO/#{line}"
+      typewright_list.push( "lib://ECCO/#{line}" )
+    }
+    return( typewright_list )
+  end
 
 end

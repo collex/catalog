@@ -125,10 +125,13 @@ namespace :solr_index do
 			when :debug
 				flags = "-mode test"
 				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_error.log]"
+			when :resolve
+				flags = "-mode resolve"
+				puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_error.log]"
 		end
 
 		if flags == nil
-			puts "Call with either :spider, :index or :debug"
+			puts "Call with either :spider, :index, :resolve or :debug"
 		else
 			folders = get_folders(RDF_PATH, archive)
 			if folders[:error]
@@ -296,6 +299,11 @@ namespace :solr_index do
 			index_archive("Index", archive, :index)
 			test_archive(archive)
 		}
+	end
+
+	desc "Resolve any document references (isPartOf, hasPart) in the specified archive (param: archive=XXX,YYY)"
+	task :resolve  => :environment do
+		do_archive { |archive| index_archive("Resolve", archive, :resolve) }
 	end
 
 	desc "Spider the archive for the full text and place results in rawtext. No indexing performed. (param: archive=XXX,YYY)"
