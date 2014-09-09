@@ -236,7 +236,12 @@ class Solr
 	end
 
 	def search(options, overrides = {})
-		options = add_facet_param(options, @facet_fields) if overrides[:no_facets] == nil
+    facets = @facet_fields
+    facets = options['facet'] if options['facet'].nil? == false
+    options.delete('facet' )
+
+		options = add_facet_param(options, facets) if overrides[:no_facets] == nil
+
 		fields = overrides[:field_list] ? overrides[:field_list] : @field_list
 		options = add_field_list_param(options, fields)
 		key_field = overrides[:key_field] ? overrides[:key_field] : 'uri'
