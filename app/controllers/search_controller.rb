@@ -86,7 +86,7 @@ class SearchController < ApplicationController
 		begin
 			QueryFormat.transform_raw_parameters(params)
 			query = QueryFormat.create_solr_query(query_params, params, request.remote_ip)
-			query['field'] = "content_auto"
+			query['field'] = "content_auto" if query['field'].blank?
 			is_test = Rails.env == 'test' ? :test : :live
 			is_test = :shards if params[:test_index]
 			solr = Solr.factory_create(is_test)
