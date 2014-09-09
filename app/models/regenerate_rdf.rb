@@ -37,11 +37,10 @@ class RegenerateRdf
 
 	private
 	def self.start_file(output_folder, file_prefix, file_number)
-
-		filename = "#{output_folder}/#{file_prefix}_#{sprintf( "%04d", file_number )}.rdf"
-    puts "Creating #{filename}..."
+		filename = "#{output_folder}/#{file_prefix}_#{file_number}.rdf"
 		file = File.new(filename, 'w')
 		file << self.header()
+		puts "opening #{filename}..."
 		return file_number+1, file
 	end
 	
@@ -64,9 +63,10 @@ class RegenerateRdf
 		}
 	end
 
-	def self.regenerate_all( hits, output_folder, file_prefix, target_size = 250000, file_number = 1000 )
+	def self.regenerate_all(hits, output_folder, file_prefix, target_size = 250000)
 		self.safe_mkdir(output_folder)
 		size = 0
+		file_number = 1000
 		file_number, file = self.start_file(output_folder, file_prefix, file_number)
 		hits.each {|hit|
 			#puts "generating: #{hit['uri']}..."
@@ -123,11 +123,14 @@ class RegenerateRdf
 			  when 'text'
 				 self.gen_item(ret, key, self.format_item("collex:text", val))
 			  when 'date_label'
+				  # year and date_label are put in at the same time, so we'll look for year here and ignore it when it naturally comes up.
 				  year = obj['year']
-          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year)}\t</collex:date></dc:date>\n") if year.nil? == false
+				  year = obj[:year] if year == nil
+				  year = obj['date_label'] if year == nil
+				  year = obj[:date_label] if year == nil
+				  self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year[i]) if year[i]}\t</collex:date></dc:date>\n") if year != nil
 			  when 'year'
-          label = obj['date_label']
-          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", label)}\t#{self.format_item("rdf:value", val)}\t</collex:date></dc:date>\n") if label.nil? == false
+				  #nothing here: handled above
 			  when 'uri'
 				  # just ignore the uri: we've used it already
 			  when 'score'
@@ -178,12 +181,6 @@ class RegenerateRdf
 				  self.gen_item(ret, key, self.format_item("collex:freeculture", val))
 			  when 'source'
 				  self.gen_item(ret, key, self.format_item("dc:source", val))
-        when 'year_sort_asc'
-          # just ignore this
-        when 'year_sort_desc'
-          # just ignore this
-        when 'typewright'
-          # just ignore this
 			  else
 				  puts "Unhandled key: #{key}=#{val.to_s}"
 			  end
