@@ -181,6 +181,12 @@ class RegenerateRdf
 				  self.gen_item(ret, key, self.format_item("collex:freeculture", val))
 			  when 'source'
 				  self.gen_item(ret, key, self.format_item("dc:source", val))
+        when 'typewright'
+          self.gen_item(ret, key, self.format_item("collex:typewright", val))
+        when 'year_sort_asc'
+           # just ignore this
+        when 'year_sort_desc'
+           # just ignore this
 			  else
 				  puts "Unhandled key: #{key}=#{val.to_s}"
 			  end

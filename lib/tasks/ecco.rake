@@ -105,10 +105,10 @@ namespace :ecco do
 		puts("Processing spreadsheets...")
 		hits = []
 		process_ecco_spreadsheets(hits)
-		puts("Sorting...")
-		hits.sort! { |a,b| a['uri'] <=> b['uri'] }
 		puts("Processing fulltext...")
 		process_ecco_fulltext(hits)
+    puts("Sorting...")
+    hits.sort! { |a,b| a['uri'] <=> b['uri'] }
     puts("Marking for typewright...")
     mark_for_typewright( hits )
 		RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/arc_rdf_ECCO", "ECCO", 500000)
