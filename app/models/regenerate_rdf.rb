@@ -133,23 +133,23 @@ class RegenerateRdf
 				 self.gen_item(ret, key, self.format_item("collex:text", val))
 
         # ECCO style
-        when 'date_label'
-           # year and date_label are put in at the same time, so we'll look for year here and ignore it when it naturally comes up.
-           year = obj['year']
-           year = obj[:year] if year == nil
-           year = obj['date_label'] if year == nil
-           year = obj[:date_label] if year == nil
-           self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year[i]) if year[i]}\t</collex:date></dc:date>\n") if year != nil
-        when 'year'
-           #nothing here: handled above
+        #when 'date_label'
+        #   # year and date_label are put in at the same time, so we'll look for year here and ignore it when it naturally comes up.
+        #   year = obj['year']
+        #   year = obj[:year] if year == nil
+        #   year = obj['date_label'] if year == nil
+        #   year = obj[:date_label] if year == nil
+        #   self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year[i]) if year[i]}\t</collex:date></dc:date>\n") if year != nil
+        #when 'year'
+        #   #nothing here: handled above
 
         # EEBO style
-			  #when 'date_label'
-				#  year = obj['year']
-        #  self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year)}\t</collex:date></dc:date>\n") if year.nil? == false
-			  #when 'year'
-        #  label = obj['date_label']
-        #  self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", label)}\t#{self.format_item("rdf:value", val)}\t</collex:date></dc:date>\n") if label.nil? == false
+			  when 'date_label'
+				  year = obj['year']
+          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year)}\t</collex:date></dc:date>\n") if year.nil? == false
+			  when 'year'
+          label = obj['date_label']
+          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", label)}\t#{self.format_item("rdf:value", val)}\t</collex:date></dc:date>\n") if label.nil? == false
 
         when 'uri'
 				  # just ignore the uri: we've used it already
