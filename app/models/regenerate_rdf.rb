@@ -64,22 +64,27 @@ class RegenerateRdf
 		}
 	end
 
-	def self.regenerate_all( hits, output_folder, file_prefix, target_size = 250000, file_number = 1000 )
-		self.safe_mkdir(output_folder)
+	def self.regenerate_all( hits, output_base, file_prefix, target_size = 250000, file_number = 1000 )
+    output_folder =  "#{output_base}/#{sprintf( "%03d", file_number / 1000 )}"
+    self.safe_mkdir( output_folder )
+
 		size = 0
-		file_number, file = self.start_file(output_folder, file_prefix, file_number)
+		file_number, file = self.start_file( output_folder, file_prefix, file_number)
 		hits.each {|hit|
 			#puts "generating: #{hit['uri']}..."
 			str = self.regenerate_obj(hit)
 			file << str
 			size += str.length
-			if size > target_size
+			if size >= target_size
 				self.stop_file(file)
-				file_number, file = self.start_file(output_folder, file_prefix, file_number)
+        file_number, file = self.start_file(output_folder, file_prefix, file_number)
+        output_folder =  "#{output_base}/#{sprintf( "%03d", file_number / 1000 )}"
+        self.safe_mkdir( output_folder )
 				size = 0
 			end
 		}
 		self.stop_file(file)
+    return( file_number )
 	end
 
 	def self.regenerate_obj(obj)
@@ -89,7 +94,7 @@ class RegenerateRdf
 		str = "<#{main_node} rdf:about=\"#{uri}\">\n"
 		items = self.format_items(obj)
 		# list them in the same order each time
-		keys = [ 'archive', 'freeculture', 'has_full_text', 'is_ocr', 'genre', 'text', 'title', 'role_AUT', 'federation', 'role_PBL', 'date_label', 'url', 'source', 'doc_type', 'discipline' ]
+		keys = [ 'archive', 'freeculture', 'has_full_text', 'is_ocr', 'genre', 'text', 'title', 'role_AUT', 'federation', 'role_PBL', 'date_label', 'url', 'source', 'doc_type', 'discipline', 'typewright' ]
 		keys.each {|key|
 			if items[key]
 				items[key].each {|it|
@@ -183,7 +188,7 @@ class RegenerateRdf
         when 'year_sort_desc'
           # just ignore this
         when 'typewright'
-          # just ignore this
+          self.gen_item(ret, key, self.format_item("collex:typewright", val))
 			  else
 				  puts "Unhandled key: #{key}=#{val.to_s}"
 			  end

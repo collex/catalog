@@ -16,114 +16,6 @@
 ##########################################################################
 
 namespace :eebo do
-  desc "Mark texts for typewright (param: archive=EEBO file=/text/file/path/one/item/per/line  uri=lib://eebo/1234)"
-  task :typewright_enable => :environment do
-
-    file = ENV['file']
-    uri = ENV['uri']
-    archive = ENV['archive']
-    if (file == nil and uri == nil) or archive == nil
-      puts "Usage: call with archive=name with either file= or uri=\n" +
-           "       file=/text/file\nThe text file should have a list of 10-digit numbers, with one of them per line."
-    elsif uri != nil
-      start_time = Time.now
-      src = Solr.factory_create(:live)
-      dst = Solr.new("archive_#{archive}")
-      has_dot = false
-      num_added = 0
-      num_missing = 0
-      begin
-        obj = src.full_object(uri)
-        obj['typewright'] = true
-        dst.add_object(obj, false, false)
-        print '.'
-        has_dot = true
-        num_added += 1
-      rescue SolrException => e
-        puts "" if has_dot
-        has_dot = false
-        puts e.to_s
-        num_missing += 1
-      end
-
-      dst.commit()
-      puts "\nNumber of documents added to typewright: #{num_added}"
-      puts "Number of documents not found: #{num_missing}"
-      puts "All items processed into the test index. If the test index looks correct, then merge it into the live index with:"
-      puts "rake solr_index:merge_archive archive=#{archive}"
-      finish_line(start_time)
-
-    elsif file == nil
-      start_time = Time.now
-      src = Solr.factory_create(:live)
-      dst = Solr.new("archive_#{archive}")
-      has_dot = false
-      num_added = 0
-      num_missing = 0
-      File.open(file).each_line{ |text|
-        uri = "#{text.strip()}"
-        begin
-          obj = src.full_object(uri)
-          obj['typewright'] = true
-          dst.add_object(obj, false, false)
-          print '.'
-          has_dot = true
-          num_added += 1
-        rescue SolrException => e
-          puts "" if has_dot
-          has_dot = false
-          puts e.to_s
-          num_missing += 1
-        end
-      }
-
-      dst.commit()
-      puts "\nNumber of documents added to typewright: #{num_added}"
-      puts "Number of documents not found: #{num_missing}"
-      puts "All items processed into the test index. If the test index looks correct, then merge it into the live index with:"
-      puts "rake solr_index:merge_archive archive=#{archive}"
-      finish_line(start_time)
-    end
-  end
-
-  desc "Unmark texts for typewright (param: [0000000000-0000000001-0000000002])"
-  task :typewright_disable, [:uris] => :environment  do |t, args|
-    uris = args[:uris]
-    if uris == nil
-      puts "Usage: call with [0000000000-0000000001-0000000002]\nThe parameters are a list of 10-digit numbers, with dashes in between."
-    else
-      start_time = Time.now
-      src = Solr.factory_create(:live)
-      dst = Solr.new("archive_EEBO")
-      has_dot = false
-      num_added = 0
-      num_missing = 0
-      uris = uris.split('-')
-      uris.each{ |text|
-        uri = "lib\\://EEBO/#{text.strip()}"
-        begin
-          obj = src.full_object(uri)
-          obj['typewright'] = false
-          dst.add_object(obj, false, false)
-          print '.'
-          has_dot = true
-          num_added += 1
-        rescue SolrException => e
-          puts "" if has_dot
-          has_dot = false
-          puts e.to_s
-          num_missing += 1
-        end
-      }
-
-      dst.commit()
-      puts "\nNumber of documents removed from typewright: #{num_added}"
-      puts "Number of documents not found: #{num_missing}"
-      puts "All items processed into the test index. If the test index looks correct, then merge it into the live index with:"
-      puts "rake solr_index:merge_archive archive=EEBO"
-      finish_line(start_time)
-    end
-  end
 
   desc "Create all the RDF files for EEBO documents, using eMOP database records."
   task :create_rdf => :environment do
@@ -138,8 +30,9 @@ namespace :eebo do
     resolve_eebo_source(hits)
 
     total_size = hits.size
-    block_size = 10000
+    block_size = 5000
     block_num = 0
+    file_num = 1000
     done = false
     while done == false
        block_start = block_num * block_size
@@ -153,14 +46,14 @@ namespace :eebo do
        block = hits[ block_start, block_length ]
        puts( "STATUS: processing fulltext...")
        process_eebo_fulltext( block )
-       RegenerateRdf.regenerate_all(block, "#{RDF_PATH}/arc_rdf_eebo/#{sprintf( "%03d", block_num )}", "EEBO", 1000000, block_num * 1000 )
+       file_num = RegenerateRdf.regenerate_all(block, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 1000000, file_num )
        block_num += 1
     end
     finish_line(start_time)
   end
 
   def process_eebo_entries(hits, max_recs = 9999999)
-#  def process_eebo_entries(hits, max_recs = 500)
+#  def process_eebo_entries(hits, max_recs = 25000)
 
     total_recs = 0
     Work.find_each do | work |
@@ -169,7 +62,7 @@ namespace :eebo do
         obj[ 'archive' ] = "EEBO"
         obj[ 'federation' ] = "18thConnect"
 
-        obj['uri'] = CGI.escapeHTML( "#{work.wks_eebo_url}-#{work.wks_eebo_citation_id}" )
+        obj['uri'] = "lib://EEBO/#{sprintf( "%010d", work.wks_eebo_image_id )}-#{sprintf( "%010d", work.wks_eebo_citation_id)}"
         obj['url'] = "#{work.wks_eebo_url.gsub(/(.*):image:\d+$/, '\1')}:citation:#{work.wks_eebo_citation_id}"
 
         obj['title'] = work.wks_title
@@ -266,8 +159,6 @@ namespace :eebo do
           puts "WARNING: #{textfile} does not exist or not readable"
         end
       else
-        #obj['is_ocr'] = true
-        #obj['has_full_text'] = true
       end
 
       obj.delete( 'wks_marc_record' )
@@ -293,4 +184,5 @@ namespace :eebo do
      end
 
   end
+
 end
