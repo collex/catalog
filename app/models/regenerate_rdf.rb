@@ -64,8 +64,10 @@ class RegenerateRdf
 		}
 	end
 
-	def self.regenerate_all( hits, output_base, file_prefix, target_size = 250000, file_number = 1000 )
-    output_folder =  "#{output_base}/#{sprintf( "%03d", file_number / 1000 )}"
+	def self.regenerate_all( hits, output_base, file_prefix, target_size = 250000, file_number = 1000, partition = true )
+
+    output_folder = output_base unless partition == true
+    output_folder =  "#{output_base}/#{sprintf( "%03d", file_number / 1000 )}" if partition == true
     self.safe_mkdir( output_folder )
 
 		size = 0
@@ -78,8 +80,10 @@ class RegenerateRdf
 			if size >= target_size
 				self.stop_file(file)
         file_number, file = self.start_file(output_folder, file_prefix, file_number)
-        output_folder =  "#{output_base}/#{sprintf( "%03d", file_number / 1000 )}"
-        self.safe_mkdir( output_folder )
+        if partition == true
+           output_folder =  "#{output_base}/#{sprintf( "%03d", file_number / 1000 )}"
+           self.safe_mkdir( output_folder )
+        end
 				size = 0
 			end
 		}
@@ -127,13 +131,27 @@ class RegenerateRdf
 				  self.gen_item(ret, key, self.format_item("dc:title", val))
 			  when 'text'
 				 self.gen_item(ret, key, self.format_item("collex:text", val))
-			  when 'date_label'
-				  year = obj['year']
-          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year)}\t</collex:date></dc:date>\n") if year.nil? == false
-			  when 'year'
-          label = obj['date_label']
-          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", label)}\t#{self.format_item("rdf:value", val)}\t</collex:date></dc:date>\n") if label.nil? == false
-			  when 'uri'
+
+        # ECCO style
+        when 'date_label'
+           # year and date_label are put in at the same time, so we'll look for year here and ignore it when it naturally comes up.
+           year = obj['year']
+           year = obj[:year] if year == nil
+           year = obj['date_label'] if year == nil
+           year = obj[:date_label] if year == nil
+           self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year[i]) if year[i]}\t</collex:date></dc:date>\n") if year != nil
+        when 'year'
+           #nothing here: handled above
+
+        # EEBO style
+			  #when 'date_label'
+				#  year = obj['year']
+        #  self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year)}\t</collex:date></dc:date>\n") if year.nil? == false
+			  #when 'year'
+        #  label = obj['date_label']
+        #  self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", label)}\t#{self.format_item("rdf:value", val)}\t</collex:date></dc:date>\n") if label.nil? == false
+
+        when 'uri'
 				  # just ignore the uri: we've used it already
 			  when 'score'
 				  # just ignore the score

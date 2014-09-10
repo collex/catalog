@@ -46,7 +46,9 @@ namespace :eebo do
        block = hits[ block_start, block_length ]
        puts( "STATUS: processing fulltext...")
        process_eebo_fulltext( block )
-       file_num = RegenerateRdf.regenerate_all(block, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 1000000, file_num )
+
+       # use an EEBO prefix, max size 1MB, start at # 1000 and partition into subdirs
+       file_num = RegenerateRdf.regenerate_all(block, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 1000000, file_num, true )
        block_num += 1
     end
     finish_line(start_time)

@@ -18,6 +18,7 @@
 namespace :ecco do
 	desc "Mark archive_ECCO texts for typewright (param: file=/text/file/path/one/item/per/line)"
 	task :typewright_enable => :environment do
+
 		file = ENV['file']
 		if file == nil
 			puts "Usage: call with file=/text/file\nThe text file should have a list of 10-digit numbers, with one of them per line."
@@ -105,13 +106,18 @@ namespace :ecco do
 		puts("Processing spreadsheets...")
 		hits = []
 		process_ecco_spreadsheets(hits)
+    puts("Sorting...")
+    hits.sort! { |a,b| a['uri'] <=> b['uri'] }  # sort here so we can determine duplicates quickly
 		puts("Processing fulltext...")
 		process_ecco_fulltext(hits)
-    puts("Sorting...")
-    hits.sort! { |a,b| a['uri'] <=> b['uri'] }
     puts("Marking for typewright...")
     mark_for_typewright( hits )
-		RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/arc_rdf_ECCO", "ECCO", 500000)
+
+    puts("Sorting...")
+    hits.sort! { |a,b| a['uri'] <=> b['uri'] }  # sort here so out output is in uri order
+
+    # use an ECCO prefix, max size 500K, start at # 1000 and dont partition into subdirs
+		RegenerateRdf.regenerate_all(hits, "#{RDF_PATH}/arc_rdf_ECCO", "ECCO", 500000, 1000, false )
 		finish_line(start_time)
 	end
 
