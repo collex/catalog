@@ -55,9 +55,16 @@ namespace :eebo do
   def process_eebo_entries(hits, max_recs = 9999999)
 #  def process_eebo_entries(hits, max_recs = 25000)
 
+    filter_out = load_filter_list( )
     total_recs = 0
     Work.find_each do | work |
       if work.isEEBO?
+
+        # ignore any items on the filter out list
+        if filter_out.include?( work.wks_eebo_image_id.strip ) == true
+          next
+        end
+
         obj = {}
 
         # special fields used in the subsequent steps
@@ -69,7 +76,7 @@ namespace :eebo do
         obj[ 'archive' ] = "EEBO"
         obj[ 'federation' ] = "18thConnect"
 
-        obj['uri'] = "lib://EEBO/#{obj[ 'eebo_dir' ]}-#{sprintf( "%010d", work.wks_eebo_image_id )}-#{sprintf( "%010d", work.wks_eebo_citation_id)}"
+        obj['uri'] = "lib://EEBO/#{sprintf( "%010d", work.wks_eebo_image_id )}-#{sprintf( "%010d", work.wks_eebo_citation_id)}"
         obj['url'] = "#{work.wks_eebo_url.gsub(/(.*):image:\d+$/, '\1')}:citation:#{work.wks_eebo_citation_id}"
 
         obj['title'] = work.wks_title
@@ -166,6 +173,18 @@ namespace :eebo do
       obj.delete( 'image_id' )
       obj.delete( 'eebo_dir' )
     }
+  end
+
+  def load_filter_list
+
+    filter_list = []
+    filename = "eebo_metadata/filter.txt"
+    File.foreach(filename) { |line|
+      line.strip!
+      filter_list.push( line )
+    }
+    return( filter_list )
+
   end
 
   def fix_date( date )
