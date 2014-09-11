@@ -61,10 +61,17 @@ namespace :eebo do
     Work.find_each do | work |
       if work.isEEBO?
         obj = {}
+
+        # special fields used in the subsequent steps
+        tokens = work.wks_eebo_directory.split( "/" )
+        obj[ 'wks_marc_record' ] = work.wks_marc_record
+        obj[ 'image_id' ] = tokens[ tokens.size - 1 ]
+        obj[ 'eebo_dir' ] = tokens[ tokens.size - 2 ]
+
         obj[ 'archive' ] = "EEBO"
         obj[ 'federation' ] = "18thConnect"
 
-        obj['uri'] = "lib://EEBO/#{sprintf( "%010d", work.wks_eebo_image_id )}-#{sprintf( "%010d", work.wks_eebo_citation_id)}"
+        obj['uri'] = "lib://EEBO/#{obj[ 'eebo_dir' ]}-#{sprintf( "%010d", work.wks_eebo_image_id )}-#{sprintf( "%010d", work.wks_eebo_citation_id)}"
         obj['url'] = "#{work.wks_eebo_url.gsub(/(.*):image:\d+$/, '\1')}:citation:#{work.wks_eebo_citation_id}"
 
         obj['title'] = work.wks_title
@@ -81,12 +88,6 @@ namespace :eebo do
 
         obj['role_AUT'] = work.wks_author
         obj['role_PBL'] = work.wks_publisher
-
-        # special fields used in the next steps
-        tokens = work.wks_eebo_directory.split( "/" )
-        obj[ 'wks_marc_record' ] = work.wks_marc_record
-        obj[ 'image_id' ] = tokens[ tokens.size - 1 ]
-        obj[ 'eebo_dir' ] = tokens[ tokens.size - 2 ]
 
         hits.push(obj)
         total_recs += 1
