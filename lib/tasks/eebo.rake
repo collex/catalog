@@ -29,27 +29,25 @@ namespace :eebo do
     puts("STATUS: resolving source...")
     resolve_eebo_source(hits)
 
-    total_size = hits.size
-    block_size = 5000
-    block_num = 0
+    block_size = 10000
     file_num = 1000
-    done = false
-    while done == false
-       block_start = block_num * block_size
-       if total_size > block_start + block_size
-         block_length = block_size
-       else
-         block_length = total_size - block_start
-         done = true
-       end
-       #puts( "start #{block_start}, length #{block_length}")
-       block = hits[ block_start, block_length ]
+    while true
+
+       remaining = [ hits.size, block_size ].min
+       break if remaining == 0
+
        puts( "STATUS: processing fulltext...")
+       puts "remaining = #{remaining}"
+       block = hits[ 0, remaining ]
        process_eebo_fulltext( block )
 
        # use an EEBO prefix, max size 1MB, start at # 1000 and partition into subdirs
-       file_num = RegenerateRdf.regenerate_all(block, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 1000000, file_num, true )
-       block_num += 1
+       file_num = RegenerateRdf.regenerate_all( block, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 1000000, file_num, true )
+
+       while remaining != 0
+         hits.delete_at( 0 )
+         remaining -= 1
+       end
     end
     finish_line(start_time)
   end
