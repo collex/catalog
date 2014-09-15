@@ -1,8 +1,11 @@
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :exception
-	before_filter :dup_params
+  #protect_from_forgery with: :exception
+  protect_from_forgery
+	before_filter :dup_params, :check_auth
+
+  PRIVATE_TOKEN =  Rails.application.secrets.authentication['private_token']
 
 	def must_be_logged_in
 		unless user_signed_in?
@@ -40,5 +43,16 @@ class ApplicationController < ActionController::Base
 				end
 			}
 		end
-	end
+  end
+
+  private
+  def check_auth
+    return true # remove me
+    x_auth_key = request.headers['HTTP_X_AUTH_KEY']
+    params_token = params[:private_token]
+    auth_token = x_auth_key
+    auth_token = params_token if x_auth_key.nil? || x_auth_key.blank?
+    return PRIVATE_TOKEN == auth_token
+  end
+
 end
