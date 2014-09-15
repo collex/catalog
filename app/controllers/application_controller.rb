@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   #protect_from_forgery with: :exception
   protect_from_forgery
-	before_filter :dup_params, :check_auth
+	before_filter :dup_params
 
   PRIVATE_TOKEN =  Rails.application.secrets.authentication['private_token']
 
@@ -45,9 +45,7 @@ class ApplicationController < ActionController::Base
 		end
   end
 
-  private
   def check_auth
-    return true # remove me
     x_auth_key = request.headers['HTTP_X_AUTH_KEY']
     params_token = params[:private_token]
     auth_token = x_auth_key

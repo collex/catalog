@@ -1,5 +1,7 @@
 class LocalsController < ApplicationController
 
+  before_filter :check_auth, :only => [:create, :update, :destroy]
+
 	# Since it is so hard to test these calls with capybara, there are a couple fake calls that are just gets.
 	# They are only available from localhost, so it isn't a security hole.
 	def test_search_good()
