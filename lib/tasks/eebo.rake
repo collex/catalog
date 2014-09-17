@@ -17,6 +17,90 @@
 
 namespace :eebo do
 
+  desc "Mark archive_EEBO texts for typewright (param: file=/text/file/path/one/item/per/line)"
+  task :typewright_enable, [:file] => :environment do |t, args|
+
+    file = args[:file]
+    if file == nil
+      puts "Usage: call with file=/text/file\nThe text file should have a list of EEBO uri's, with one of them per line."
+    else
+      start_time = Time.now
+      dst = Solr.new("archive_EEBO")
+      has_dot = false
+      num_added = 0
+      num_missing = 0
+      count = 0
+      File.open(file).each_line{ |text|
+        uri = text.strip( )
+        begin
+          print "\n#{count}" if count % 1000 == 0
+          print '.' if count % 50 == 0
+          count += 1
+
+          obj = dst.full_object(uri)
+          obj['typewright'] = true
+          dst.add_object(obj, false, false)
+          has_dot = true
+          num_added += 1
+        rescue SolrException => e
+          puts "" if has_dot
+          has_dot = false
+          puts e.to_s
+          num_missing += 1
+        end
+      }
+
+      dst.commit()
+      puts "\nNumber of documents added to typewright: #{num_added}"
+      puts "Number of documents not found: #{num_missing}"
+      puts "All items processed into the test index. If the test index looks correct, then merge it into the live index with:"
+      puts "rake solr_index:merge_archive archive=EEBO"
+      finish_line(start_time)
+    end
+  end
+
+  desc "Unmark archive_EEBO texts for typewright (param: file=/text/file/path/one/item/per/line)"
+  task :typewright_disable, [:file] => :environment  do |t, args|
+
+    file = args[:file]
+    if file == nil
+      puts "Usage: call with file=/text/file\nThe text file should have a list of EEBO uri's, with one of them per line."
+    else
+      start_time = Time.now
+      dst = Solr.new("archive_EEBO")
+      has_dot = false
+      num_removed = 0
+      num_missing = 0
+      count = 0
+      File.open(file).each_line{ |text|
+        uri = text.strip( )
+        begin
+          print "\n#{count}" if count % 1000 == 0
+          print '.' if count % 50 == 0
+          count += 1
+
+          obj = dst.full_object(uri)
+          obj['typewright'] = false
+          dst.add_object(obj, false, false)
+          has_dot = true
+          num_removed += 1
+        rescue SolrException => e
+          puts "" if has_dot
+          has_dot = false
+          puts e.to_s
+          num_missing += 1
+        end
+      }
+
+      dst.commit()
+      puts "\nNumber of documents renmoved from typewright: #{num_removed}"
+      puts "Number of documents not found: #{num_missing}"
+      puts "All items processed into the test index. If the test index looks correct, then merge it into the live index with:"
+      puts "rake solr_index:merge_archive archive=EEBO"
+      finish_line(start_time)
+    end
+  end
+
   desc "Create all the RDF files for EEBO documents, using eMOP database records."
   task :create_rdf => :environment do
     start_time = Time.now
