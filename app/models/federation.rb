@@ -9,6 +9,10 @@ class Federation < ActiveRecord::Base
 	validates_attachment_content_type :thumbnail, :content_type => ['image/jpeg', 'image/png', 'image/gif'], :unless => Proc.new {|m| m[:thumbnail].nil?}
 
 	def self.request_from_federation(ip)
+		# If the ip is on the white list, it can be used.
+		white_list = WhiteList.where(ip: ip)
+		return true if white_list.length > 0
+
 		# This checks to see if the ip address of the caller matches any of the federations.
 		fed = Federation.find_by({ ip: ip })
 		#return false
