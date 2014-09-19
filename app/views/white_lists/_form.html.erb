@@ -12,10 +12,14 @@
   <% end %>
 
   <div class="field">
-    <%= f.label :ip %><br>
+    <%= f.label :ip, "IP" %><br>
     <%= f.text_field :ip %>
   </div>
+	<div class="field">
+    <%= f.label :comment, "Why does this IP address get access to private content?" %><br>
+    <%= f.text_field :comment %>
+  </div>
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit "Add IP" %>
   </div>
 <% end %>

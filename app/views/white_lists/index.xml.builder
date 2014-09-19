@@ -8,6 +8,8 @@ xml.white_lists do
 		xml.text!("\n    ")
 		xml.name white_list[:ip]
 		xml.text!("\n  ")
+		xml.name white_list[:comment]
+		xml.text!("\n  ")
 	end
 end
 xml.text!("\n")

@@ -69,6 +69,6 @@ class WhiteListsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def white_list_params
-      params.require(:white_list).permit(:ip)
+      params.require(:white_list).permit(:ip, :comment)
     end
 end

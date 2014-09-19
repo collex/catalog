@@ -86,6 +86,7 @@ ActiveRecord::Schema.define(version: 20140919190141) do
 
   create_table "white_lists", force: true do |t|
     t.string   "ip"
+    t.string   "comment"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
