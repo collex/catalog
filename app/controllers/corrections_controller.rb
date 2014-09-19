@@ -6,6 +6,9 @@ require 'rest_client'
 # same results
 #
 class CorrectionsController < ApplicationController
+
+  before_filter :check_auth
+
   require 'uri'
   
   def create

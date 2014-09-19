@@ -48,6 +48,13 @@ Rails.application.routes.draw do
 
 	get "/test_exception_notifier" => "home#test_exception_notifier"
 
+  # enable/disable typewright status in SOLR
+  put "/documents/tw/enable" => "documents#typewright_enable"
+  put "/documents/tw/disable" => "documents#typewright_disable"
+
+  # get document title given a URI
+  get "/documents/title" => "documents#title"
+
 	# The priority is based upon order of creation:
   # first created -> highest priority.
 

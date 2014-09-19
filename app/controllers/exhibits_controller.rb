@@ -1,4 +1,7 @@
 class ExhibitsController < ApplicationController
+
+  before_filter :check_auth, :only => [:create, :destroy]
+
 	# This is the way to get exhibits indexed. Only authorized federations can use it.
 	#
 	# There are two entry points:

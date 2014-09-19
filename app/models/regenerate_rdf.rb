@@ -37,10 +37,11 @@ class RegenerateRdf
 
 	private
 	def self.start_file(output_folder, file_prefix, file_number)
-		filename = "#{output_folder}/#{file_prefix}_#{file_number}.rdf"
+
+		filename = "#{output_folder}/#{file_prefix}_#{sprintf( "%04d", file_number )}.rdf"
+    puts "Creating #{filename}..."
 		file = File.new(filename, 'w')
 		file << self.header()
-		puts "opening #{filename}..."
 		return file_number+1, file
 	end
 	
@@ -63,23 +64,31 @@ class RegenerateRdf
 		}
 	end
 
-	def self.regenerate_all(hits, output_folder, file_prefix, target_size = 250000)
-		self.safe_mkdir(output_folder)
+	def self.regenerate_all( hits, output_base, file_prefix, target_size = 250000, file_number = 1000, partition = true )
+
+    output_folder = output_base unless partition == true
+    output_folder =  "#{output_base}/#{sprintf( "%03d", file_number / 1000 )}" if partition == true
+    self.safe_mkdir( output_folder )
+
 		size = 0
-		file_number = 1000
-		file_number, file = self.start_file(output_folder, file_prefix, file_number)
+		file_number, file = self.start_file( output_folder, file_prefix, file_number)
 		hits.each {|hit|
 			#puts "generating: #{hit['uri']}..."
 			str = self.regenerate_obj(hit)
 			file << str
 			size += str.length
-			if size > target_size
+			if size >= target_size
 				self.stop_file(file)
-				file_number, file = self.start_file(output_folder, file_prefix, file_number)
+        file_number, file = self.start_file(output_folder, file_prefix, file_number)
+        if partition == true
+           output_folder =  "#{output_base}/#{sprintf( "%03d", file_number / 1000 )}"
+           self.safe_mkdir( output_folder )
+        end
 				size = 0
 			end
 		}
 		self.stop_file(file)
+    return( file_number )
 	end
 
 	def self.regenerate_obj(obj)
@@ -89,7 +98,7 @@ class RegenerateRdf
 		str = "<#{main_node} rdf:about=\"#{uri}\">\n"
 		items = self.format_items(obj)
 		# list them in the same order each time
-		keys = [ 'archive', 'freeculture', 'has_full_text', 'is_ocr', 'genre', 'text', 'title', 'role_AUT', 'federation', 'role_PBL', 'date_label', 'url', 'source', 'doc_type', 'discipline' ]
+		keys = [ 'archive', 'freeculture', 'has_full_text', 'is_ocr', 'genre', 'text', 'title', 'role_AUT', 'federation', 'role_PBL', 'date_label', 'url', 'source', 'doc_type', 'discipline', 'typewright' ]
 		keys.each {|key|
 			if items[key]
 				items[key].each {|it|
@@ -122,16 +131,27 @@ class RegenerateRdf
 				  self.gen_item(ret, key, self.format_item("dc:title", val))
 			  when 'text'
 				 self.gen_item(ret, key, self.format_item("collex:text", val))
+
+        # ECCO style
+        #when 'date_label'
+        #   # year and date_label are put in at the same time, so we'll look for year here and ignore it when it naturally comes up.
+        #   year = obj['year']
+        #   year = obj[:year] if year == nil
+        #   year = obj['date_label'] if year == nil
+        #   year = obj[:date_label] if year == nil
+        #   self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year[i]) if year[i]}\t</collex:date></dc:date>\n") if year != nil
+        #when 'year'
+        #   #nothing here: handled above
+
+        # EEBO style
 			  when 'date_label'
-				  # year and date_label are put in at the same time, so we'll look for year here and ignore it when it naturally comes up.
 				  year = obj['year']
-				  year = obj[:year] if year == nil
-				  year = obj['date_label'] if year == nil
-				  year = obj[:date_label] if year == nil
-				  self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year[i]) if year[i]}\t</collex:date></dc:date>\n") if year != nil
+          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", val)}\t#{self.format_item("rdf:value", year)}\t</collex:date></dc:date>\n") if year.nil? == false
 			  when 'year'
-				  #nothing here: handled above
-			  when 'uri'
+          label = obj['date_label']
+          self.gen_item(ret, key, "\t<dc:date><collex:date>\n\t#{self.format_item("rdfs:label", label)}\t#{self.format_item("rdf:value", val)}\t</collex:date></dc:date>\n") if label.nil? == false
+
+        when 'uri'
 				  # just ignore the uri: we've used it already
 			  when 'score'
 				  # just ignore the score
@@ -181,6 +201,12 @@ class RegenerateRdf
 				  self.gen_item(ret, key, self.format_item("collex:freeculture", val))
 			  when 'source'
 				  self.gen_item(ret, key, self.format_item("dc:source", val))
+        when 'year_sort_asc'
+          # just ignore this
+        when 'year_sort_desc'
+          # just ignore this
+        when 'typewright'
+          self.gen_item(ret, key, self.format_item("collex:typewright", val))
 			  else
 				  puts "Unhandled key: #{key}=#{val.to_s}"
 			  end
