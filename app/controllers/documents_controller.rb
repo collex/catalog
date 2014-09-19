@@ -23,6 +23,32 @@ class DocumentsController < ApplicationController
 
   end
 
+  def title
+
+    if check_ip == true
+      get_title( params[:uri] )
+    else
+      render :text => "You do not have permission to do this.", :status => :unauthorized
+    end
+
+  end
+
+  private
+
+  def get_title( uri )
+
+    query = {}
+    query['q'] = "uri:#{uri}"
+    is_test = Rails.env == 'test' ? :test : :live
+    solr = Solr.factory_create( is_test )
+    document = solr.details( query )
+    if document.nil? == false
+      render :text => document['title'], :status => :ok
+    else
+      render :text => "NOT FOUND", :status => :not_found
+    end
+  end
+
   def set_tw_status( uri, status )
     begin
       query = {}
