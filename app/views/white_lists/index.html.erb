@@ -1,0 +1,32 @@
+<%= make_home_path %>
+<% if user_signed_in? %>
+<div class="tab_content">
+	<p id="notice"><%= notice %></p>
+<h2>All white listed IP addresses</h2>
+  <%= make_xml_path(request.fullpath) %><br/>
+  <%= make_json_path(request.fullpath) %>
+
+	<table class="results">
+	  <tr>
+      <th>Ip</th>
+      <th>Comment</th>
+      <th colspan="3"></th>
+	  </tr>
+
+
+    <% @white_lists.each do |white_list| %>
+	  <tr>
+        <td><%= white_list.ip %></td>
+        <td><%= white_list.comment %></td>
+        <td><%= link_to 'Show', white_list %></td>
+        <td><%= link_to 'Edit', edit_white_list_path(white_list) %></td>
+        <td><%= link_to 'Destroy', white_list, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+	<% end %>
+	  </tr>
+	</table>
+
+<br>
+
+<%= link_to 'New IP for the white list', new_white_list_path %>
+</div>
+<% end %>

@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>IP:</strong>
+  <%= @white_list.ip %>
+</p>
+
+<p>
+  <strong>Why does this IP address get access to private content?</strong>
+  <%= @white_list.comment %>
+</p>
+
+<%= link_to 'Edit', edit_white_list_path(@white_list) %> |
+<%= link_to 'Back', white_lists_path %>

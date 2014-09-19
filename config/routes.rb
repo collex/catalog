@@ -10,7 +10,8 @@ Rails.application.routes.draw do
 	resources :federations
 	resources :genres
 	resources :disciplines
-	
+	resources :white_lists
+
 	post '/corrections' => 'corrections#create'
 
 	resources :exhibits, :only => [:index, :create, :destroy] do
