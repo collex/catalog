@@ -65,7 +65,7 @@ class QueryFormat
 			:last_modified => { :exp => /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ." },
       :fuz_value => { :exp => /^[+\-]?[012]?$/, :friendly => "Fuzzyness: 0 (exact match), 1 (varied spellings) or 2 (most varied spellings)"},
       :language => { :exp => /^([+\-][^+\-]+)+$/, :friendly => "[+-] Languages separated by ||" },
-      :facet => { :exp => /^(\w[ \w,]*)+$/, :friendly => 'One or more of the predefined facets'}
+      :facet => { :exp => /^(\b(?:doc_type|archive|discipline|genre|free_culture|federation),*)+$/, :friendly => 'One or more of the predefined facets separated by commas (doc_type, archive, discipline, genre, free_culture, federation)'}
 		}
 
 		return verifications[typ]
