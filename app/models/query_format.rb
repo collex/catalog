@@ -65,7 +65,8 @@ class QueryFormat
 			:last_modified => { :exp => /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/, :friendly => "A date/time string in the format: yyyy-mm-ddThh:mm:ssZ." },
       :fuz_value => { :exp => /^[+\-]?[012]?$/, :friendly => "Fuzzyness: 0 (exact match), 1 (varied spellings) or 2 (most varied spellings)"},
       :language => { :exp => /^([+\-][^+\-]+)+$/, :friendly => "[+-] Languages separated by ||" },
-      :facet => { :exp => /^(\b(?:doc_type|archive|discipline|genre|free_culture|federation),*)+$/, :friendly => 'One or more of the predefined facets separated by commas (doc_type, archive, discipline, genre, free_culture, federation)'}
+      :facet => { :exp => /^(\b(?:doc_type|archive|discipline|genre|free_culture|federation),*)+$/, :friendly => 'One or more of the predefined facets separated by commas (doc_type, archive, discipline, genre, free_culture, federation)'},
+      :decade_pivot => { :exp => /^(doc_type|archive|discipline|genre|free_culture|federation)$/, :friendly => 'One of the predefined pivots (doc_type, archive, discipline, genre, free_culture, or federation)'}
 		}
 
 		return verifications[typ]
@@ -150,7 +151,8 @@ class QueryFormat
         'role_TYD' => { :name => 'Type Designer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
         'role_TYG' => { :name => 'Typographer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
         'role_WDE' => { :name => 'Wood Engraver', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
-        'role_WDC' => { :name => 'Wood Cutter', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)}
+        'role_WDC' => { :name => 'Wood Cutter', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
+        'decade_pivot' => { :name => 'Decade Pivot', :param => :decade_pivot, :default => nil, :transformation => get_proc(:transform_pivot) },
 		}
 		return self.add_to_format(format)
 	end
@@ -638,6 +640,10 @@ class QueryFormat
       facets.push( v )
     }
     return { 'facet' => facets }
+  end
+
+  def self.transform_pivot( key,val )
+    return { 'facet.pivot' => "#{val},decade" }
   end
 
 	def self.transform_sort(key,val)

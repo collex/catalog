@@ -40,6 +40,22 @@ xml.search do
 						xml.text!("\n        ")
 						xml.count facet[:count]
 						xml.text!("\n      ")
+            # special case of faceting when doing a decade pivot
+            if facet[:decades]
+              xml.tag!('decades') {
+                xml.text!("\n        ")
+                facet[:decades].each do |pivot|
+                  xml.text!("\n        ")
+                  xml.tag!('decade') {
+                    xml.name pivot[:decade]
+                    xml.text!("\n        ")
+                    xml.count pivot[:count]
+                    xml.text!("\n        ")
+                  }
+                end
+              }
+              xml.text!("\n      ")
+            end
 					end
 				end
 				xml.text!("\n    ")

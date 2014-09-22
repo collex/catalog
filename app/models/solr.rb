@@ -37,8 +37,7 @@ class Solr
       "role_DUB", "role_FAC", "role_ILU", "role_ILL", "role_LTG", "role_PRT", "role_POP", "role_PRM",
       "role_RPS", "role_RBR", "role_SCR", "role_SCL", "role_TYD", "role_TYG", "role_WDE", "role_WDC",
 	    "role_BRD", "role_CNG", "role_CND", "role_DRT", "role_IVR", "role_IVE", "role_OWN", "role_FMO", "role_PRF", "role_PRO", "role_PRN",
-      "hasPart", "isPartOf",
-      "subject"
+      "hasPart", "isPartOf", "decade", "subject"
     ]
 		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright', 'doc_type', 'discipline', 'role']
 	end
@@ -399,7 +398,33 @@ class Solr
 				}
 				facets[key] = facet
 			}
-		end
+    end
+
+    # deal with the pivot facets which have a slightly different structure
+    if ret && ret['facet_counts'] && ret['facet_counts']['facet_pivot']
+      ret['facet_counts']['facet_pivot'].each { |key,pivot_list|
+        pivot_field = key.split( "," )[ 0 ]
+        pivot_subfield = key.split( "," )[ 1 ]
+        pivot_set = []
+        pivot_list.each { |pivot_value|
+
+          pivot_name = pivot_value['value']
+          pivot_count = pivot_value['count']
+          pivot_val = []
+          pivot_value['pivot'].each{ |pivot_attrib |
+             pivot = {}
+             name = pivot_attrib['field']
+             pivot[:name] = name
+             pivot[:count] = pivot_attrib['count']
+             pivot[name.to_sym] = pivot_attrib['value']
+             pivot_val.push( pivot )
+          }
+          pivot_set.push( { :name => pivot_name, :count => pivot_count, :decades => pivot_val } )
+        }
+        facets[ pivot_field ] = pivot_set
+      }
+    end
+
 		return facets
 	end
 
