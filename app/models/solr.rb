@@ -489,7 +489,7 @@ class Solr
 
 	def merge_archives(archives, internal=true)
 		#http://localhost:8983/solr/admin/cores?action=mergeindexes&core=core0&srcCore=core1&srcCore=core2
-		solr = RSolr.connect( :url=> SOLR_URL, :read_timeout => 200, :open_timeout => 200 )
+		solr = RSolr.connect( :url=> SOLR_URL, :read_timeout => 999999, :open_timeout => 200 )
 		begin
 			if internal
 				solr.post("admin/cores", { :params => {:action => "mergeindexes", :core => @core, :srcCore => archives } })

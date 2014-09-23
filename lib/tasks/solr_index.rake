@@ -246,7 +246,7 @@ namespace :solr_index do
 	end
 
 	def merge_archive(archive)
-		puts "~~~~~~~~~~~ Merging archive(s) #{archive} ..."
+		puts "~~~~~~~~~~~ Merging archive(s) #{archive} ... (this may take some time, please be patient)"
 		archives = archive.split(',')
 		solr = Solr.factory_create(:live)
 		archive_list = []
