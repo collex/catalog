@@ -278,9 +278,11 @@ class Solr
 		#facets['federation'] = adjust_federation_counts(options, facets['federation'])
 		#facets['archive'] = adjust_archive_counts(options, facets['archive'])
 
+    # get the pivots if appropriate and merge with the existing facet section
     pivots = pivots_to_hash( ret )
+    facets = merge_pivot_data( facets, pivots )
 
-		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets, :pivots => pivots }
+		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
 	end
 
 	def adjust_facet_counts(facet, src_options, prior_facets)
@@ -409,12 +411,13 @@ class Solr
 
   def pivots_to_hash( ret )
 
+    # untangle and turn strings to symbols
     pivots = {}
     if ret && ret['facet_counts'] && ret['facet_counts']['facet_pivot']
       ret['facet_counts']['facet_pivot'].each do | pivot_name, results |
 
-        # remove the comma in the pivot name because it confuses the xml parser when rendering results
-        pivot_name = pivot_name.gsub( ",", "-" )
+        facet_name = pivot_name.split( "," )[ 0 ]
+        pivot_name = pivot_name.split( "," )[ 1 ]
         rl = []
         results.each do | pivot |
           pl = []
@@ -423,12 +426,69 @@ class Solr
           end
           rl.push( { :name => pivot['field'], :value => pivot['value'], :count => pivot['count'], :pivot => pl } )
         end
-        pivots[ pivot_name ] = rl
+        if pivots[ facet_name ].nil?
+          pivots[ facet_name ] = []
+        end
+        pivots[ facet_name ].push( { :name => pivot_name, :value => rl} )
       end
     end
 
-    return( pivots )
+    return pivots if pivots.empty?
+
+    # organize by facet because this is the way the information will be reported
+    by_facet = {}
+    pivot_major = pivots.keys.first( )
+    pivot_list = pivots[ pivot_major ]
+    pivot_list.each do | p |
+       pivot_minor = p[:name]
+       p[:value].each do | f |
+          if f[:value].nil? || f[:value].empty?
+            next
+          end
+          if by_facet.has_key?( f[:value] ) == false
+             by_facet[ f[:value] ] = { :count => f[:count], pivot_minor => f[:pivot]}
+          else
+            by_facet[ f[:value] ] = by_facet[ f[:value] ].merge( { pivot_minor => f[:pivot] } )
+          end
+       end
+    end
+
+    return( { pivot_major => by_facet } )
 	end
+
+  def merge_pivot_data( facets, pivots )
+
+    # for each facet that we already have, merge in any pivot data
+    facets.each do | facet_name, facet_list |
+      if pivots.has_key? facet_name
+        facet_list.each_index do | ix |
+           pivots[ facet_name ].each do | key, pl |
+              if key == facet_list[ix][:name]
+                count = pl[:count]
+                pl.delete( :count )
+                facet_list[ix] = { :name => key, :count => count, :pivots => pl }
+              end
+           end
+        end
+      end
+    end
+
+    # for all the pivots we have that do not have existing facet section, add one and populate
+    # as appropriate
+    pivots.each do | pivots_name, pivots_list |
+      if facets.has_key?( pivots_name ) == false
+         pl = []
+         pivots_list.each do | key, value |
+           count = value[:count]
+           value.delete( :count )
+           pl.push( { :name => key, :count => count, :pivots => value } )
+         end
+         facets[ pivots_name ] = pl
+      end
+    end
+
+    return( facets )
+  end
 
 	def modify_object(uri, field, value)
 		`curl #{SOLR_URL}/#{@core}/update -H 'Content-type:application/json' -d '[{"uri":"#{uri}","#{field}":{"set":"#{value}"}}]' 2> /dev/null`
