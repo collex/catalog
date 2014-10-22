@@ -66,7 +66,7 @@ class QueryFormat
       :fuz_value => { :exp => /^[+\-]?[012]?$/, :friendly => "Fuzzyness: 0 (exact match), 1 (varied spellings) or 2 (most varied spellings)"},
       :language => { :exp => /^([+\-][^+\-]+)+$/, :friendly => "[+-] Languages separated by ||" },
       :facet => { :exp => /^(\b(?:doc_type|archive|discipline|genre|free_culture|federation),*)+$/, :friendly => 'One or more of the predefined facets separated by commas (doc_type, archive, discipline, genre, free_culture, federation)'},
-      :decade_pivot => { :exp => /^(doc_type|archive|discipline|genre|free_culture|federation)$/, :friendly => 'One of the predefined pivots (doc_type, archive, discipline, genre, free_culture, or federation)'}
+      :period_pivot => { :exp => /^(doc_type|archive|discipline|genre|free_culture|federation)$/, :friendly => 'One of the predefined pivots (doc_type, archive, discipline, genre, free_culture, or federation)'}
 		}
 
 		return verifications[typ]
@@ -152,7 +152,7 @@ class QueryFormat
         'role_TYG' => { :name => 'Typographer', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
         'role_WDE' => { :name => 'Wood Engraver', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
         'role_WDC' => { :name => 'Wood Cutter', :param => :string, :default => nil, :transformation => get_proc(:transform_role_generic)},
-        'decade_pivot' => { :name => 'Decade Pivot', :param => :decade_pivot, :default => nil, :transformation => get_proc(:transform_pivot) },
+        'period_pivot' => { :name => 'Period Pivot', :param => :period_pivot, :default => nil, :transformation => get_proc(:transform_pivot) },
 		}
 		return self.add_to_format(format)
 	end
@@ -643,7 +643,13 @@ class QueryFormat
   end
 
   def self.transform_pivot( key,val )
-    return { 'facet.pivot' => "#{val},decade" }
+    pivots = []
+    pivots.push( "#{val},year_sort_asc" )
+    pivots.push( "#{val},decade" )
+    pivots.push( "#{val},quarter_century" )
+    pivots.push( "#{val},half_century" )
+    pivots.push( "#{val},century" )
+    return { 'facet.pivot' => pivots }
   end
 
 	def self.transform_sort(key,val)

@@ -37,7 +37,7 @@ class Solr
       "role_DUB", "role_FAC", "role_ILU", "role_ILL", "role_LTG", "role_PRT", "role_POP", "role_PRM",
       "role_RPS", "role_RBR", "role_SCR", "role_SCL", "role_TYD", "role_TYG", "role_WDE", "role_WDC",
 	    "role_BRD", "role_CNG", "role_CND", "role_DRT", "role_IVR", "role_IVE", "role_OWN", "role_FMO", "role_PRF", "role_PRO", "role_PRN",
-      "hasPart", "isPartOf", "decade", "subject"
+      "hasPart", "isPartOf", "decade", "quarter_century", "half_century", "century", "subject"
     ]
 		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright', 'doc_type', 'discipline', 'role']
 	end
@@ -278,7 +278,9 @@ class Solr
 		#facets['federation'] = adjust_federation_counts(options, facets['federation'])
 		#facets['archive'] = adjust_archive_counts(options, facets['archive'])
 
-		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets }
+    pivots = pivots_to_hash( ret )
+
+		return { :total => ret['response']['numFound'], :hits => ret['response']['docs'], :facets => facets, :pivots => pivots }
 	end
 
 	def adjust_facet_counts(facet, src_options, prior_facets)
@@ -378,9 +380,11 @@ class Solr
 	end
 
 	def facets_to_hash(ret)
+
 		# make the facets more convenient. They are returned as a hash, with each key being the facet type.
 		# Then the value is an array. The values of the array alternate between the name of the facet and the
 		# count of the number of objects that match it. There is also a nil value that needs to be ignored.
+
 		facets = {}
 		if ret && ret['facet_counts'] && ret['facet_counts']['facet_fields']
 			ret['facet_counts']['facet_fields'].each { |key,raw_list|
@@ -400,32 +404,30 @@ class Solr
 			}
     end
 
-    # deal with the pivot facets which have a slightly different structure
-    if ret && ret['facet_counts'] && ret['facet_counts']['facet_pivot']
-      ret['facet_counts']['facet_pivot'].each { |key,pivot_list|
-        pivot_field = key.split( "," )[ 0 ]
-        pivot_subfield = key.split( "," )[ 1 ]
-        pivot_set = []
-        pivot_list.each { |pivot_value|
+    return( facets )
+  end
 
-          pivot_name = pivot_value['value']
-          pivot_count = pivot_value['count']
-          pivot_val = []
-          pivot_value['pivot'].each{ |pivot_attrib |
-             pivot = {}
-             name = pivot_attrib['field']
-             pivot[:name] = name
-             pivot[:count] = pivot_attrib['count']
-             pivot[name.to_sym] = pivot_attrib['value']
-             pivot_val.push( pivot )
-          }
-          pivot_set.push( { :name => pivot_name, :count => pivot_count, :decades => pivot_val } )
-        }
-        facets[ pivot_field ] = pivot_set
-      }
+  def pivots_to_hash( ret )
+
+    pivots = {}
+    if ret && ret['facet_counts'] && ret['facet_counts']['facet_pivot']
+      ret['facet_counts']['facet_pivot'].each do | pivot_name, results |
+
+        # remove the comma in the pivot name because it confuses the xml parser when rendering results
+        pivot_name = pivot_name.gsub( ",", "-" )
+        rl = []
+        results.each do | pivot |
+          pl = []
+          pivot['pivot'].each do |p|
+             pl.push( { :name => p['field'], :value =>p['value'], :count => p['count']} )
+          end
+          rl.push( { :name => pivot['field'], :value => pivot['value'], :count => pivot['count'], :pivot => pl } )
+        end
+        pivots[ pivot_name ] = rl
+      end
     end
 
-		return facets
+    return( pivots )
 	end
 
 	def modify_object(uri, field, value)

@@ -35,6 +35,7 @@ table.results td {
 	<% } %>
 </table>
 </div>
+
 <h2><div class="expander" data-target="facets"></div>Facets</h2>
 <div id="facets" class="exp_target hidden">
 <% @results[:facets].each { |facet_name, facet_list| %>
@@ -55,4 +56,27 @@ table.results td {
 </div>
 <% } %>
 </div>
+
+<% if @results[:pivots].nil? == false && @results[:pivots].empty? == false %>
+<h2><div class="expander" data-target="pivots"></div>Pivots</h2>
+<div id="pivots" class="exp_target hidden">
+  <% @results[:pivots].each { |pivot_name, pivot_list| %>
+      <h3><div class="expander" data-target="<%= pivot_name.gsub(/\W/, '') %>"></div><%= pivot_name %></h3>
+      <div id="<%= pivot_name.gsub(/\W/, '') %>" class="exp_target hidden">
+        <table class="results">
+          <tr>
+            <th>Pivot</th>
+            <th>Count</th>
+          </tr>
+          <% pivot_list.each { |pivot| %>
+              <tr>
+                <td><%= pivot[:name] %></td>
+                <td><%= number_with_delimiter(pivot[:count]) %></td>
+              </tr>
+          <% } %>
+        </table>
+      </div>
+  <% } %>
 </div>
+</div>
+<% end %>
