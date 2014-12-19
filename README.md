@@ -96,7 +96,7 @@ can be merged into the main index.
 5. The first time you run, you will have to run `bundle install`.
 6. Create and migrate the database with the standard rake commands.
 7. If you are running an instance of solar locally, you can control it with `rake solr:start` and `rake solr:stop`.
-8. Launch the server with `rails s -p 30001`. This will launch the catalog
+8. Launch the server with `rails s -p 3001`. This will launch the catalog
    and it will listen for connections on port 3001.
 9. To create an admin user for the catalog, run `rake users:create`
 
