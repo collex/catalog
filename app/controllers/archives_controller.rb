@@ -1,5 +1,5 @@
 class ArchivesController < ApplicationController
-  before_action :set_archive, only: [:show, :edit, :update, :destroy]
+  before_action :set_archive, only: [:show, :update, :destroy]
 #	before_filter :must_be_logged_in
 	before_filter :must_be_logged_in, :except => [:index]
 
