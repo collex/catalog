@@ -487,19 +487,16 @@ class QueryFormat
         result = "#{pair[0]}"
       end
       result += "#{field}:#{match}"
-      if (not fuz.nil?) and !match.match(/\s/)  # we can't fuzzy search on a multi-word query
+      # Skip fuzzy param if it is fuzzy 0 (exact match)
+      if (not fuz.nil?) and fuz.to_i > 0 and !match.match(/\s/)  # we can't fuzzy search on a multi-word query
         result += "~#{fuz}"
       end
       if not boost.nil?
         result += "^#{boost}"
       end
       results.push(result)
-			#results.push("#{boost ? '' : pair[0]}#{field}:#{match}#{fuz ? "~#{fuz}" : ''}#{boost ? "^#{boost}" : ''}")
 		}
 		return results.join(" ")
-#		str = val[1..val.length]
-#		str = "\"#{str}\"" if str.include?(' ')
-#		return "#{val[0]}#{field}:#{str}"
   end
 
   def self.insert_field_name_one_pair(field, val, boost=nil, fuz=nil)
@@ -552,22 +549,18 @@ class QueryFormat
 
 	def self.transform_title(key,val,fuz=nil)
 		return { 'fq' => self.diacritical_query_data("title", val, fuz) }
-		#return { 'q' => self.insert_field_name("title", val.downcase()) }
 	end
 
 	def self.transform_author(key,val)
 		return { 'fq' => self.diacritical_query_data("author", val) }
-		#return { 'q' => self.insert_field_name("author", val.downcase()) }
 	end
 
 	def self.transform_editor(key,val)
 		return { 'fq' => self.diacritical_query_data("editor", val) }
-		#return { 'q' => self.insert_field_name("editor", val.downcase()) }
 	end
 
 	def self.transform_publisher(key,val)
 		return { 'fq' => self.diacritical_query_data("publisher", val) }
-		#return { 'q' => self.insert_field_name("publisher", val.downcase()) }
 	end
 
 	def self.transform_year(key,val)
@@ -595,7 +588,6 @@ class QueryFormat
   end
 
 	def self.transform_archive(key,val)
-#		return { 'q' => self.insert_field_name("archive", val) }
 		arc = val[1..-1]
 		arc = "\"#{arc}\"" if arc.include?(' ')
 		return { 'fq' => val[0] + "archive:" + arc }

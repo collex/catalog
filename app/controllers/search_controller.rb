@@ -15,7 +15,8 @@ class SearchController < ApplicationController
 			# will not match anything in the index (period) - even with the ~2, because period
 			# is more than edit distance of 2 from periodical
 			extra_query = ""
-			if params.has_key?(:fuz_q)
+			fuzzy = params[:fuz_q]
+			if params.has_key?(:fuz_q) && fuzzy != "+0"  # SKIP THIS FOR FUZZY 0: Exact match!
   			   original_q = params[:q]
      			orig_prefix = original_q[0]
      			orig_term = original_q[1..original_q.length]
