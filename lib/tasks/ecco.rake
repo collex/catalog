@@ -69,7 +69,7 @@ namespace :ecco do
                idx = data.index(end_mark)
                data = data[0..(idx+end_mark.length)]
                data.gsub!(/<(collex:text).*(<\/collex:text>)/,"<collex:text>#TXT#</collex:text>")
-               data.gsub!(/<\/dc:title>/,"</dc:title>\n\t<collex:page>#PAGE#</collex:page>")
+               data.gsub!(/<\/dc:title>/,"</dc:title>\n\t<collex:pagenum>#PAGE#</collex:pagenum>")
                data.gsub!(/<collex:archive>ECCO/,"<collex:archive>ECCO_Pages")
                work[:template] = data
             else
