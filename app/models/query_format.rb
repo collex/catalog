@@ -778,6 +778,8 @@ class QueryFormat
 
 		query = {}
 		params.each { |key,val|
+      val.gsub!(/^\+"'/,'+"');  # remove single quotes surrounded by double quotes
+      val.gsub!(/'"$/,'"');
 			definition = format[key]
 			raise(ArgumentError, "Unknown parameter: #{key}") if definition == nil
 			raise(ArgumentError, "Bad parameter (#{key}): (#{definition[:name]}) was passed as an array.") if val.kind_of?(Array) && definition[:can_be_array] != true
