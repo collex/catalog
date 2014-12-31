@@ -36,6 +36,15 @@ namespace :ecco do
          work_info[row[0]] = { :uri=>row[1].strip }
       end
 
+      hdr =
+      '<rdf:RDF xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:role="http://www.loc.gov/loc.terms/relators/"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:dcterms="http://purl.org/dc/terms/"
+         xmlns:collex="http://www.collex.org/schema#"
+         xmlns:recreate="http://www.collex.org/recreate_schema#">'
+
       # Run through the CSV file with page file data and generate RDF for each
       CSV.foreach( "#{src_dir}/#{src_file}", { :headers => true, :col_sep => "\t"}) do |row|
          # pull the text file path for this result and parse it out
@@ -81,7 +90,7 @@ namespace :ecco do
          # at this point, we have a valid template and path to page text. Generate RDF
          page_file = File.open(txt_path, "r")
          page = page_file.read
-         out = work[:template].gsub(/#TXT#/,page.gsub(/\n/, " "))
+         out = "#{hdr}\n#{work[:template].gsub(/#TXT#/,page.gsub(/\n/, " "))}\n</rdf:RDF>"
          out.gsub!(/#PAGE#/,page_num)
          tgt_uri = work[:uri].split("/").last
          page_uri = "#{tgt_uri}_#{page_num.rjust(4,"0")}"
