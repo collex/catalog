@@ -248,15 +248,25 @@ namespace :solr_index do
 	def merge_archive(archive)
 		puts "~~~~~~~~~~~ Merging archive(s) #{archive} ... (this may take some time, please be patient)"
 		archives = archive.split(',')
-		solr = Solr.factory_create(:live)
 		archive_list = []
-		archives.each{|arch|
-			index_name = Solr.archive_to_core_name(arch)
-			solr.remove_archive(arch, false)
-			archive_list.push("archive_#{index_name}")
-		}
-		solr.merge_archives(archive_list)
+      solr_archives = Solr.factory_create(:live)
 
+		page_list = []
+      solr_pages = Solr.factory_create(:pages)
+
+		archives.each do |arch|
+			index_name = Solr.archive_to_core_name(arch)
+			if index_name.index("pages_") == 0
+			   solr_pages.remove_archive(arch, false)
+			   page_list.push(index_name)
+			else
+            solr_archives.remove_archive(arch, false)
+			   archive_list.push("archive_#{index_name}")
+			end
+		end
+
+		solr_archives.merge_archives(archive_list) if !archive_list.empty?
+      solr_pages.merge_archives(page_list) if !page_list.empty?
 	end
 
 	#############################################################
@@ -311,7 +321,7 @@ namespace :solr_index do
 		do_archive { |archive| index_archive("Spider text", archive, :spider) }
 	end
 
-	desc "Merge one archive into the \"resources\" index (param: archive=XXX,YYY)"
+	desc "Merge archives into the \"resources\" or \"pages\" index (param: archive=XXX,YYY)"
 	task :merge_archive => :environment do
 		do_archive(:as_one) { |archives| merge_archive(archives) }
 	end
@@ -374,16 +384,27 @@ namespace :solr_index do
 		end
 	end
 
-	desc "removes the archive from the resources index (param: archive=XXX,YYY)"
+	desc "removes archives from the resources or pages index (param: archive=XXX,YYY)"
 	task :remove  => :environment do
-		solr = Solr.factory_create(:live)
-		do_archive { |archive|
-			solr.remove_archive(archive, false)
-		}
-		if !solr.blank?
-			solr.commit()
-			solr.optimize()
+		solr_live = Solr.factory_create(:live)
+		solr_pages = Solr.factory_create(:pages)
+		do_archive do |archive|
+		   if archive.index("pages_") == 0
+		      solr_pages.remove_archive(archive, false)
+		   else
+			   solr_live.remove_archive(archive, false)
+			end
 		end
+
+		if !solr_pages.blank?
+			solr_pages.commit()
+			solr_pages.optimize()
+		end
+
+		if !solr_live.blank?
+         solr_live.commit()
+         solr_live.optimize()
+      end
 	end
 
 	desc "removes all exhibits from the resources index"

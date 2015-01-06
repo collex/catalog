@@ -19,47 +19,56 @@ require 'rsolr'
 # documentation at: http://github.com/mwmitchell/rsolr
 
 class Solr
-	def initialize(core)
-		if core.kind_of?(Array)
-			base_url = SOLR_URL.gsub("http://", "")
-			@shards = core.collect { |shard| base_url + '/' + shard }
 
-			core = core[0]
-		else
-			@shards = nil
-		end
-		@core = core # "#{SOLR_CORE_PREFIX}/#{core}"
-		@solr = RSolr.connect( :url=>"#{SOLR_URL}/#{core}" )
-		@field_list = [ "uri", "archive", "date_label", 'year', "genre", "source", "image", "thumbnail", "title", "alternative", "url",
-			"role_ART", "role_AUT", "role_EDT", "role_PBL", "role_TRL", "role_EGR", "role_ETR", "role_CRE", "role_OWN", "freeculture",
-			"is_ocr", "federation", "has_full_text", "source_xml", "provenance", "discipline", 'typewright',
-      "role_ARC", "role_BND", "role_BKD", "role_BKP", "role_CLL", "role_CTG", "role_COL", "role_CLR", "role_CWT", "role_COM", "role_CMT",
-      "role_DUB", "role_FAC", "role_ILU", "role_ILL", "role_LTG", "role_PRT", "role_POP", "role_PRM",
-      "role_RPS", "role_RBR", "role_SCR", "role_SCL", "role_TYD", "role_TYG", "role_WDE", "role_WDC",
-	    "role_BRD", "role_CNG", "role_CND", "role_DRT", "role_IVR", "role_IVE", "role_OWN", "role_FMO", "role_PRF", "role_PRO", "role_PRN",
-      "hasPart", "isPartOf", "decade", "quarter_century", "half_century", "century", "subject"
-    ]
-		@facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright', 'doc_type', 'discipline', 'role']
-	end
+	 def initialize(core)
+      if core.kind_of?(Array)
+         base_url = SOLR_URL.gsub("http://", "")
+         @shards = core.collect { |shard| base_url + '/' + shard }
+         core = core[0]
+      else
+         @shards = nil
+      end
 
-	def self.factory_create(is_test, federation="")
-		name = ""
-		if federation == ""
-			if is_test == :test
-				name = "testResources"
-			elsif is_test == :live
-				name = "resources"
-			elsif is_test == :shards
-				name = self.get_archive_core_list()
-			else
-				raise "Bad parameter in Solr.factory_create"
-			end
-		else	# if a federation is passed, then we are using the local index
-			name = is_test == :test ? "test" : ""
-			name += federation + "LocalContent"
-		end
-		return Solr.new(name)
-	end
+      @core = core
+      @solr = RSolr.connect( :url=>"#{SOLR_URL}/#{core}" )
+
+      if core == "pages"
+         @field_list = [ "uri", "archive", "page_num", "page_of" ]
+         @facet_fields = []
+      else
+         @field_list = [ "uri", "archive", "date_label", 'year', "genre", "source", "image", "thumbnail", "title", "alternative", "url",
+   			"role_ART", "role_AUT", "role_EDT", "role_PBL", "role_TRL", "role_EGR", "role_ETR", "role_CRE", "role_OWN", "freeculture",
+   			"is_ocr", "federation", "has_full_text", "source_xml", "provenance", "discipline", 'typewright',
+            "role_ARC", "role_BND", "role_BKD", "role_BKP", "role_CLL", "role_CTG", "role_COL", "role_CLR", "role_CWT", "role_COM", "role_CMT",
+            "role_DUB", "role_FAC", "role_ILU", "role_ILL", "role_LTG", "role_PRT", "role_POP", "role_PRM",
+            "role_RPS", "role_RBR", "role_SCR", "role_SCL", "role_TYD", "role_TYG", "role_WDE", "role_WDC",
+   	      "role_BRD", "role_CNG", "role_CND", "role_DRT", "role_IVR", "role_IVE", "role_OWN", "role_FMO", "role_PRF", "role_PRO", "role_PRN",
+           "hasPart", "isPartOf", "decade", "quarter_century", "half_century", "century", "subject"
+         ]
+         @facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright', 'doc_type', 'discipline', 'role']
+      end
+   end
+
+   def self.factory_create(is_test, federation="")
+      name = ""
+      if federation == ""
+         if is_test == :test
+            name = "testResources"
+         elsif is_test == :live
+            name = "resources"
+         elsif is_test == :pages
+            name = "pages"
+         elsif is_test == :shards
+            name = self.get_archive_core_list()
+         else
+            raise "Bad parameter in Solr.factory_create"
+         end
+      else	# if a federation is passed, then we are using the local index
+         name = is_test == :test ? "test" : ""
+         name += federation + "LocalContent"
+      end
+      return Solr.new(name)
+   end
 
 	private
 	def select(options, noisy = true)
