@@ -43,45 +43,33 @@ namespace :solr_index do
 
 	desc "create complete reindexing task list"
 	task :create_reindexing_task_list => :environment do
-		#solr = CollexEngine.factory_create(false)
-		#archives = solr.get_all_archives()
 
 		folder_file = File.join(RDF_PATH, "sitemap.yml")
 		site_map = YAML.load_file(folder_file)
 		rdf_folders = site_map['archives']
-		sh_all = create_sh_file("batch_all")
-		sh_all.puts("TASK=solr_index:index_and_test\n")
 
 		# the archives found need to exactly match the archives in the site maps.
 		all_enum_archives = {}
-		rdf_folders.each { |k,f|
+		rdf_folders.each do |k,f|
 			all_enum_archives.merge!(f)
-		}
-		#all_enum_archives.merge!(marc_folders)
-		#archives.each {|archive|
-		#	if archive.index("exhibit_") != 0 && archive != "ECCO" && all_enum_archives[archive] == nil
-		#		puts "Missing archive #{archive} from the sitemap.yml files"
-		#	end
-		#}
-		#all_enum_archives.each {|k,v|
-		#	if !archives.include?(k)
-		#		puts "Archive #{k} in sitemap missing from deployed index"
-		#	end
-		#}
+		end
 
+      # create batch files
 		sh_clr = create_sh_file("clear_archives")
-		#core_archives = CollexEngine.get_archive_core_list()
-		#core_archives.each {|archive|
-		#}
 		sh_merge = create_sh_file("merge_all")
-		merge_list = []
+      sh_all = create_sh_file("batch_all")
+      sh_all.puts("TASK=solr_index:index_and_test\n")
 
-		rdf_folders.each { |i, rdfs|
+		merge_list = []
+		rdf_folders.each do |i, rdfs|
+		   # batch number and yml data about archives in the batch
 			if i.kind_of?(Fixnum)
 				sh_rdf = create_sh_file("batch#{i+1}")
 				sh_rdf.puts("TASK=solr_index:index_and_test\n")
 				merge_list_section = []
-				rdfs.each {|archive,f|
+
+				rdfs.each do |archive,f|
+				   # archive name and info [dir_name, size_limit]
 					sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Cdelete%3E%3Cquery%3E*:*%3C/query%3E%3C/delete%3E\n")
 					sh_clr.puts("curl #{SOLR_URL}/#{archive}/update?stream.body=%3Ccommit%3E%3C/commit%3E\n")
 
@@ -90,26 +78,22 @@ namespace :solr_index do
 
 					merge_list.push(archive)
 					merge_list_section.push(archive)
-					#if merge_list.length > 10
-					#	sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
-					#	merge_list = []
-					#end
-				}
+				end
+
 				sh_rdf.close()
 				sh_merge_list_section = create_sh_file("merge#{i+1}")
 				sh_merge_list_section.puts("rake solr_index:merge_archive archive=\"#{merge_list_section.join(',')}\"")
 				sh_merge_list_section.close()
 			end
-		}
+		end
+
 		sh_clr.close()
 		if merge_list.length > 0
 			sh_merge.puts("rake solr_index:merge_archive archive=\"#{merge_list.join(',')}\"")
 		end
+
 		sh_merge.puts("rake solr:optimize core=resources")
 		sh_merge.close()
-
-#		sh_all.puts("rake ecco:mark_for_textwright\n")
-
 		sh_all.close()
 	end
 
@@ -420,50 +404,6 @@ namespace :solr_index do
 		solr.commit()
 		solr.optimize()
 	end
-
-	#def clean_text(msg, archive, type, encoding)
-	#	start_time = Time.now
-	#	flags = nil
-	#	dir_name = nil
-	#	case type
-	#		when :clean_raw
-	#			flags = "-mode clean_raw -encoding #{encoding}" if encoding != nil
-	#			flags = "-mode clean_raw" if encoding == nil
-	#			dir_name = "rawtext"
-	#			puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_clean_raw_error.log]"
-	#		when :clean_full
-	#			flags = "-mode clean_full"
-	#			dir_name = "fulltext"
-	#			puts "~~~~~~~~~~~ #{msg} \"#{archive}\" [see log/progress/#{archive}_progress.log and log/#{archive}_clean_full_error.log]"
-	#	end
-	#
-	#	if flags == nil
-	#		puts "Call with either :clean_raw or :clean_full"
-	#	else
-	#
-	#		# determine path to text files for cleaning
-	#		arr = RDF_PATH.split('/')
-	#		arr.pop()
-	#		arr.push(dir_name)
-	#		text_path = arr.join('/')
-	#
-	#		# clear out old log files
-	#		safe_name = Solr::archive_to_core_name(archive)
-	#		log_dir = "#{Rails.root}/log"
-	#		case type
-	#			when :clean_raw
-	#				delete_file("#{log_dir}/#{safe_name}_clean_raw_error.log")
-	#			when :clean_full
-	#				delete_file("#{log_dir}/#{safe_name}_clean_full_error.log")
-	#		end
-	#		delete_file("#{log_dir}/#{safe_name}_progress.log")
-	#		delete_file("#{log_dir}/#{safe_name}_error.log")
-	#
-	#		cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{text_path} -archive \"#{archive}\" #{flags}")
-	#
-	#	end
-	#	finish_line(start_time)
-	#end
 
 	desc "Clean archive text and place results in fulltext, ready for indexing; No indexing performed; (param: archive=XXX,YYY)"
 	task :clean_text => :environment do
