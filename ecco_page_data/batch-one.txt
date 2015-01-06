@@ -1,0 +1,22 @@
+id page_id  batch_id ocr_text_path  ocr_xml_path   ocr_completed  juxta_change_index   alt_change_index  noisiness_idx
+2272329	18635840	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/8.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/8.xml	2014-12-14 14:12:56	0.844	0.913	NULL
+2272351	18635838	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/6.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/6.xml	2014-12-14 14:13:09	0.963	0.924	NULL
+2272372	18635837	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/5.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/5.xml	2014-12-14 14:13:19	0.967	0.910	NULL
+2272389	18635836	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/4.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/4.xml	2014-12-14 14:13:28	0.831	0.824	NULL
+2272411	18635835	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/3.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/3.xml	2014-12-14 14:13:42	0.873	0.776	NULL
+2272427	18635834	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/2.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/2.xml	2014-12-14 14:13:50	0.737	0.609	NULL
+2272441	18635833	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/1.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/1.xml	2014-12-14 14:13:57	0.000	0.333	NULL
+2272452	18635853	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/21.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/21.xml	2014-12-14 14:14:02	0.545	0.389	NULL
+2272468	18635852	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/20.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/20.xml	2014-12-14 14:14:12	0.960	0.917	NULL
+2272489	18635851	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/19.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/19.xml	2014-12-14 14:14:23	0.919	0.809	NULL
+2272504	18635850	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/18.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/18.xml	2014-12-14 14:14:34	0.957	0.903	NULL
+2272517	18635849	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/17.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/17.xml	2014-12-14 14:14:44	0.967	0.935	NULL
+2272531	18635848	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/16.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/16.xml	2014-12-14 14:14:54	0.973	0.931	NULL
+2272550	18635847	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/15.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/15.xml	2014-12-14 14:15:06	0.955	0.890	NULL
+2272563	18635846	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/14.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/14.xml	2014-12-14 14:15:15	0.956	0.922	NULL
+2272575	18635845	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/13.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/13.xml	2014-12-14 14:15:25	0.951	0.910	NULL
+2272598	18635844	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/12.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/12.xml	2014-12-14 14:15:36	0.979	0.897	NULL
+2272611	18635843	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/11.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/11.xml	2014-12-14 14:15:46	0.957	0.889	NULL
+2272631	18635842	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/10.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/10.xml	2014-12-14 14:15:56	0.955	0.925	NULL
+2272651	18635841	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/9.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/9.xml	2014-12-14 14:16:09	0.864	0.903	NULL
+2272696	18635839	1034	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/7.txt	/data/shared/text-xml/IDHMC-ocr/285/285017/1034/7.xml	2014-12-14 14:16:43	0.949	0.887	NULL
