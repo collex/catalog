@@ -26,8 +26,8 @@ namespace :ecco do
       raise "File is required!" if src_file.nil?
 
       # make sure out directory exists
-      if File.directory?("#{RDF_PATH}/arc_rdf_ECCO_Pages/") == false
-         system("mkdir #{RDF_PATH}/arc_rdf_ECCO_Pages/")
+      if File.directory?("#{RDF_PATH}/arc_rdf_pages_ECCO/") == false
+         system("mkdir #{RDF_PATH}/arc_rdf_pages_ECCO/")
       end
 
       # parse the CSV file that maps work_id to URI
@@ -37,13 +37,20 @@ namespace :ecco do
       end
 
       hdr =
-      '<rdf:RDF xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-         xmlns:role="http://www.loc.gov/loc.terms/relators/"
+'<rdf:RDF xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-         xmlns:dc="http://purl.org/dc/elements/1.1/"
-         xmlns:dcterms="http://purl.org/dc/terms/"
          xmlns:collex="http://www.collex.org/schema#"
-         xmlns:recreate="http://www.collex.org/recreate_schema#">'
+         xmlns:recreate="http://www.collex.org/recreate_schema#">
+'
+
+      template =
+'   <recreate:collections rdf:about="#URI#">
+       <collex:archive>pages_ECCO</collex:archive>
+       <collex:pageof>#FROM#</collex:pageof>
+       <collex:text>#TXT#</collex:text>
+       <collex:pagenum>#PAGE#</collex:pagenum>
+    </recreate:collections>
+'
 
       # Run through the CSV file with page file data and generate RDF for each
       CSV.foreach( "#{src_dir}/#{src_file}", { :headers => true, :col_sep => "\t"}) do |row|
@@ -60,44 +67,44 @@ namespace :ecco do
             next
          end
 
-         # find the master RDF file that contains this edition
-         if work[:template].nil?
+         # read the page data
+         page_file = File.open(txt_path, "r")
+         page = page_file.read
+
+         # make sure we have the master RDF file that contains this edition
+         # track the RDF file that will contain all of the page data for this work
+         if work[:rdf].nil?
             cmd = "grep #{work[:uri]} #{RDF_PATH}/arc_rdf_ECCO/*.rdf"
             result = `#{cmd}`
-            if !result.empty?
-               rdf = result.split(":")[0]
-               puts "Work #{work_id} found in #{rdf}; generating RDF template"
-
-               # Extract template for pages from original RDF file
-               marker = "<recreate:collections rdf:about=\"#{work[:uri]}\">"
-               end_mark = "</recreate:collections>"
-               rdf_file = File.open(rdf, "r")
-               data = rdf_file.read
-               idx = data.index(marker)
-               data = data[idx..data.length]
-               idx = data.index(end_mark)
-               data = data[0..(idx+end_mark.length)]
-               data.gsub!(/<(collex:text).*(<\/collex:text>)/,"<collex:text>#TXT#</collex:text>")
-               data.gsub!(/<\/dc:title>/,"</dc:title>\n\t<collex:pagenum>#PAGE#</collex:pagenum>")
-               data.gsub!(/<collex:archive>ECCO/,"<collex:archive>ECCO_Pages")
-               work[:template] = data
-            else
+            if result.empty?
                puts "ERROR: unable to find RDF for work #{work_id}"
                next
+            else
+               base_uri = work[:uri].split("/").last
+               work[:rdf] = "#{RDF_PATH}/arc_rdf_pages_ECCO/#{base_uri}.rdf"
+               File.open(work[:rdf], "w") { |f| f.write(hdr) }
             end
          end
 
-         # at this point, we have a valid template and path to page text. Generate RDF
-         page_file = File.open(txt_path, "r")
-         page = page_file.read
-         out = "#{hdr}\n#{work[:template].gsub(/#TXT#/,page.gsub(/\n/, " "))}\n</rdf:RDF>"
-         out.gsub!(/#PAGE#/,page_num)
-         tgt_uri = work[:uri].split("/").last
-         page_uri = "#{tgt_uri}_#{page_num.rjust(4,"0")}"
-         out.gsub!(/#{tgt_uri}/,page_uri)
+         # All good, add page RDF to the file for this work
+         out = template.gsub(/#TXT#/,page.gsub(/\n/, " "))
+         out.gsub!(/#PAGE#/, page_num)
+         out.gsub!(/#FROM#/, work[:uri])
+         page_uri = String.new(work[:uri]) << "/" << page_num.rjust(4,"0")
+         out.gsub!(/#URI#/, page_uri)
 
-         out_file = "#{RDF_PATH}/arc_rdf_ECCO_Pages/#{page_uri}.rdf"
-         File.open(out_file, "wb") { |f| f.write(out) }
+         # append results to file
+         File.open(work[:rdf], "a+") { |f| f.write(out) }
+      end
+
+      # Now run through all of the newly created page-RDF files (one per edition)
+      # and close out the rdf:RDF tag
+      # NOTE all of this is necessary because the data file from eMOP enterleaves
+      # pages of editions
+      work_info.each do |k,v|
+         if v.has_key? :rdf
+            File.open(v[:rdf], "a+") { |f| f.write("</rdf:RDF>") }
+         end
       end
    end
 
