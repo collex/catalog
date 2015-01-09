@@ -401,9 +401,15 @@ class QueryFormat
 	end
 
 	def self.transform_query(key, val, fuz=nil)
+		return self.transform_fuz_query(key, val, fuz) unless fuz.blank?
 		# To find diacriticals, the main search strips them off, then we include an optional boosted search with them
 		return { 'q' => self.diacritical_query_data("content", val, fuz) }
 	end
+
+  def self.transform_fuz_query(key, val, fuz)
+    v = val.downcase()
+    return { 'q' => "#{insert_field_name('content', v, 20, nil)} #{insert_field_name('content', v, nil, fuz)}" }
+  end
 
 	#partitions a string based on regex.  matches are included in results
 	#ex. 'a b  c'.partition(/ +/) returns ['a', ' ', 'b', '  ', 'c']
@@ -482,8 +488,8 @@ class QueryFormat
         match = "(#{match})"
       end
 
-      result = '';
-      if boost.nil?
+      result = ''
+      if boost.nil? and fuz.blank?
         result = "#{pair[0]}"
       end
       result += "#{field}:#{match}"

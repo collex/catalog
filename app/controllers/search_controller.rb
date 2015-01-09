@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class SearchController < ApplicationController
 	# GET /searches
 	# GET /searches.xml
@@ -21,8 +23,9 @@ class SearchController < ApplicationController
      			orig_prefix = original_q[0]
      			orig_term = original_q[1..original_q.length]
      			stemmed_term = Stemmer::stem_word(orig_term)
+          stemmed_term.force_encoding("UTF-8")
      			params[:q] = "#{orig_prefix}#{stemmed_term}"
-     			extra_query = "content_auto:#{orig_term}~#{params[:fuz_q][1]}^80"
+     			extra_query = "content:#{orig_term}^80"
      	   end
 
      	   extra_fq = ""
@@ -31,6 +34,7 @@ class SearchController < ApplicationController
             orig_prefix = original_t[0]
             orig_term = original_t[1..original_t.length]
             stemmed_term = Stemmer::stem_word(orig_term)
+            stemmed_term.force_encoding("UTF-8")
             params[:t] = "#{orig_prefix}#{stemmed_term}"
             extra_fq = "title:#{orig_term}^80"
          end
