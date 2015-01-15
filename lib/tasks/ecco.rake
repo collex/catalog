@@ -16,10 +16,94 @@
 ##########################################################################
 require 'csv'
 
-
 namespace :ecco do
-   desc "Generate page-level RDF (params: src_dir=/path/to/page/csv/files file=page/results/file)"
+   desc "Generate page-level RDF (params: batch_id, work_id (optional))"
    task :generate_page_rdf => :environment do
+      batch_id = ENV['batch_id']
+      tgt_work = ENV['work_id']
+      raise "batch_id is required!" if batch_id.nil?
+
+      # make sure out directory exists
+      if File.directory?("#{RDF_PATH}/arc_rdf_pages_ECCO/") == false
+         system("mkdir #{RDF_PATH}/arc_rdf_pages_ECCO/")
+      end
+
+      hdr =
+'<rdf:RDF xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:collex="http://www.collex.org/schema#"
+         xmlns:recreate="http://www.collex.org/recreate_schema#">
+'
+
+      template =
+'   <recreate:collections rdf:about="#URI#">
+       <collex:archive>pages_ECCO</collex:archive>
+       <collex:pageof>#FROM#</collex:pageof>
+       <collex:text>#TXT#</collex:text>
+       <collex:pagenum>#PAGE#</collex:pagenum>
+    </recreate:collections>
+'
+
+      page = 1
+      works = {}
+      emop_url = Rails.application.secrets.authentication['emop_root_url']
+      api_token = Rails.application.secrets.authentication['emop_token']
+      done = false
+      begin
+         resp_str = RestClient.get "#{emop_url}/page_results?batch_id=#{batch_id}&page_size=100&page_num=#{page}",  :authorization => "Token #{api_token}"
+         resp = JSON.parse(resp_str)
+         done = (resp['total_pages'].to_i == page)
+         resp['results'].each do | res |
+            txt_path = res['ocr_text_path']
+            bits = txt_path.split('/')
+            work_id = bits[bits.length-2]
+            txt_file = bits[bits.length-1]
+            page_num = txt_file.split('.')[0]
+            next if !tgt_work.nil? && tgt_work != work_id
+
+            if !works.has_key? work_id
+               # get work URI
+               work_str = RestClient.get "#{emop_url}/works/#{work_id}",  :authorization => "Token #{api_token}"
+               work_json = JSON.parse(work_str)['work']
+               uri = "lib://ECCO/#{work_json['wks_ecco_number']}"
+
+               # Create RDF to stream page contet entries for this work
+               rdf_file = "#{RDF_PATH}/arc_rdf_pages_ECCO/#{work_json['wks_ecco_number']}.rdf"
+               File.open(rdf_file, "w") { |f| f.write(hdr) }
+
+               works[work_id] = {:uri=>uri, :rdf=>rdf_file}
+            end
+
+            # read the page data
+            page_file = File.open(txt_path, "r")
+            txt = page_file.read
+
+            work = works[work_id]
+            out = template.gsub(/#TXT#/, txt.gsub(/\n/, " "))
+            out.gsub!(/#PAGE#/, page_num)
+            out.gsub!(/#FROM#/, work[:uri])
+            page_uri = String.new(work[:uri]) << "/" << page_num.rjust(4,"0")
+            out.gsub!(/#URI#/, page_uri)
+
+            # append results to file
+            File.open(work[:rdf], "a+") { |f| f.write(out) }
+         end
+         page += 1
+      end while done==false
+
+      # Now run through all of the newly created page-RDF files (one per edition)
+      # and close out the rdf:RDF tag
+      # NOTE all of this is necessary because the data file from eMOP enterleaves
+      # pages of editions
+      works.each do |k,v|
+         if v.has_key? :rdf
+            File.open(v[:rdf], "a+") { |f| f.write("</rdf:RDF>") }
+         end
+      end
+   end
+
+   desc "Generate page-level RDF (params: src_dir=/path/to/page/csv/files file=page/results/file)"
+   task :generate_page_rdf_test => :environment do
       src_dir = ENV['src_dir']
       src_file = ENV['file']
       raise "Source directory is required!" if src_file.nil?
