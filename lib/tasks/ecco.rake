@@ -15,8 +15,39 @@
 # limitations under the License.
 ##########################################################################
 require 'csv'
+require 'libxml'
 
 namespace :ecco do
+   def add_pages_tag (uri)
+      cmd = "grep #{uri} #{RDF_PATH}/arc_rdf_ECCO/*.rdf"
+      result = `#{cmd}`
+      if result.empty?
+         puts "ERROR: unable to find RDF for work #{work_id}"
+         return false
+      end
+
+      # grep response is filename:hit. Get the filename
+      id = uri.split("/").last
+      rdf_file_name = result.split(":")[0]
+      parser = LibXML::XML::Parser.file(rdf_file_name, :options => LibXML::XML::Parser::Options::NOBLANKS )
+      rdf = parser.parse
+      node = rdf.find_first("//recreate:collections[contains(@rdf:about,'#{id}')]")
+      exist = node.find_first("//collex:pages")
+      if exist.nil?
+         # move existing RDF to a backup file
+         new_name = rdf_file_name.gsub(/\.rdf$/i, ".ORIG_RDF")
+         cmd = "mv #{rdf_file_name} #{new_name}"
+         `#{cmd}`
+
+         # add pages flag and write out new RDF
+         node << LibXML::XML::Node.new('collex:pages', 'true')
+         rdf.save(rdf_file_name, :indent => true)
+      else
+         puts "RDF file #{rdf_file_name} already has pages flag for #{uri}"
+      end
+      return true
+   end
+
    desc "Generate page-level RDF (params: batch_id, work_id (optional))"
    task :generate_page_rdf => :environment do
       batch_id = ENV['batch_id']
@@ -66,6 +97,9 @@ namespace :ecco do
                work_str = RestClient.get "#{emop_url}/works/#{work_id}",  :authorization => "Token #{api_token}"
                work_json = JSON.parse(work_str)['work']
                uri = "lib://ECCO/#{work_json['wks_ecco_number']}"
+
+               # update ECCO rdf to include  <collex:pages>true</collex:pages>
+               next if !add_pages_tag(uri) # if this fails, skip
 
                # Create RDF to stream page contet entries for this work
                rdf_file = "#{RDF_PATH}/arc_rdf_pages_ECCO/#{work_json['wks_ecco_number']}.rdf"

@@ -34,7 +34,7 @@ gem 'spring',        group: :development
 
 gem 'rest-client'
 gem 'fast-stemmer'
-
+gem 'libxml-ruby'
 gem 'devise'
 
 gem "rsolr"
