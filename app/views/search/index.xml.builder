@@ -68,36 +68,4 @@ xml.search do
 		xml.text!("\n  ")
 	end
 	xml.text!("\n")
-  #
-  # only render the pivot section if pivots appear in the results...
-  #
-#  if @results[:pivots].nil? == false && @results[:pivots].empty? == false
-#    xml.pivots do
-#       @results[:pivots].each do |pivot_name, pivot_list|
-#         xml.text!("\n    ")
-#         xml.tag!(pivot_name) {
-#           pivot_list.each do |pivot|
-#             xml.text!("\n      ")
-#             xml.tag!(pivot[:name]) {
-#               xml.text!("\n      ")
-#               xml.name pivot[:value]
-#               xml.text!("\n      ")
-#               xml.count pivot[:count]
-#               xml.text!("\n      ")
-#               pivot[:pivot].each do |p|
-#                 xml.tag!(p[:name]) {
-#                   xml.text!("\n      ")
-#                   xml.name p[:value]
-#                   xml.text!("\n      ")
-#                   xml.count p[:count]
-#                   xml.text!("\n      ")
-#                 }
-#               end
-#             }
-#           end
-#         }
-#       end
-#    end
-#    xml.text!("\n")
-#  end
 end

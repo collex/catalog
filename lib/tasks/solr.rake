@@ -132,7 +132,7 @@ namespace :solr do
 
 	def filename_of_zipped_index(archive)
 		today = Time.now()
-    return File.join(Rails.application.secrets.folders['backups'], "#{archive}.#{today.strftime('20%y.%m.%d')}.tar.gz")
+      return File.join(Rails.application.secrets.folders['backups'], "#{archive}.#{today.strftime('20%y.%m.%d')}.tar.gz")
 	end
 
 	def dest_filename_of_zipped_index(archive)
@@ -142,7 +142,9 @@ namespace :solr do
 	def backup_archive(archive)
 		filename = filename_of_zipped_index(archive)
 		puts "zipping index \"#{archive}\"..."
-		cmd_line("cd #{SOLR_PATH}/solr/archives/#{archive} && tar cvzf #{filename} index")
+		solr_folder = "archives"
+		solr_folder = "pages" if archive.index("pages_") == 0
+		cmd_line("cd #{SOLR_PATH}/solr/#{solr_folder}/#{archive} && tar cvzf #{filename} index")
 		return filename
 	end
 
@@ -174,34 +176,4 @@ namespace :solr do
 		cmd_line("cd #{Rails.application.secrets.folders['uploaded_data']} && tar cvfz resources_old.tar.gz index")
 		finish_line(start_time)
 	end
-
-	#desc "This assumes a gzipped archive in the resources folder named like this: YYYY.MM.DD.index.tar.gz"
-	#task :install_index => :environment do
-	#	today = Time.now()
-	#	puts "The following commands will be executed:"
-	#	puts "cd #{SOLR_PATH}/solr/data/resources && sudo rm -R index_old"
-	#	puts "sudo /sbin/service solr stop"
-	#	puts "cd #{SOLR_PATH}/solr/data/resources && sudo mv index index_old"
-	#	puts "cd #{SOLR_PATH}/solr/data/resources && tar xvfz #{filename_of_zipped_index()}"
-	#	puts "sudo /sbin/service solr start"
-	#	puts "rake solr:index_exhibits"
-	#	puts "You will be asked for your sudo password."
-	#	cmd_line("cd #{SOLR_PATH}/solr/data/resources && sudo rm -R index_old")
-	#	cmd_line("sudo /sbin/service solr stop")
-	#	cmd_line("cd #{SOLR_PATH}/solr/data/resources && sudo mv index index_old")
-	#	cmd_line("cd #{SOLR_PATH}/solr/data/resources && tar xvfz #{filename_of_zipped_index()}")
-	#	cmd_line("sudo /sbin/service solr start")
-	#	sleep 5
-	#	Exhibit.index_all_peer_reviewed()
-	#	puts "Finished in #{(Time.now-today)/60} minutes."
-	#end
-	#
-	#desc "Remove exhibits from the main index (in case the index should be zipped up and moved.)"
-	#task :remove_exhibits_from_index => :environment do
-	#	puts "~~~~~~~~~~~ Removing all peer-reviewed exhibits from solr..."
-	#	today = Time.now()
-	#	Exhibit.unindex_all_exhibits()
-	#	puts "Finished in #{Time.now-today} seconds."
-	#end
-
 end

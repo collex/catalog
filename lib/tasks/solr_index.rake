@@ -310,63 +310,85 @@ namespace :solr_index do
 		do_archive(:as_one) { |archives| merge_archive(archives) }
 	end
 
-	desc "Package an individual archive and send it to a server. (archive=XXX,YYY) This gets it ready to be installed on the other server with the sister script: solr:install"
-	task :package => :environment do
-		do_archive { |archive|
-      if "#{archive}" == "EEBO" or "#{archive}" == "TEST_RDF"
-        puts "Archive #{archive} is a test archive and is not ready to be packaged."
-      else
-        index = "archive_#{archive}"
-        filename = backup_archive(index)
-        case Rails.application.secrets.folders['tasks_send_method']
-        when 'cp'
-          FileUtils.cp(filename, dest_filename_of_zipped_index(index))
-        else
-          Net::SCP.start(Rails.application.secrets.production['ssh_host'], Rails.application.secrets.production['ssh_user']) do |scp|
-            scp.upload! filename, dest_filename_of_zipped_index(index)
-          end
-        end
-      end
-		}
-	end
+	desc "Package archives and send them to a server. (archive=XXX,YYY) This gets them ready to be installed on the other server with the sister script: solr_index:install"
+   task :package => :environment do
+      do_archive { |archive|
+         if "#{archive}" == "EEBO" or "#{archive}" == "TEST_RDF"
+            puts "Archive #{archive} is a test archive and is not ready to be packaged."
+         else
+            # if this is a pages archive, do NOT prepend it with archive_
+            if archive.index("pages_") == 0
+               index = archive
+            else
+               index = "archive_#{archive}"
+            end
+
+            filename = backup_archive(index)
+            send_method = Rails.application.secrets.folders['tasks_send_method']
+            if send_method == 'cp'
+               FileUtils.cp(filename, dest_filename_of_zipped_index(index))
+            else
+               Net::SCP.start(Rails.application.secrets.production['ssh_host'], Rails.application.secrets.production['ssh_user']) do |scp|
+                  scp.upload! filename, dest_filename_of_zipped_index(index)
+               end
+            end
+         end
+      }
+   end
 
 	desc "Package the main archive and send it to a server. (archive=XXX,YYY) This gets it ready to be installed on the other server with the sister script: solr:install"
-	task :package_resources => :environment do
-		filename = backup_archive('resources')
-    case Rails.application.secrets.folders['tasks_send_method']
-    when 'cp'
-      FileUtils.cp(filename, dest_filename_of_zipped_index('resources'))
-    else
-      Net::SCP.start(Rails.application.secrets.production['ssh_host'], Rails.application.secrets.production['ssh_user']) do |scp|
-        scp.upload! filename, dest_filename_of_zipped_index('resources')
+   task :package_resources => :environment do
+      filename = backup_archive('resources')
+      send_method = Rails.application.secrets.folders['tasks_send_method']
+      if send_method == 'cp'
+         FileUtils.cp(filename, dest_filename_of_zipped_index('resources'))
+      else
+         Net::SCP.start(Rails.application.secrets.production['ssh_host'], Rails.application.secrets.production['ssh_user']) do |scp|
+            scp.upload! filename, dest_filename_of_zipped_index('resources')
+         end
       end
-    end
-	end
+   end
 
 	desc "This assumes a list of gzipped archives in the #{Rails.application.secrets.folders['uploaded_data']} folder named like this: archive_XXX.tar.gz. (params: archive=XXX,YYY) It will add those archives to the resources index."
-	task :install => :environment do
-		indexes = []
-		solr = Solr.factory_create(:live)
-		do_archive { |archive|
-			folder = Rails.application.secrets.folders['uploaded_data']
-			index = "archive_#{archive}"
-			index_path = "#{folder}/#{index}"
-			indexes.push(index_path)
-			cmd_line("cd #{folder} && tar xvfz #{index}.tar.gz")
-			cmd_line("rm -r -f #{index_path}")
-			cmd_line("mv #{uploaded_data_index} #{index_path}")
-			File.open("#{Rails.root}/log/archive_installations.log", 'a') {|f| f.write("Installed: #{Time.now().getlocal().strftime("%b %d, %Y %I:%M%p")} Created: #{File.mtime(index_path).getlocal().strftime("%b %d, %Y %I:%M%p")} #{archive}\n") }
-			solr.remove_archive(archive, false)
-		}
+   task :install => :environment do
+      indexes = []
+      pages = []
+      solr_live = Solr.factory_create(:live)
+      solr_pages = Solr.factory_create(:pages)
+      solr = nil
+      do_archive { |archive|
+         folder = Rails.application.secrets.folders['uploaded_data']
 
-		if indexes.length > 0
-			# delete the cache
-			delete_file("#{Rails.root}/cache/num_docs.txt")
+         if archive.index("pages_") == 0
+            index = archive
+            index_path = "#{folder}/#{index}"
+            solr = solr_pages
+            pages.push(index_path)
+         else
+            index = "archive_#{archive}"
+            index_path = "#{folder}/#{index}"
+            solr = solr_live
+            indexes.push(index_path)
+         end
 
-			solr.merge_archives(indexes, false)
-			solr.commit()
-		end
-	end
+         cmd_line("cd #{folder} && tar xvfz #{index}.tar.gz")
+         cmd_line("rm -r -f #{index_path}")
+         cmd_line("mv #{uploaded_data_index} #{index_path}")
+         File.open("#{Rails.root}/log/archive_installations.log", 'a') {|f| f.write("Installed: #{Time.now().getlocal().strftime("%b %d, %Y %I:%M%p")} Created: #{File.mtime(index_path).getlocal().strftime("%b %d, %Y %I:%M%p")} #{archive}\n") }
+         solr.remove_archive(archive, false)
+      }
+
+      if indexes.length > 0
+         delete_file("#{Rails.root}/cache/num_docs.txt")
+         solr_live.merge_archives(indexes, false)
+         solr_live.commit()
+      end
+      if pages.length > 0
+         delete_file("#{Rails.root}/cache/num_docs.txt")
+         solr_pages.merge_archives(pages, false)
+         solr_pages.commit()
+      end
+   end
 
 	desc "removes archives from the resources or pages index (param: archive=XXX,YYY)"
 	task :remove  => :environment do
@@ -444,34 +466,6 @@ namespace :solr_index do
 					custom = ''
 			end
 			cmd_line("cd #{indexer_path()} && java -Xmx3584m -jar #{indexer_name()} -logDir \"#{log_dir}\" -source #{RDF_PATH}/../#{source} -archive \"#{archive}\" -mode #{mode} #{custom}")
-		}
-	end
-
-	desc "Create git repositories for all archives"
-	task :create_git_repositories => :environment do
-		return # don't accidentally call this -- this should have just been done once.
-		folder_file = File.join(RDF_PATH, "sitemap.yml")
-		site_map = YAML.load_file(folder_file)
-		rdf_folders = site_map['archives']
-		rdf_folders.each { |i, rdfs|
-			if i.kind_of?(Fixnum)
-				rdfs.each {|archive,f|
-					# create project
-					response = `curl -d "private_token=#{TAMU_KEY}&name=arc_rdf_#{archive}" https://gitlab.tamu.edu/api/v2/projects`
-					puts response
-					response = JSON.parse(response)
-					project_id = response['id']
-
-					if project_id.present?
-						# add users
-						user_list = [ 16, 18 ] # adam, dana
-						user_list.each { |user|
-							response = `curl -d "private_token=#{TAMU_KEY}&user_id=#{user}&access_level=40" https://gitlab.tamu.edu/api/v2/projects/#{project_id}/members`
-							puts response
-						}
-					end
-			}
-			end
 		}
 	end
 

@@ -34,6 +34,8 @@ Rails.application.routes.draw do
 
 	get "home/index"
 
+   resources :pages, :only => [:index]
+
 	resources :search, :only => [:index] do
 		collection do
 			get 'autocomplete'

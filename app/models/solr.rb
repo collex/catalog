@@ -43,7 +43,7 @@ class Solr
             "role_DUB", "role_FAC", "role_ILU", "role_ILL", "role_LTG", "role_PRT", "role_POP", "role_PRM",
             "role_RPS", "role_RBR", "role_SCR", "role_SCL", "role_TYD", "role_TYG", "role_WDE", "role_WDC",
    	      "role_BRD", "role_CNG", "role_CND", "role_DRT", "role_IVR", "role_IVE", "role_OWN", "role_FMO", "role_PRF", "role_PRO", "role_PRN",
-           "hasPart", "isPartOf", "decade", "quarter_century", "half_century", "century", "subject"
+            "has_pages", "hasPart", "isPartOf", "decade", "quarter_century", "half_century", "century", "subject"
          ]
          @facet_fields = ['genre','archive','freeculture', 'has_full_text', 'federation', 'typewright', 'doc_type', 'discipline', 'role']
       end
@@ -280,6 +280,10 @@ class Solr
 					str = highlight['text'].join("\n") # This should always return an array of size 1, but just in case, we won't throw away any items.
 					hit['text'] = str.force_encoding("UTF-8")
 				end
+				if highlight && highlight['content_ascii']
+               str = highlight['content_ascii'].join("\n") # This should always return an array of size 1, but just in case, we won't throw away any items.
+               hit['text'] = str.force_encoding("UTF-8")
+            end
 			}
 		end
 
