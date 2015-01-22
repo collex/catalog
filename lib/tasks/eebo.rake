@@ -16,6 +16,19 @@
 ##########################################################################
 
 namespace :eebo do
+   include Pages
+
+   desc "Generate page-level RDF (params: batch_id, work_id (optional))"
+   task :generate_page_rdf => :environment do
+      batch_id = ENV['batch_id']
+      tgt_work = ENV['work_id']
+      raise "batch_id is required!" if batch_id.nil?
+      generate_pages("EEBO", batch_id, tgt_work) { |work_json|
+         out = { :uri=>"lib://EEBO/#{work_json['wks_eebo_citation_id']}/#{work_json['wks_eebo_image_id']}",
+                 :name=>"#{work_json['wks_ecco_number']}_#{work_json['wks_eebo_image_id']}.rdf" }
+         out
+      }
+   end
 
   desc "Mark archive_EEBO texts for typewright (param: file=/text/file/path/one/item/per/line)"
   task :typewright_enable, [:file] => :environment do |t, args|

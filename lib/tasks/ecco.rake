@@ -16,124 +16,20 @@
 ##########################################################################
 require 'csv'
 require 'libxml'
+require "#{Rails.root}/lib/tasks/pages.rb"
 
 namespace :ecco do
-   def add_pages_tag (uri)
-      cmd = "grep #{uri} #{RDF_PATH}/arc_rdf_ECCO/*.rdf"
-      result = `#{cmd}`
-      if result.empty?
-         puts "ERROR: unable to find RDF for work #{work_id}"
-         return false
-      end
-
-      # grep response is filename:hit. Get the filename
-      id = uri.split("/").last
-      rdf_file_name = result.split(":")[0]
-      parser = LibXML::XML::Parser.file(rdf_file_name, :options => LibXML::XML::Parser::Options::NOBLANKS )
-      rdf = parser.parse
-      node = rdf.find_first("//recreate:collections[contains(@rdf:about,'#{id}')]")
-      exist = node.find_first("//collex:pages")
-      if exist.nil?
-         # move existing RDF to a backup file
-         new_name = rdf_file_name.gsub(/\.rdf$/i, ".ORIG_RDF")
-         cmd = "mv #{rdf_file_name} #{new_name}"
-         `#{cmd}`
-
-         # add pages flag and write out new RDF
-         node << LibXML::XML::Node.new('collex:pages', 'true')
-         rdf.save(rdf_file_name, :indent => true)
-      else
-         puts "RDF file #{rdf_file_name} already has pages flag for #{uri}"
-      end
-      return true
-   end
+   include Pages
 
    desc "Generate page-level RDF (params: batch_id, work_id (optional))"
    task :generate_page_rdf => :environment do
       batch_id = ENV['batch_id']
       tgt_work = ENV['work_id']
       raise "batch_id is required!" if batch_id.nil?
-
-      # make sure out directory exists
-      if File.directory?("#{RDF_PATH}/arc_rdf_pages_ECCO/") == false
-         system("mkdir #{RDF_PATH}/arc_rdf_pages_ECCO/")
-      end
-
-      hdr =
-'<rdf:RDF xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-         xmlns:collex="http://www.collex.org/schema#"
-         xmlns:recreate="http://www.collex.org/recreate_schema#">
-'
-
-      template =
-'   <recreate:collections rdf:about="#URI#">
-       <collex:archive>pages_ECCO</collex:archive>
-       <collex:pageof>#FROM#</collex:pageof>
-       <collex:text>#TXT#</collex:text>
-       <collex:pagenum>#PAGE#</collex:pagenum>
-    </recreate:collections>
-'
-
-      page = 1
-      works = {}
-      emop_url = Rails.application.secrets.authentication['emop_root_url']
-      api_token = Rails.application.secrets.authentication['emop_token']
-      done = false
-      begin
-         resp_str = RestClient.get "#{emop_url}/page_results?batch_id=#{batch_id}&page_size=100&page_num=#{page}",  :authorization => "Token #{api_token}"
-         resp = JSON.parse(resp_str)
-         done = (resp['total_pages'].to_i == page)
-         resp['results'].each do | res |
-            txt_path = res['ocr_text_path']
-            bits = txt_path.split('/')
-            work_id = bits[bits.length-2]
-            txt_file = bits[bits.length-1]
-            page_num = txt_file.split('.')[0]
-            next if !tgt_work.nil? && tgt_work != work_id
-
-            if !works.has_key? work_id
-               # get work URI
-               work_str = RestClient.get "#{emop_url}/works/#{work_id}",  :authorization => "Token #{api_token}"
-               work_json = JSON.parse(work_str)['work']
-               uri = "lib://ECCO/#{work_json['wks_ecco_number']}"
-
-               # update ECCO rdf to include  <collex:pages>true</collex:pages>
-               next if !add_pages_tag(uri) # if this fails, skip
-
-               # Create RDF to stream page contet entries for this work
-               rdf_file = "#{RDF_PATH}/arc_rdf_pages_ECCO/#{work_json['wks_ecco_number']}.rdf"
-               File.open(rdf_file, "w") { |f| f.write(hdr) }
-
-               works[work_id] = {:uri=>uri, :rdf=>rdf_file}
-            end
-
-            # read the page data
-            page_file = File.open(txt_path, "r")
-            txt = page_file.read
-
-            work = works[work_id]
-            out = template.gsub(/#TXT#/, txt.gsub(/\n/, " "))
-            out.gsub!(/#PAGE#/, page_num)
-            out.gsub!(/#FROM#/, work[:uri])
-            page_uri = String.new(work[:uri]) << "/" << page_num.rjust(4,"0")
-            out.gsub!(/#URI#/, page_uri)
-
-            # append results to file
-            File.open(work[:rdf], "a+") { |f| f.write(out) }
-         end
-         page += 1
-      end while done==false
-
-      # Now run through all of the newly created page-RDF files (one per edition)
-      # and close out the rdf:RDF tag
-      # NOTE all of this is necessary because the data file from eMOP enterleaves
-      # pages of editions
-      works.each do |k,v|
-         if v.has_key? :rdf
-            File.open(v[:rdf], "a+") { |f| f.write("</rdf:RDF>") }
-         end
-      end
+      generate_pages("ECCO", batch_id, tgt_work) { |work_json|
+         out = { :uri=>"lib://ECCO/#{work_json['wks_ecco_number']}", :name=>"#{work_json['wks_ecco_number']}.rdf" }
+         out
+      }
    end
 
    desc "Mark archive_ECCO texts for typewright (param: file=/text/file/path/one/item/per/line)"
