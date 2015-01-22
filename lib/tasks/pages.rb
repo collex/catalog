@@ -1,7 +1,8 @@
+require 'fileutils'
 
 module Pages
    def add_pages_tag (archive, uri)
-      cmd = "grep #{uri} #{RDF_PATH}/arc_rdf_#{archive}/*.rdf 2>/dev/null"
+      cmd = "grep -R --include=*.rdf #{uri} #{RDF_PATH}/arc_rdf_#{archive}/ 2>/dev/null"
       result = `#{cmd}`
       if result.empty?
          print " ERROR: No RDF for work #{uri}"
@@ -36,11 +37,6 @@ module Pages
    #
    def generate_pages(archive, batch_id, tgt_work_id, &uri_block)
 
-      # make sure out directory exists. These directories are named pages_{archive}
-      if File.directory?("#{RDF_PATH}/arc_rdf_pages_#{archive}/") == false
-         system("mkdir #{RDF_PATH}/arc_rdf_pages_#{archive}/")
-      end
-
       # Templae for page RDF header.
       hdr =
 "<rdf:RDF xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"
@@ -59,7 +55,7 @@ module Pages
     </recreate:collections>
 "
 
-      puts "Processing page results"
+      puts "Processing page results for batch #{batch_id}"
       page = 1
       works = {}
       emop_url = Rails.application.secrets.authentication['emop_root_url']
@@ -107,10 +103,14 @@ module Pages
                   next
                end
 
-               # Create RDF to stream page contet entries for this work
+               # Create RDF to stream page content entries for this work -
+               # after ensuring that the the path to the file exists
                rdf_file = "#{RDF_PATH}/arc_rdf_pages_#{archive}/#{rdf_name}"
+               path = File.split(rdf_file)[0]
+               FileUtils.mkpath path
                File.open(rdf_file, "w") { |f| f.write(hdr) }
 
+               # Stash this data in the works map so it can be reused for other pages in this work
                works[work_id] = {:uri=>uri, :rdf=>rdf_file}
             end
 
@@ -122,6 +122,7 @@ module Pages
             page_file = File.open(txt_path, "r")
             txt = page_file.read
 
+            # Generate RDF record for this page and tack it on the end of the work RDF file
             out = template.gsub(/#TXT#/, txt.gsub(/\n/, " "))
             out.gsub!(/#PAGE#/, page_num)
             out.gsub!(/#FROM#/, work[:uri])

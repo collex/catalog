@@ -24,8 +24,13 @@ namespace :eebo do
       tgt_work = ENV['work_id']
       raise "batch_id is required!" if batch_id.nil?
       generate_pages("EEBO", batch_id, tgt_work) { |work_json|
-         out = { :uri=>"lib://EEBO/#{work_json['wks_eebo_citation_id']}/#{work_json['wks_eebo_image_id']}",
-                 :name=>"#{work_json['wks_ecco_number']}_#{work_json['wks_eebo_image_id']}.rdf" }
+         last = work_json['wks_eebo_citation_id'].to_s.rjust(10, "0")
+         bits = work_json['wks_eebo_directory'].split('/')
+         middle = bits.last.to_s.rjust(10, "0")
+         first = bits[bits.length-2]
+         unique = "#{first}-#{middle}-#{last}"
+         uri = "lib://EEBO/#{unique}"
+         out = { :uri=>uri, :name=>"#{bits.last(2).join('/')}/#{unique}.rdf" }
          out
       }
    end
