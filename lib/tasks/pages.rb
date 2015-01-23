@@ -1,8 +1,37 @@
 require 'fileutils'
 
 module Pages
+
+   def get_eebo_subdir( image_id )
+      # EEBO is split up int sub directories by what seems to be
+      # wks_eebo_image_id. Pick a subdir based on this number.
+      # NOTES: figured out these point by grep -nH :about *.rdf in each
+      # directory of EEBO RDF. Noted the start and end numbers for each
+      dir = ""
+      if image_id <= 19199
+         dir = "001"
+      elsif image_id <= 52279
+         dir = "002"
+      elsif image_id <= 99357
+         dir = "003"
+      else
+         dir = "004"
+      end
+      return dir
+   end
+
    def add_pages_tag (archive, uri)
       cmd = "grep -R --include=*.rdf #{uri} #{RDF_PATH}/arc_rdf_#{archive}/ 2>/dev/null"
+
+      # For EEBO, the above command is no good.. too much data in subdirectories. Search
+      # takes too long. Insted, look at the image_id portion of the URI and determine which
+      # subrirectory to confine the search to. See notes in the subdir method above.
+      if archive.downcase == "eebo"
+         image_id = uri.split("/").last.split("-").first.to_i
+         dir = get_eebo_subdir(image_id)
+         cmd = "grep -R --include=*.rdf #{uri} #{RDF_PATH}/arc_rdf_#{archive}/#{dir} 2>/dev/null"
+      end
+
       result = `#{cmd}`
       if result.empty?
          print " ERROR: No RDF for work #{uri}"

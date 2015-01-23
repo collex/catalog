@@ -25,12 +25,15 @@ namespace :eebo do
       raise "batch_id is required!" if batch_id.nil?
       generate_pages("eebo", batch_id, tgt_work) { |work_json|
          last = work_json['wks_eebo_citation_id'].to_s.rjust(10, "0")
-         bits = work_json['wks_eebo_directory'].split('/')
-         middle = bits.last.to_s.rjust(10, "0")
-         first = bits[bits.length-2]
-         unique = "#{first}-#{middle}-#{last}"
+         image_id = work_json['wks_eebo_image_id'].to_i
+         first = work_json['wks_eebo_image_id'].rjust(10, "0")
+         unique = "#{first}-#{last}"
          uri = "lib://EEBO/#{unique}"
-         out = { :uri=>uri, :name=>"#{bits.last(2).join('/')}/#{unique}.rdf" }
+
+         # See notes about this in the function from pages.rb
+         dir = get_eebo_subdir( image_id )
+
+         out = { :uri=>uri, :name=>"#{dir}/#{unique}.rdf", :image_id=>image_id }
          out
       }
    end
