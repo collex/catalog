@@ -23,7 +23,7 @@ namespace :eebo do
       batch_id = ENV['batch_id']
       tgt_work = ENV['work_id']
       raise "batch_id is required!" if batch_id.nil?
-      generate_pages("EEBO", batch_id, tgt_work) { |work_json|
+      generate_pages("eebo", batch_id, tgt_work) { |work_json|
          last = work_json['wks_eebo_citation_id'].to_s.rjust(10, "0")
          bits = work_json['wks_eebo_directory'].split('/')
          middle = bits.last.to_s.rjust(10, "0")
