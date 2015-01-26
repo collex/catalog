@@ -218,6 +218,7 @@ namespace :solr_index do
 			all_objects = {}
 			all_objects_raw.each { |obj|
 				arr = obj.split(':', 2)
+				next if arr[0].include? ".ORIG_RDF"
 				arr1 = obj.split('rdf:about="', 2)
 				arr2 = arr1[1].split('"')
 				if all_objects[arr2[0]] == nil
