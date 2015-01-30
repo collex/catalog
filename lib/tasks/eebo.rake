@@ -18,12 +18,13 @@
 namespace :eebo do
    include Pages
 
-   desc "Generate page-level RDF (params: batch_id, work_id (optional))"
+   desc "Generate page-level RDF (params: batch_id, work_id (optional), skip=y/N (optional - don't add pages flag to origninal rdf) )"
    task :generate_page_rdf => :environment do
       batch_id = ENV['batch_id']
       tgt_work = ENV['work_id']
+      skip = ENV['skip']
       raise "batch_id is required!" if batch_id.nil?
-      generate_pages("eebo", batch_id, tgt_work) { |work_json|
+      generate_pages("eebo", batch_id, tgt_work, skip) { |work_json|
          last = work_json['wks_eebo_citation_id'].to_s.rjust(10, "0")
          image_id = work_json['wks_eebo_image_id'].to_i
          first = work_json['wks_eebo_image_id'].rjust(10, "0")

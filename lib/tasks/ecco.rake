@@ -21,12 +21,13 @@ require "#{Rails.root}/lib/tasks/pages.rb"
 namespace :ecco do
    include Pages
 
-   desc "Generate page-level RDF (params: batch_id, work_id (optional))"
+   desc "Generate page-level RDF (params: batch_id, work_id (optional), skip=y/N (optional - don't add pages flag to origninal rdf) )"
    task :generate_page_rdf => :environment do
       batch_id = ENV['batch_id']
       tgt_work = ENV['work_id']
+      skip = ENV['skip']
       raise "batch_id is required!" if batch_id.nil?
-      generate_pages("ECCO", batch_id, tgt_work) { |work_json|
+      generate_pages("ECCO", batch_id, tgt_work, skip) { |work_json|
          out = { :uri=>"lib://ECCO/#{work_json['wks_ecco_number']}", :name=>"#{work_json['wks_ecco_number']}.rdf" }
          out
       }

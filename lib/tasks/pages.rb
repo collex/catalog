@@ -75,7 +75,7 @@ module Pages
    # be non-nil. The uri_block is a block that determines URI for the
    # work, and fileame for the page-level RDF file for that work
    #
-   def generate_pages(archive, batch_id, tgt_work_id, &uri_block)
+   def generate_pages(archive, batch_id, tgt_work_id, skip, &uri_block)
 
       # Templae for page RDF header.
       hdr =
@@ -138,10 +138,12 @@ module Pages
                rdf_name = info[:name]
 
                # update work rdf to include  <collex:pages>true</collex:pages>
-               if !add_pages_tag(archive, uri)
-                  # if this fails, skip it and flag this work so all other pages get skipped too
-                  works[work_id] = { :error=>"NO_RDF" }
-                  next
+               if !skip.nil? && skip.downcase == "n"
+                  if !add_pages_tag(archive, uri)
+                     # if this fails, skip it and flag this work so all other pages get skipped too
+                     works[work_id] = { :error=>"NO_RDF" }
+                     next
+                  end
                end
 
                # Create RDF to stream page content entries for this work -
