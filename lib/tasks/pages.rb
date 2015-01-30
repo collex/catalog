@@ -59,6 +59,17 @@ module Pages
       return true
    end
 
+   def pick_page_file(page_num, txt_path)
+      base_path = File.split(txt_path)[0]
+      # Preferences: x_ALTO.txt -> x_IDHMC.txt -> x.txt
+      exts = ["_ALTO.txt", "_IDHMC.txt", ".txt"]
+      exts.each do |ext|
+         full = "#{base_path}/#{page_num}#{ext}"
+         return full if File.exist? full
+      end
+      return txt_path
+   end
+
    # Generate page data for an specific archive from the given batch_id.
    # If only pages for specific work are requested, tgt_work_id will
    # be non-nil. The uri_block is a block that determines URI for the
@@ -149,8 +160,10 @@ module Pages
             next if !work[:error].nil?
 
             # read the page data
-            page_file = File.open(txt_path, "r")
+            page_txt_file = pick_page_file(page_num, txt_path)
+            page_file = File.open(page_txt_file, "r")
             txt = page_file.read
+            txt = txt.encode(:xml=>:text)
 
             # Generate RDF record for this page and tack it on the end of the work RDF file
             out = template.gsub(/#TXT#/, txt.gsub(/\n/, " "))
