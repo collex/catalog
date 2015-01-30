@@ -46,10 +46,12 @@ module Pages
       node = rdf.find_first("//recreate:collections[contains(@rdf:about,'#{id}')]")
       exist = node.find_first("//collex:pages")
       if exist.nil?
-         # move existing RDF to a backup file
+         # move existing RDF to a backup file (if it doesn't already exist)
          new_name = rdf_file_name.gsub(/\.rdf$/i, ".ORIG_RDF")
-         cmd = "mv #{rdf_file_name} #{new_name}"
-         `#{cmd}`
+         if !File.exist? new_name
+            cmd = "mv #{rdf_file_name} #{new_name}"
+            `#{cmd}`
+         end
 
          # add pages flag and write out new RDF
          node << LibXML::XML::Node.new('collex:pages', 'true')
