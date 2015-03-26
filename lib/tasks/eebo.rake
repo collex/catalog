@@ -216,10 +216,6 @@ namespace :eebo do
 
             # create file if necessary and reset all partitioning counters
             if rdf_file.nil? || len >= max_len
-               if file_cnt > file_max
-                  file_num_base = file_num_base + 1000
-                  file_cnt = 0
-               end
 
                # before creating a new one, close out the prior
                if !rdf_file.nil?
@@ -227,7 +223,7 @@ namespace :eebo do
                   rdf_file.close
                end
 
-               file_name = "#{RDF_PATH}/arc_rdf_eebo/#{sprintf( "%03d", file_num_base / 1000 )}/EEBO_#{file_num_base+file_cnt}.rdf"
+               file_name = "#{RDF_PATH}/arc_rdf_eebo/EEBO_#{file_num_base+file_cnt}.rdf"
                path = File.split(file_name)[0]
                FileUtils.mkpath path
                rdf_file = File.open(file_name, "w")
