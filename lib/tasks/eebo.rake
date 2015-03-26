@@ -171,7 +171,7 @@ namespace :eebo do
       cnt = 0
       page = 1
       rdf_file = nil
-      file_num = 1000
+      file_num_base = 1000
       file_cnt = 0
       file_max = 1000
       len = 0
@@ -187,7 +187,7 @@ namespace :eebo do
             # Skip all non-eebo
             next if res['wks_eebo_image_id'].nil?
 
-            print "." if cnt % dot_increment
+            print "." if cnt % dot_increment == 0
             cnt += 1
 
             # Generate the URI
@@ -216,10 +216,9 @@ namespace :eebo do
 
             # create file if necessary and reset all partitioning counters
             if rdf_file.nil? || len >= max_len
-               file_cnt = file_cnt+1
                if file_cnt > file_max
-                  file_num = file_num + 1000
-                  file_cnt = 1
+                  file_num_base = file_num_base + 1000
+                  file_cnt = 0
                end
 
                # before creating a new one, close out the prior
@@ -228,19 +227,21 @@ namespace :eebo do
                   rdf_file.close
                end
 
-               file_name = "#{RDF_PATH}/arc_rdf_eebo/#{sprintf( "%03d", file_num / 1000 )}/EEBO_#{file_num}.rdf"
+               file_name = "#{RDF_PATH}/arc_rdf_eebo/#{sprintf( "%03d", file_num_base / 1000 )}/EEBO_#{file_num_base+file_cnt}.rdf"
                path = File.split(file_name)[0]
                FileUtils.mkpath path
                rdf_file = File.open(file_name, "w")
                rdf_file.write hdr
                len = hdr.length
+
+               file_cnt = file_cnt+1
             end
 
             rdf_file.write rdf_rec
             len+= rdf_rec.length
          end
          page += 1
-         print "|"
+         print "|" if page % 100 == 0
       end while done==false
 
       if !rdf_file.nil?
