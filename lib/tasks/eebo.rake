@@ -123,8 +123,133 @@ namespace :eebo do
     end
   end
 
-  desc "Create all the RDF files for EEBO documents, using eMOP database records."
-  task :create_rdf => :environment do
+   desc "Create all the RDF files for EEBO documents, using eMOP database records."
+   task :create_rdf => :environment do
+      start_time = Time.now
+      TaskReporter.set_report_file("#{Rails.root}/log/eebo_error.log")
+      puts("STATUS: processing...")
+      emop_url = Rails.application.secrets.authentication['emop_root_url']
+      api_token = Rails.application.secrets.authentication['emop_token']
+
+      # RDF Header block
+      hdr =
+ "<rdf:RDF xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"
+      xmlns:role=\"http://www.loc.gov/loc.terms/relators/\"
+      xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"
+      xmlns:dc=\"http://purl.org/dc/elements/1.1/\"
+      xmlns:dcterms=\"http://purl.org/dc/terms/\"
+      xmlns:collex=\"http://www.collex.org/schema#\"
+      xmlns:recreate=\"http://www.collex.org/recreate_schema#\">
+"
+      # Template for each entry in the RDF file
+      template =
+"   <recreate:collections rdf:about=\"$URI\">
+       <collex:archive>EEBO</collex:archive>
+       <collex:freeculture>false</collex:freeculture>
+       <collex:fulltext>false</collex:fulltext>
+       <collex:ocr>false</collex:ocr>
+       <collex:genre>Citation</collex:genre>
+       <dc:title>$TITLE</dc:title>
+       <role:AUT>$AUTHOR</role:AUT>
+       <collex:federation>18thConnect</collex:federation>
+       <role:PBL>$PUBLISHER</role:PBL>
+       <dc:date>
+          <collex:date>
+             <rdfs:label>$DATE</rdfs:label>
+             <rdf:value>$DATE</rdf:value>
+          </collex:date>
+       </dc:date>
+       <rdfs:seeAlso rdf:resource=\"$URL\"/>
+       <dc:source>$SOURCE</dc:source>
+       <dc:type>Codex</dc:type>
+       <collex:discipline>Literature</collex:discipline>
+   </recreate:collections>
+"
+
+      meta = load_metadata()
+      done = false
+      cnt = 0
+      page = 1
+      rdf_file = nil
+      file_num = 1000
+      file_cnt = 0
+      file_max = 1000
+      len = 0
+      max_len = 1000000
+      begin
+         # Get a block of WORKs...
+         resp_str = RestClient.get "#{emop_url}/works?page_size=100&page_num=#{page}",  :authorization => "Token #{api_token}"
+         resp = JSON.parse(resp_str)
+         total_pages = resp['total_pages'].to_i
+         dot_increment = 1000 # every 1000 eebo rdfs get a . displayed
+         done = (total_pages == page)
+         resp['results'].each do | res |
+            # Skip all non-eebo
+            next if res['wks_eebo_image_id'].nil?
+
+            print "." if cnt % dot_increment
+            cnt += 1
+
+            # Generate the URI
+            image_id = res['wks_eebo_image_id']
+            last = res['wks_eebo_citation_id'].to_s.rjust(10, "0")
+            first = image_id.rjust(10, "0")
+            unique = "#{first}-#{last}"
+            uri = "lib://EEBO/#{unique}"
+
+            # Extract source info from meta data file
+            source = ""
+            if meta[ image_id.to_i ].nil? == false
+               source = meta[ image_id.to_i ]
+            else
+               puts "WARNING: cannot resolve source for image_id: #{res['wks_eebo_image_id']}"
+            end
+
+            # Fill out the RDF rec template
+            rdf_rec = template.gsub(/\$URI/, uri)
+            rdf_rec.gsub!(/\$TITLE/, res['wks_title'])
+            rdf_rec.gsub!(/\$AUTHOR/, res['wks_author'])
+            rdf_rec.gsub!(/\$PUBLISHER/, res['wks_publisher'])
+            rdf_rec.gsub!(/\$DATE/, res['wks_pub_date'])
+            rdf_rec.gsub!(/\$URL/, res['wks_eebo_url'])
+            rdf_rec.gsub!(/\$SOURCE/, source)
+
+            # create file if necessary and reset all partitioning counters
+            if rdf_file.nil? || len >= max_len
+               file_cnt = file_cnt+1
+               if file_cnt > file_max
+                  file_num = file_num + 1000
+                  file_cnt = 1
+               end
+
+               # before creating a new one, close out the prior
+               if !rdf_file.nil?
+                  rdf_file.write("</rdf:RDF>")
+                  rdf_file.close
+               end
+
+               file_name = "#{RDF_PATH}/arc_rdf_eebo/#{sprintf( "%03d", file_num / 1000 )}/EEBO_#{file_num}.rdf"
+               path = File.split(file_name)[0]
+               FileUtils.mkpath path
+               rdf_file = File.open(file_name, "w")
+               rdf_file.write hdr
+               len = hdr.length
+            end
+
+            rdf_file.write rdf_rec
+            len+= rdf_rec.length
+         end
+         page += 1
+         print "|"
+      end while done==false
+
+      if !rdf_file.nil?
+         rdf_file.write("</rdf:RDF>")
+         rdf_file.close
+      end
+   end
+
+  task :create_rdf_old => :environment do
     start_time = Time.now
     TaskReporter.set_report_file("#{Rails.root}/log/eebo_error.log")
     puts("STATUS: processing...")
@@ -222,37 +347,36 @@ namespace :eebo do
     }
   end
 
-  def load_metadata( )
+   def load_metadata( )
+      meta = {}
+      filename = "eebo_metadata/extract.txt"
+      image_ids = ''
+      File.foreach(filename).with_index do |line, line_num|
+         line = line.scrub( "?" )
 
-    meta = {}
-    filename = "eebo_metadata/extract.txt"
-    image_ids = ''
-    File.foreach(filename).with_index { |line, line_num|
-      line = line.scrub( "?" )
+         if line_num % 2 == 0
+            image_ids = line[/<image_id>(.*)<\/image_id>/, 1]
+            if image_ids.nil?
+               puts "ERROR: unexpected line #{line_num} @ #{line}"
+               return {}
+            end
+         else
+            source = line[/<source>(.*)<\/source>/, 1]
+            if source.nil?
+               puts "ERROR: unexpected line #{line_num} @ #{line}"
+               return {}
+            end
 
-      if line_num % 2 == 0
-         image_ids = line[/<image_id>(.*)<\/image_id>/, 1]
-         if image_ids.nil?
-            puts ( "ERROR: unexpected line #{line_num} @ #{line}")
-            return {}
+            ids = image_ids.split( " " )
+            ids.each { |id|
+               meta[ id.to_i ] = source
+            }
+            image_ids = ''
          end
-      else
-        source = line[/<source>(.*)<\/source>/, 1]
-        if source.nil?
-          puts ( "ERROR: unexpected line #{line_num} @ #{line}")
-          return {}
-        end
-
-        ids = image_ids.split( " " )
-        ids.each { |id|
-          meta[ id.to_i ] = source
-        }
-        image_ids = ''
       end
-    }
 
-    return( meta )
-  end
+      return meta
+   end
 
   def process_eebo_fulltext( hits )
 
