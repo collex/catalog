@@ -31,10 +31,7 @@ namespace :eebo do
          unique = "#{first}-#{last}"
          uri = "lib://EEBO/#{unique}"
 
-         # See notes about this in the function from pages.rb
-         dir = get_eebo_subdir( image_id )
-
-         out = { :uri=>uri, :name=>"#{dir}/#{unique}.rdf", :image_id=>image_id }
+         out = { :uri=>uri, :name=>"#{unique}.rdf", :image_id=>image_id }
          out
       }
    end
@@ -167,28 +164,26 @@ namespace :eebo do
 "
 
       meta = load_metadata()
-      done = false
       cnt = 0
       page = 1
       rdf_file = nil
       file_num_base = 1000
       file_cnt = 0
-      file_max = 1000
       len = 0
       max_len = 1000000
+      dot_increment = 1000
       begin
          # Get a block of WORKs...
-         resp_str = RestClient.get "#{emop_url}/works?page_size=100&page_num=#{page}",  :authorization => "Token #{api_token}"
+         resp_str = RestClient.get "#{emop_url}/works?per_page=1000&page_num=#{page}",  :authorization => "Token #{api_token}"
          resp = JSON.parse(resp_str)
-         total_pages = resp['total_pages'].to_i
-         dot_increment = 1000 # every 1000 eebo rdfs get a . displayed
-         done = (total_pages == page)
-         resp['results'].each do | res |
-            # Skip all non-eebo
-            next if res['wks_eebo_image_id'].nil?
+         break if resp['results'].length == 0
 
+         resp['results'].each do | res |
             print "." if cnt % dot_increment == 0
             cnt += 1
+
+            # Skip all non-eebo
+            next if res['wks_eebo_image_id'].nil?
 
             # Generate the URI
             image_id = res['wks_eebo_image_id']
@@ -237,112 +232,13 @@ namespace :eebo do
             len+= rdf_rec.length
          end
          page += 1
-         print "|" if page % 100 == 0
-      end while done==false
+      end while true
 
       if !rdf_file.nil?
          rdf_file.write("</rdf:RDF>")
          rdf_file.close
       end
    end
-
-  task :create_rdf_old => :environment do
-    start_time = Time.now
-    TaskReporter.set_report_file("#{Rails.root}/log/eebo_error.log")
-    puts("STATUS: processing...")
-    hits = []
-    process_eebo_entries(hits)
-    puts("STATUS: sorting...")
-    hits.sort! { |a,b| a['uri'] <=> b['uri'] }
-    puts("STATUS: resolving source...")
-    resolve_eebo_source(hits)
-
-    block_size = 10000
-    file_num = 1000
-    while true
-
-       remaining = [ hits.size, block_size ].min
-       break if remaining == 0
-
-       puts( "STATUS: processing fulltext...")
-       puts "remaining = #{remaining}"
-       block = hits[ 0, remaining ]
-       process_eebo_fulltext( block )
-
-       # use an EEBO prefix, max size 1MB, start at # 1000 and partition into subdirs
-       file_num = RegenerateRdf.regenerate_all( block, "#{RDF_PATH}/arc_rdf_eebo", "EEBO", 1000000, file_num, true )
-
-       while remaining != 0
-         hits.delete_at( 0 )
-         remaining -= 1
-       end
-    end
-    finish_line(start_time)
-  end
-
-  def process_eebo_entries(hits, max_recs = 9999999)
-#  def process_eebo_entries(hits, max_recs = 25000)
-
-    filter_out = load_filter_list( )
-    total_recs = 0
-    Work.find_each do | work |
-      if work.isEEBO?
-
-        # ignore any items on the filter out list
-        if filter_out.include?( work.wks_eebo_image_id.strip ) == true
-          next
-        end
-
-        obj = {}
-
-        # special fields used in the subsequent steps
-        tokens = work.wks_eebo_directory.split( "/" )
-        obj[ 'wks_marc_record' ] = work.wks_marc_record
-        obj[ 'image_id' ] = tokens[ tokens.size - 1 ]
-        obj[ 'eebo_dir' ] = tokens[ tokens.size - 2 ]
-
-        obj[ 'archive' ] = "EEBO"
-        obj[ 'federation' ] = "18thConnect"
-
-        obj['uri'] = "lib://EEBO/#{sprintf( "%010d", work.wks_eebo_image_id )}-#{sprintf( "%010d", work.wks_eebo_citation_id)}"
-        obj['url'] = "#{work.wks_eebo_url.gsub(/(.*):image:\d+$/, '\1')}:citation:#{work.wks_eebo_citation_id}"
-
-        obj['title'] = work.wks_title
-        obj['year'] = fix_date( work.wks_pub_date )
-        obj['date_label'] = work.wks_pub_date
-
-        obj['genre'] = "Citation"
-        obj[ 'discipline'] = "Literature"
-        obj[ 'doc_type'] = "Codex"
-
-        obj['is_ocr'] = false
-        obj['has_full_text'] = false
-        obj['freeculture'] = false
-
-        obj['role_AUT'] = work.wks_author
-        obj['role_PBL'] = work.wks_publisher
-
-        hits.push(obj)
-        total_recs += 1
-        puts("STATUS: processed: #{total_recs} ...") if total_recs % 500 == 0
-        break if total_recs >= max_recs
-      end
-    end
-    puts("Total: #{total_recs}")
-  end
-
-  def resolve_eebo_source( hits )
-
-    meta = load_metadata( )
-    hits.each { | obj |
-      if meta[ obj[ 'image_id' ].to_i ].nil? == false
-        obj[ 'source' ] = meta[ obj[ 'image_id' ].to_i ]
-        #puts( "Resolved Id #{obj[ 'image_id' ]} to #{obj[ 'source' ]}")
-      else
-        puts "WARNING: cannot resolve source for image_id: #{obj[ 'image_id' ]}"
-      end
-    }
-  end
 
    def load_metadata( )
       meta = {}
@@ -374,62 +270,5 @@ namespace :eebo do
 
       return meta
    end
-
-  def process_eebo_fulltext( hits )
-
-    hits.each { | obj |
-
-      eebo_text_root = "/data/shared/text-xml/EEBO-TCP-document-text"
-      #eebo_text_root = "/Users/daveg/Sandboxes/collex-catalog/tmp"
-
-      # we have TCP text available...
-      if obj[ 'wks_marc_record'].nil? == false && obj[ 'wks_marc_record'].empty? == false
-        textfile = "#{eebo_text_root}/#{obj['eebo_dir']}/#{obj['image_id']}.txt"
-        if File.exist?( textfile ) == true
-          File.open( textfile, "r" ) { |f|
-            obj[ 'text'] = f.read
-          }
-          obj[ 'has_full_text' ] = true
-        else
-          puts "WARNING: #{textfile} does not exist or not readable"
-        end
-      else
-      end
-
-      obj.delete( 'wks_marc_record' )
-      obj.delete( 'image_id' )
-      obj.delete( 'eebo_dir' )
-    }
-  end
-
-  def load_filter_list
-
-    filter_list = []
-    filename = "eebo_metadata/filter.txt"
-    File.foreach(filename) { |line|
-      line.strip!
-      filter_list.push( line )
-    }
-    return( filter_list )
-
-  end
-
-  def fix_date( date )
-
-     tokens = date.split( "-" )
-     if tokens.length == 2
-
-        if tokens[ 0 ].length == 2
-          date_out = "#{tokens[0]}00,#{tokens[1]}"
-        elsif tokens[ 0 ].length == 0
-          date_out = tokens[1]
-        else
-          date_out = "#{tokens[0]},#{tokens[1]}"
-        end
-     else
-       date_out = date
-     end
-
-  end
 
 end
