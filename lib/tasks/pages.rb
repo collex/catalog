@@ -2,35 +2,8 @@ require 'fileutils'
 
 module Pages
 
-   def get_eebo_subdir( image_id )
-      # EEBO is split up int sub directories by what seems to be
-      # wks_eebo_image_id. Pick a subdir based on this number.
-      # NOTES: figured out these point by grep -nH :about *.rdf in each
-      # directory of EEBO RDF. Noted the start and end numbers for each
-      dir = ""
-      if image_id <= 19199
-         dir = "001"
-      elsif image_id <= 52279
-         dir = "002"
-      elsif image_id <= 99357
-         dir = "003"
-      else
-         dir = "004"
-      end
-      return dir
-   end
-
    def add_pages_tag (archive, uri)
       cmd = "grep -R --include=*.rdf #{uri} #{RDF_PATH}/arc_rdf_#{archive}/ 2>/dev/null"
-
-      # For EEBO, the above command is no good.. too much data in subdirectories. Search
-      # takes too long. Insted, look at the image_id portion of the URI and determine which
-      # subrirectory to confine the search to. See notes in the subdir method above.
-      if archive.downcase == "eebo"
-         image_id = uri.split("/").last.split("-").first.to_i
-         dir = get_eebo_subdir(image_id)
-         cmd = "grep -R --include=*.rdf #{uri} #{RDF_PATH}/arc_rdf_#{archive}/#{dir} 2>/dev/null"
-      end
 
       result = `#{cmd}`
       if result.empty?
@@ -102,15 +75,14 @@ module Pages
       works = {}
       emop_url = Rails.application.secrets.authentication['emop_root_url']
       api_token = Rails.application.secrets.authentication['emop_token']
-      done = false
       cnt = 0
+      dot_increment = 1000
       begin
          # Get a block of page results from a batch...
-         resp_str = RestClient.get "#{emop_url}/page_results?batch_id=#{batch_id}&page_size=100&page_num=#{page}",  :authorization => "Token #{api_token}"
+         resp_str = RestClient.get "#{emop_url}/page_results?batch_id=#{batch_id}&works?per_page=1000&page_num=#{page}",  :authorization => "Token #{api_token}"
          resp = JSON.parse(resp_str)
-         total_pages = resp['total_pages'].to_i
-         dot_increment = resp['total'].to_i/100
-         done = (total_pages == page)
+         break if resp['results'].length == 0
+
          resp['results'].each do | res |
             print "." if cnt % dot_increment
             cnt += 1
@@ -180,7 +152,7 @@ module Pages
             File.open(work[:rdf], "a+") { |f| f.write(out) }
          end
          page += 1
-      end while done==false
+      end while true
 
       # Now run through all of the newly created page-RDF files (one per edition)
       # and close out the rdf:RDF tag
