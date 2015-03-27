@@ -84,7 +84,7 @@ module Pages
          break if resp['results'].length == 0
 
          resp['results'].each do | res |
-            print "." if cnt % dot_increment
+            print "." if cnt % dot_increment == 0
             cnt += 1
 
             # Main part we care about is the path to the OCR text file.
