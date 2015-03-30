@@ -187,6 +187,10 @@ namespace :eebo do
 
             # Generate the URI
             image_id = res['wks_eebo_image_id']
+            if image_id.nil?
+               puts "SKIPPING BAD RECORD: #{res}"
+               next
+            end
             last = res['wks_eebo_citation_id'].to_s.rjust(10, "0")
             first = image_id.rjust(10, "0")
             unique = "#{first}-#{last}"
