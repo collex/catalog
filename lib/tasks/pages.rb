@@ -113,7 +113,7 @@ module Pages
                rdf_name = info[:name]
 
                # update work rdf to include  <collex:pages>true</collex:pages>
-               if !skip.nil? && skip.downcase == "n"
+					if skip.nil? || (!skip.nil? && skip.downcase == "n")
                   if !add_pages_tag(archive, uri)
                      # if this fails, skip it and flag this work so all other pages get skipped too
                      works[work_id] = { :error=>"NO_RDF" }
