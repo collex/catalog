@@ -174,7 +174,7 @@ namespace :eebo do
       dot_increment = 1000
       begin
          # Get a block of WORKs...
-         resp_str = RestClient.get "#{emop_url}/works?per_page=1000&page_num=#{page}",  :authorization => "Token #{api_token}"
+         resp_str = RestClient.get "#{emop_url}/works?per_page=1000&page_num=#{page}&is_eebo=true",  :authorization => "Token #{api_token}"
          resp = JSON.parse(resp_str)
          break if resp['results'].length == 0
 

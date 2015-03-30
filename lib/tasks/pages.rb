@@ -79,7 +79,10 @@ module Pages
       dot_increment = 1000
       begin
          # Get a block of page results from a batch...
-         resp_str = RestClient.get "#{emop_url}/page_results?batch_id=#{batch_id}&works?per_page=1000&page_num=#{page}",  :authorization => "Token #{api_token}"
+         archive_flag = "is_eebo=true"
+         archive_flag = "is_ecco=true" if archive == "ECCO"
+         resp_str = RestClient.get "#{emop_url}/page_results?batch_id=#{batch_id}&works?per_page=1000&page_num=#{page}&#{archive_flag}",
+                                   :authorization => "Token #{api_token}"
          resp = JSON.parse(resp_str)
          break if resp['results'].length == 0
 
