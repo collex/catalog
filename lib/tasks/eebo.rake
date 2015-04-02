@@ -195,6 +195,7 @@ namespace :eebo do
             first = image_id.rjust(10, "0")
             unique = "#{first}-#{last}"
             uri = "lib://EEBO/#{unique}"
+            url = "#{res['wks_eebo_url'].gsub(/(.*):image:\d+$/, '\1')}:citation:#{res['wks_eebo_citation_id']}"
 
             # Extract source info from meta data file
             source = ""
@@ -210,7 +211,7 @@ namespace :eebo do
             rdf_rec.gsub!(/\$AUTHOR/, res['wks_author'])
             rdf_rec.gsub!(/\$PUBLISHER/, res['wks_publisher'])
             rdf_rec.gsub!(/\$DATE/, res['wks_pub_date'])
-            rdf_rec.gsub!(/\$URL/, res['wks_eebo_url'])
+            rdf_rec.gsub!(/\$URL/, url)
             rdf_rec.gsub!(/\$SOURCE/, source)
 
             # create file if necessary and reset all partitioning counters
