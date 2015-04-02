@@ -196,6 +196,7 @@ namespace :eebo do
             unique = "#{first}-#{last}"
             uri = "lib://EEBO/#{unique}"
             url = "#{res['wks_eebo_url'].gsub(/(.*):image:\d+$/, '\1')}:citation:#{res['wks_eebo_citation_id']}"
+            url.gsub!(/&/, "&amp;")
 
             # Extract source info from meta data file
             source = ""
