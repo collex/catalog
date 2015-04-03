@@ -197,20 +197,24 @@ namespace :eebo do
             uri = "lib://EEBO/#{unique}"
             url = "#{res['wks_eebo_url'].gsub(/(.*):image:\d+$/, '\1')}:citation:#{res['wks_eebo_citation_id']}"
             url.gsub!(/&/, "&amp;")
+            title = res['wks_title'].gsub(/&/, "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+            pub = res['wks_publisher'].gsub(/&/, "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+            author = res['wks_author'].gsub(/&/, "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+
 
             # Extract source info from meta data file
             source = ""
             if meta[ image_id.to_i ].nil? == false
-               source = meta[ image_id.to_i ]
+               source = meta[ image_id.to_i ].gsub(/&/, "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
             else
                puts "WARNING: cannot resolve source for image_id: #{res['wks_eebo_image_id']}"
             end
 
             # Fill out the RDF rec template
             rdf_rec = template.gsub(/\$URI/, uri)
-            rdf_rec.gsub!(/\$TITLE/, res['wks_title'])
-            rdf_rec.gsub!(/\$AUTHOR/, res['wks_author'])
-            rdf_rec.gsub!(/\$PUBLISHER/, res['wks_publisher'])
+            rdf_rec.gsub!(/\$TITLE/, title)
+            rdf_rec.gsub!(/\$AUTHOR/, author)
+            rdf_rec.gsub!(/\$PUBLISHER/, pub)
             rdf_rec.gsub!(/\$DATE/, res['wks_pub_date'])
             rdf_rec.gsub!(/\$URL/, url)
             rdf_rec.gsub!(/\$SOURCE/, source)
