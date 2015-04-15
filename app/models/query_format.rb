@@ -554,7 +554,14 @@ class QueryFormat
   end
 
 	def self.transform_title(key,val,fuz=nil)
-		return { 'fq' => self.diacritical_query_data("title", val, fuz) }
+	   #
+	   # NOTE: The 'q' below was formerly 'fq' but this caused problems when searching
+	   # for titles and including stop words. 'fq' queries break out the terms ( see solr:process_fq() )
+	   # in the query for matches on each. Since stop words are filtered out, 
+	   # all tile queries with them failed. Now title search works like normal 
+	   # content serches except that is on the title / title_ascii field
+	   #
+		return { 'q' => self.diacritical_query_data("title", val, fuz) }
 	end
 
 	def self.transform_author(key,val)
