@@ -382,37 +382,48 @@ namespace :solr_index do
       if indexes.length > 0
          delete_file("#{Rails.root}/cache/num_docs.txt")
          solr_live.merge_archives(indexes, false)
-         solr_live.commit()
       end
       if pages.length > 0
          delete_file("#{Rails.root}/cache/num_docs.txt")
          solr_pages.merge_archives(pages, false)
-         solr_pages.commit()
       end
    end
 
-	desc "removes archives from the resources or pages index (param: archive=XXX,YYY)"
-	task :remove  => :environment do
-		solr_live = Solr.factory_create(:live)
-		solr_pages = Solr.factory_create(:pages)
-		do_archive do |archive|
-		   if archive.index("pages_") == 0
-		      solr_pages.remove_archive(archive, false)
-		   else
-			   solr_live.remove_archive(archive, false)
-			end
-		end
-
-		if !solr_pages.blank?
-			solr_pages.commit()
-			solr_pages.optimize()
-		end
-
-		if !solr_live.blank?
-         solr_live.commit()
-         solr_live.optimize()
+desc "removes archives from the resources or pages index (param: archive=XXX,YYY)"
+   task :remove  => :environment do
+      pages_cnt = 0
+      other_cnt = 0
+      do_archive do |archive|
+         if archive.index("pages_") == 0
+            pages_cnt += 1
+         else
+            other_cnt += 1
+         end
       end
-	end
+
+      if pages_cnt > 0 && other_cnt > 0
+         raise "\n\nCannot mix removal of pages/non-pages archives.\nPlease make separate requests for each archive type.\n\n"
+      end
+
+      if pages_cnt > 0
+        puts "Removing pages archives"
+        solr = Solr.factory_create(:pages)
+      else
+        puts "Removing non-pages archives"
+        solr = Solr.factory_create(:live)
+      end
+
+      do_archive do |archive|
+         puts "  * #{archive}"
+         solr.remove_archive(archive, false)
+      end
+
+      if !solr.blank?
+         puts " * SOLR commit..."
+         solr.commit()
+      end
+      puts "DONE!"
+   end
 
 	desc "removes all exhibits from the resources index"
 	task :delete_exhibits => :environment do
