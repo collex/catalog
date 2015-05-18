@@ -81,7 +81,8 @@ module Pages
          # Get a block of page results from a batch...
          url = "#{emop_url}/page_results?batch_id=#{batch_id}&per_page=2000&page_num=#{page}"
          resp_str = RestClient.get url,  :authorization => "Token #{api_token}"
-
+         resp = JSON.parse(resp_str)
+         
          break if resp['results'].length == 0
 
          resp['results'].each do | res |
