@@ -39,18 +39,18 @@ namespace :eebo do
   desc "Mark archive_EEBO texts for typewright (param: file=/text/file/path/one/item/per/line)"
   task :typewright_enable, [:file] => :environment do |t, args|
 
-    file = args[:file]
+    file = ENV['file']
     if file == nil
       puts "Usage: call with file=/text/file\nThe text file should have a list of EEBO uri's, with one of them per line."
     else
       start_time = Time.now
-      dst = Solr.new("archive_EEBO")
+      dst = Solr.new("archive_eebo_prq")
       has_dot = false
       num_added = 0
       num_missing = 0
       count = 0
       File.open(file).each_line{ |text|
-        uri = text.strip( )
+        uri = "lib\\://EEBO/#{text.strip()}"
         begin
           print "\n#{count}" if count % 1000 == 0
           print '.' if count % 50 == 0
@@ -73,7 +73,7 @@ namespace :eebo do
       puts "\nNumber of documents added to typewright: #{num_added}"
       puts "Number of documents not found: #{num_missing}"
       puts "All items processed into the test index. If the test index looks correct, then merge it into the live index with:"
-      puts "rake solr_index:merge_archive archive=EEBO"
+      puts "rake solr_index:merge_archive archive=eebo_prq"
       finish_line(start_time)
     end
   end
