@@ -3,6 +3,7 @@ require 'fileutils'
 module Pages
 
    def add_pages_tag (archive, uri)
+#puts "add pages tag to #{uri}"
       cmd = "grep -R --include=*.rdf #{uri} #{RDF_PATH}/arc_rdf_#{archive}/ 2>/dev/null"
 
       result = `#{cmd}`
@@ -14,11 +15,13 @@ module Pages
       # grep response is filename:hit. Get the filename
       id = uri.split("/").last
       rdf_file_name = result.split(":")[0]
+#puts "File found: #{rdf_file_name}, ID=#{id}"
       parser = LibXML::XML::Parser.file(rdf_file_name, :options => LibXML::XML::Parser::Options::NOBLANKS )
       rdf = parser.parse
       node = rdf.find_first("//recreate:collections[contains(@rdf:about,'#{id}')]")
-      exist = node.find_first("//collex:pages")
-      if exist.nil?
+      exist = node.to_s.include? "<collex:pages>true</collex:pages>"
+#puts "=======================> EXIST #{exist}"
+      if exist == false
          # move existing RDF to a backup file (if it doesn't already exist)
          new_name = rdf_file_name.gsub(/\.rdf$/i, ".ORIG_RDF")
          if !File.exist? new_name
@@ -78,8 +81,14 @@ module Pages
       cnt = 0
       dot_increment = 1000
       begin
-         # Get a block of page results from a batch...
-         url = "#{emop_url}/page_results?batch_id=#{batch_id}&per_page=2000&page_num=#{page}"
+         if !tgt_work_id.nil?
+            dot_increment = 1
+            puts "Requesting page results for single work #{tgt_work_id} from batch #{batch_id}"
+            url = "#{emop_url}/page_results?batch_id=#{batch_id}&works[wks_work_id]=#{tgt_work_id}&per_page=2000&page_num=#{page}"
+         else
+            # Get a block of page results from a batch...
+            url = "#{emop_url}/page_results?batch_id=#{batch_id}&per_page=2000&page_num=#{page}"
+         end
          resp_str = RestClient.get url,  :authorization => "Token #{api_token}"
          resp = JSON.parse(resp_str)
          
@@ -99,9 +108,6 @@ module Pages
             txt_file = bits[bits.length-1]
             page_num = txt_file.split('.')[0]
 
-            # If a specific work has been requested, skip all but it
-            next if !tgt_work_id.nil? && tgt_work_id != work_id
-
             if !works.has_key? work_id
                # get work URI
                work_str = RestClient.get "#{emop_url}/works/#{work_id}",  :authorization => "Token #{api_token}"
@@ -114,7 +120,7 @@ module Pages
                rdf_name = info[:name]
 
                # update work rdf to include  <collex:pages>true</collex:pages>
-					if skip.nil? || (!skip.nil? && skip.downcase == "n")
+               if skip.nil? || (!skip.nil? && skip.downcase == "n")
                   if !add_pages_tag(archive, uri)
                      # if this fails, skip it and flag this work so all other pages get skipped too
                      works[work_id] = { :error=>"NO_RDF" }
@@ -168,3 +174,4 @@ module Pages
       puts "DONE"
    end
 end
+
