@@ -169,7 +169,11 @@ module Pages
       rdf_dir= "#{RDF_PATH}/arc_rdf_#{archive}"
       Dir.chdir( rdf_dir )
       Dir.glob("*.rdf") do |f|
-         File.open(f, "a+") { |f| f.write("</rdf:RDF>") }
+         cmd = "grep '</rdf:RDF>' #{File.join(Dir.pwd, f)} 2>/dev/null"
+         result = `#{cmd}`
+         if result.empty?
+            File.open(f, "a+") { |f| f.write("</rdf:RDF>") }
+         end
       end
       puts "DONE"
    end
