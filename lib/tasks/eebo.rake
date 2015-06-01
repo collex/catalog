@@ -46,9 +46,7 @@ namespace :eebo do
       rdf_dir= "#{RDF_PATH}/arc_rdf_#{archive}"
       Dir.chdir( rdf_dir )
       Dir.glob("*.rdf") do |f|
-         puts f
          cmd = "grep '</rdf:RDF>' #{File.join(Dir.pwd, f)} 2>/dev/null"
-         puts "CMD: #{cmd}"
          result = `#{cmd}`
          if result.empty?
             File.open(f, "a+") { |f| f.write("</rdf:RDF>") }

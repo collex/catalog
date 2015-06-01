@@ -166,9 +166,14 @@ module Pages
       # and close out the rdf:RDF tag
       # NOTE all of this is necessary because the data file from eMOP enterleaves
       # pages of editions
-      works.each do |k,v|
-         if v.has_key? :rdf
-            File.open(v[:rdf], "a+") { |f| f.write("</rdf:RDF>") }
+      rdf_dir= "#{RDF_PATH}/arc_rdf_#{archive}"
+      Dir.chdir( rdf_dir )
+      Dir.glob("*.rdf") do |f|
+         cmd = "grep '</rdf:RDF>' #{File.join(Dir.pwd, f)} 2>/dev/null"
+         puts "CMD: #{cmd}"
+         result = `#{cmd}`
+         if result.empty?
+            File.open(f, "a+") { |f| f.write("</rdf:RDF>") }
          end
       end
       puts "DONE"
