@@ -36,6 +36,26 @@ namespace :eebo do
          out
       }
    end
+   
+   desc "close rdf tag on broken archives"
+   task :close_rdf_tag => :environment do
+      archive = ENV['archive']
+      raise "archive is required!" if archive.nil?
+
+
+      rdf_dir= "#{RDF_PATH}/arc_rdf_#{archive}"
+      Dir.chdir( rdf_dir )
+      Dir.glob("*.rdf") do |f|
+         puts f
+         cmd = "grep '</rdf:RDF>' #{File.join(Dir.pwd, f)} 2>/dev/null"
+         puts "CMD: #{cmd}"
+         result = `#{cmd}`
+         if result.empty?
+            File.open(f, "a+") { |f| f.write("</rdf:RDF>") }
+         end
+      end
+   end
+
 
   desc "Mark archive_EEBO texts for typewright (param: file=/text/file/path/one/item/per/line)"
   task :typewright_enable, [:file] => :environment do |t, args|
