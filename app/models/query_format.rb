@@ -164,7 +164,9 @@ class QueryFormat
 				'max' => { :name => 'Maximum matches to return', :param => :max, :default => '15', :transformation => get_proc(:transform_max_matches) },
 
 				'q' => { :name => 'Query', :param => :term, :default => nil, :transformation => get_proc(:transform_query) },
+				'fuz_q' => { :name => 'Query Fuzz Value', :param => :fuz_value, :default => nil, :transformation => get_proc(:transform_nil) },
 				't' => { :name => 'Title', :param => :term, :default => nil, :transformation => get_proc(:transform_title) },
+				'fuz_t' => { :name => 'Title Fuzz Value', :param => :fuz_value, :default => nil, :transformation => get_proc(:transform_nil) },
 				'aut' => { :name => 'Author', :param => :term, :default => nil, :transformation => get_proc(:transform_author) },
 				'ed' => { :name => 'Editor', :param => :term, :default => nil, :transformation => get_proc(:transform_editor) },
 				'pub' => { :name => 'Publisher', :param => :term, :default => nil, :transformation => get_proc(:transform_publisher) },
