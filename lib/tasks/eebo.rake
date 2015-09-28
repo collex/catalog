@@ -247,7 +247,7 @@ namespace :eebo do
                   rdf_file.close
                end
 
-               file_name = "#{RDF_PATH}/arc_rdf_eebo/EEBO_#{file_num_base+file_cnt}.rdf"
+               file_name = "#{RDF_PATH}/arc_rdf_eebo_prq/EEBO_#{file_num_base+file_cnt}.rdf"  #mjc: 9/28, this is a hard-coded value and is incorrect. It should be changed to a use-input param at some point.
                path = File.split(file_name)[0]
                FileUtils.mkpath path
                rdf_file = File.open(file_name, "w")
