@@ -205,4 +205,9 @@ class SearchController < ApplicationController
 		end
 	end
 
+	def compare
+		respond_to do |format|
+			format.json { render json: { comparison: true } }
+		end
+	end
 end

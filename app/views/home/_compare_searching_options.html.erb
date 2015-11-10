@@ -1,0 +1,13 @@
+<p>This compares searches using different indexes and different Levenshtein distances.</p>
+<p>The Indexes used are: Exact, Stemmed, and Stemmed w/diacriticals removed.</p>
+<p>The three Levenshtein distances supported are: 0, 1, and 2.</p>
+<%= form_tag "/search/compare.json", method: 'get', id: 'search-compare', remote: true do %>
+	<div>Search Term:
+	<input name="q" type="text" />
+	<input type="submit" value="Search" />
+	</div>
+<% end %>
+<h3>Results</h3>
+<div id="compare-results">
+
+</div>

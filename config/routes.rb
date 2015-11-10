@@ -42,6 +42,7 @@ Rails.application.routes.draw do
 			get 'names'
 			get 'totals'
 			get 'details'
+			get 'compare'
       get 'languages'
 		end
 	end

@@ -6,6 +6,7 @@
 	<%= tab_link("Overview", 'overview', curr_tab) %>
 	<%= tab_link("Totals", 'totals', curr_tab) %>
 	<%= tab_link("Search", 'search', curr_tab) %>
+	<%= tab_link("Compare", 'compare', curr_tab) %>
 	<%= tab_link("Autocomplete", 'autocomplete', curr_tab) %>
 	<%= tab_link("Names Faceting", 'names', curr_tab) %>
 	<%= tab_link("Details", 'uri', curr_tab) %>
@@ -100,6 +101,12 @@
 	<%= render :partial => 'params', :locals => { :params => @query_params } %>
 	<p>Example: Search for all mention of "tree" by Williams: <%= example_link("/search.xml?q=%2btree&aut=%2bWilliams") %></p>
 	<p>The output format is described in this <%= link_to "XSD", "/xsd/search_results.xsd", { :class => 'example_link' } %></p>
+</div>
+
+<% elsif params[:tab] == 'compare' %>
+<div id="tab_compare" class="individual_tab">
+	<h3>Compare Searching Options</h3>
+	<%= render "compare_searching_options" %>
 </div>
 
 <% elsif params[:tab] == 'autocomplete' %>
