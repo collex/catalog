@@ -319,7 +319,7 @@ YUI().use('node', "panel", "io-base", 'querystring-stringify-simple', 'json-pars
 
 	function drawElement(item, params) {
 		var html = "";
-		if (item.text) {
+		if (item.text !== undefined) {
 			html += elAndClass('scan', item.klass);
 			html += '>' + item.text + "</scan>";
 		} else if (item.input) {

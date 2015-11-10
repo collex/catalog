@@ -18,13 +18,14 @@
 namespace :eebo do
    include Pages
 
-   desc "Generate page-level RDF (params: batch_id, work_id (optional), skip=y/N (optional - don't add pages flag to origninal rdf) )"
+   desc "Generate page-level RDF (params: archive, batch_id, work_id (optional), skip=y/N (optional - don't add pages flag to origninal rdf) )"
    task :generate_page_rdf => :environment do
+      archive = ENV['archve']
       batch_id = ENV['batch_id']
       tgt_work = ENV['work_id']
       skip = ENV['skip']
       raise "batch_id is required!" if batch_id.nil?
-      generate_pages("eebo", batch_id, tgt_work, skip) { |work_json|
+      generate_pages(archive, batch_id, tgt_work, skip) { |work_json|
          last = work_json['wks_eebo_citation_id'].to_s.rjust(10, "0")
          image_id = work_json['wks_eebo_image_id'].to_i
          first = work_json['wks_eebo_image_id'].rjust(10, "0")
@@ -35,22 +36,40 @@ namespace :eebo do
          out
       }
    end
+   
+   desc "close rdf tag on broken archives"
+   task :close_rdf_tag => :environment do
+      archive = ENV['archive']
+      raise "archive is required!" if archive.nil?
+
+
+      rdf_dir= "#{RDF_PATH}/arc_rdf_#{archive}"
+      Dir.chdir( rdf_dir )
+      Dir.glob("*.rdf") do |f|
+         cmd = "grep '</rdf:RDF>' #{File.join(Dir.pwd, f)} 2>/dev/null"
+         result = `#{cmd}`
+         if result.empty?
+            File.open(f, "a+") { |f| f.write("</rdf:RDF>") }
+         end
+      end
+   end
+
 
   desc "Mark archive_EEBO texts for typewright (param: file=/text/file/path/one/item/per/line)"
   task :typewright_enable, [:file] => :environment do |t, args|
 
-    file = args[:file]
+    file = ENV['file']
     if file == nil
       puts "Usage: call with file=/text/file\nThe text file should have a list of EEBO uri's, with one of them per line."
     else
       start_time = Time.now
-      dst = Solr.new("archive_EEBO")
+      dst = Solr.new("archive_eebo_prq")
       has_dot = false
       num_added = 0
       num_missing = 0
       count = 0
       File.open(file).each_line{ |text|
-        uri = text.strip( )
+        uri = "lib\\://EEBO/#{text.strip()}"
         begin
           print "\n#{count}" if count % 1000 == 0
           print '.' if count % 50 == 0
@@ -73,7 +92,7 @@ namespace :eebo do
       puts "\nNumber of documents added to typewright: #{num_added}"
       puts "Number of documents not found: #{num_missing}"
       puts "All items processed into the test index. If the test index looks correct, then merge it into the live index with:"
-      puts "rake solr_index:merge_archive archive=EEBO"
+      puts "rake solr_index:merge_archive archive=eebo_prq"
       finish_line(start_time)
     end
   end
@@ -195,22 +214,28 @@ namespace :eebo do
             first = image_id.rjust(10, "0")
             unique = "#{first}-#{last}"
             uri = "lib://EEBO/#{unique}"
+            url = "#{res['wks_eebo_url'].gsub(/(.*):image:\d+$/, '\1')}:citation:#{res['wks_eebo_citation_id']}"
+            url.gsub!(/&/, "&amp;")
+            title = res['wks_title'].gsub(/&/, "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+            pub = res['wks_publisher'].gsub(/&/, "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+            author = res['wks_author'].gsub(/&/, "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+
 
             # Extract source info from meta data file
             source = ""
             if meta[ image_id.to_i ].nil? == false
-               source = meta[ image_id.to_i ]
+               source = meta[ image_id.to_i ].gsub(/&/, "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
             else
                puts "WARNING: cannot resolve source for image_id: #{res['wks_eebo_image_id']}"
             end
 
             # Fill out the RDF rec template
             rdf_rec = template.gsub(/\$URI/, uri)
-            rdf_rec.gsub!(/\$TITLE/, res['wks_title'])
-            rdf_rec.gsub!(/\$AUTHOR/, res['wks_author'])
-            rdf_rec.gsub!(/\$PUBLISHER/, res['wks_publisher'])
+            rdf_rec.gsub!(/\$TITLE/, title)
+            rdf_rec.gsub!(/\$AUTHOR/, author)
+            rdf_rec.gsub!(/\$PUBLISHER/, pub)
             rdf_rec.gsub!(/\$DATE/, res['wks_pub_date'])
-            rdf_rec.gsub!(/\$URL/, res['wks_eebo_url'])
+            rdf_rec.gsub!(/\$URL/, url)
             rdf_rec.gsub!(/\$SOURCE/, source)
 
             # create file if necessary and reset all partitioning counters
@@ -222,7 +247,7 @@ namespace :eebo do
                   rdf_file.close
                end
 
-               file_name = "#{RDF_PATH}/arc_rdf_eebo/EEBO_#{file_num_base+file_cnt}.rdf"
+               file_name = "#{RDF_PATH}/arc_rdf_eebo_prq/EEBO_#{file_num_base+file_cnt}.rdf"  #mjc: 9/28, this is a hard-coded value and is incorrect. It should be changed to a use-input param at some point.
                path = File.split(file_name)[0]
                FileUtils.mkpath path
                rdf_file = File.open(file_name, "w")

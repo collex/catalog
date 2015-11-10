@@ -14,14 +14,15 @@ xml.resource_tree do
 					xml.text!("\n      ")
 					xml.parent Archive.find(archive[:parent_id]).name
 				end
-				if archive[:carousel_include].to_i == 1
+				carousel = archive.carousel_data(params['federation'])
+				if carousel.present?
 					xml.text!("\n      ")
 					xml.carousel do
-						if archive.carousel_image?
-							xml.image archive.carousel_image.url
+						if carousel[:image].present?
+							xml.image carousel[:image]
 							xml.text!("\n        ")
 						end
-						xml.description archive[:carousel_description]
+						xml.description carousel[:description]
 						xml.text!("\n          ")
 					end
 				end
@@ -50,21 +51,17 @@ xml.resource_tree do
 				xml.site_url archive[:site_url]
 				xml.text!("\n      ")
 				xml.thumbnail archive[:thumbnail]
-				if archive.carousels.exists?
+				carousel = archive.carousel_data(params['federation'])
+				if carousel.present?
 					xml.text!("\n      ")
 					xml.carousel do
 						xml.text!("\n        ")
-						if archive.carousel_image?
-							xml.image archive.carousel_image.url
+						if carousel[:image].present?
+							xml.image carousel[:image]
 							xml.text!("\n        ")
 						end
-						xml.description archive[:carousel_description]
+						xml.description carousel[:description]
 						xml.text!("\n      ")
-            xml.federations do
-              archive.carousels.each do |carousel|
-                xml.federation carousel.name
-              end
-            end
 					end
 				end
 				xml.text!("\n    ")

@@ -86,6 +86,23 @@ class Archive < ActiveRecord::Base
 		nodes = nodes.map { |node| {:name => node['name'], :value => node['id']} }
 		nodes.unshift({:name => "[root]", :value => 0})
 		return nodes
-  end
+	end
+
+	def include_carousel(federation)
+		self.carousels.each { |carousel|
+			if carousel.name == federation
+				return true
+			end
+		}
+		return false
+	end
+
+	def carousel_data(federation)
+		if self.include_carousel(federation)
+			image = self.carousel_image? ? self.carousel_image.url : nil
+			return { image: image, description: self.carousel_description }
+		end
+		return nil
+	end
 
 end

@@ -16,9 +16,11 @@ class SearchController < ApplicationController
 			# the index. If  the search is periodical~2, the query is NOT stemmed. periodical
 			# will not match anything in the index (period) - even with the ~2, because period
 			# is more than edit distance of 2 from periodical
+			params.delete('fuz_q') if params[:fuz_q] == "+0"  # SKIP THIS FOR FUZZY 0: Exact match!
+			params.delete('fuz_t') if params[:fuz_t] == "+0"  # SKIP THIS FOR FUZZY 0: Exact match!
+
 			extra_query = ""
-			fuzzy = params[:fuz_q]
-			if params.has_key?(:fuz_q) && fuzzy != "+0"  # SKIP THIS FOR FUZZY 0: Exact match!
+			if params.has_key?(:fuz_q)
   			   original_q = params[:q]
      			orig_prefix = original_q[0]
      			orig_term = original_q[1..original_q.length]
