@@ -206,8 +206,12 @@ class SearchController < ApplicationController
 	end
 
 	def compare
+		results = { exact: [ { total: 1, hits: [ 'e1', 'e2' ] }, { total: 1, hits: [ 'e1', 'e2' ] }, { total: 1, hits: [ 'e1', 'e2' ] } ],
+			stemmed: [ { total: 2, hits: [ 's1', 's2', 's3' ] }, { total: 2, hits: [ 's1', 's2', 's3' ] }, { total: 2, hits: [ 's1', 's2', 's3' ] } ],
+			no_diacriticals: [ { total: 3, hits: [ 'd1', 'd2' ] }, { total: 3, hits: [ 'd1', 'd2' ] }, { total: 3, hits: [ 'd1', 'd2' ] } ]
+		}
 		respond_to do |format|
-			format.json { render json: { comparison: true } }
+			format.json { render json: results }
 		end
 	end
 end

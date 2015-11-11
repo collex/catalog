@@ -42,3 +42,10 @@ table.results td {
 	margin-left: 4px;
 	padding-left: 12px;
 }
+
+#compare-results {
+	td,th {
+		padding: 4px;
+		border-right: 1px solid #dddddd;
+	}
+}
