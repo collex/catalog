@@ -48,4 +48,15 @@ table.results td {
 		padding: 4px;
 		border-right: 1px solid #dddddd;
 	}
+	th {
+		background-color: #f1f1f1;
+	}
+	.totals td {
+		font-weight: bold;
+		border-bottom: 1px solid #dddddd;
+	}
+}
+
+#progress-message {
+	color: red;
 }

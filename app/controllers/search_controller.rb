@@ -205,10 +205,64 @@ class SearchController < ApplicationController
 		end
 	end
 
+	def scrape_terms(hits)
+		terms = {}
+		hits.each { |hit|
+			if hit['text']
+				arr = hit['text'].split('<em>')
+				arr.each { |frag|
+					arr2 = frag.split("</em>")
+					if arr2.length == 2
+						terms[arr2[0]] = true
+					end
+				}
+			end
+		}
+		ret = []
+		terms.each_key { |term|
+			ret.push(term)
+		}
+		return ret
+	end
+
 	def compare
-		results = { exact: [ { total: 1, hits: [ 'e1', 'e2' ] }, { total: 1, hits: [ 'e1', 'e2' ] }, { total: 1, hits: [ 'e1', 'e2' ] } ],
-			stemmed: [ { total: 2, hits: [ 's1', 's2', 's3' ] }, { total: 2, hits: [ 's1', 's2', 's3' ] }, { total: 2, hits: [ 's1', 's2', 's3' ] } ],
-			no_diacriticals: [ { total: 3, hits: [ 'd1', 'd2' ] }, { total: 3, hits: [ 'd1', 'd2' ] }, { total: 3, hits: [ 'd1', 'd2' ] } ]
+		term = params[:q]
+		options_base = { 'fq' => [], 'start' => 0, 'rows' => 300, 'hl.fl' => 'text', 'hl.fragsize' => 600, 'hl.maxAnalyzedChars' => 512000, 'hl' => true, 'hl.useFastVectorHighlighter' => true }
+		overrides = { no_facets: true, field_list: ['uri'] }
+
+		options_exact0 = { 'q' => "content_auto:#{term}"}.merge(options_base)
+		options_exact1 = { 'q' => "content_auto:#{term}~1"}.merge(options_base)
+		options_exact2 = { 'q' => "content_auto:#{term}~2"}.merge(options_base)
+		options_stemmed0 = { 'q' => "content:#{term}"}.merge(options_base)
+		options_stemmed1 = { 'q' => "content:#{term}~1"}.merge(options_base)
+		options_stemmed2 = { 'q' => "content:#{term}~2"}.merge(options_base)
+		options_no_diacriticals0 = { 'q' => "content_ascii:#{term}"}.merge(options_base)
+		options_no_diacriticals1 = { 'q' => "content_ascii:#{term}~1"}.merge(options_base)
+		options_no_diacriticals2 = { 'q' => "content_ascii:#{term}~2"}.merge(options_base)
+
+		solr = Solr.factory_create(:live)
+		exact0_results = solr.search(options_exact0, overrides)
+		exact1_results = solr.search(options_exact1, overrides)
+		exact2_results = solr.search(options_exact2, overrides)
+		stemmed0_results = solr.search(options_stemmed0, overrides)
+		stemmed1_results = solr.search(options_stemmed1, overrides)
+		stemmed2_results = solr.search(options_stemmed2, overrides)
+		no_diacriticals0_results = solr.search(options_no_diacriticals0, overrides)
+		no_diacriticals1_results = solr.search(options_no_diacriticals1, overrides)
+		no_diacriticals2_results = solr.search(options_no_diacriticals2, overrides)
+
+		e0 = { total: exact0_results[:total], hits: scrape_terms(exact0_results[:hits]) }
+		e1 = { total: exact1_results[:total], hits: scrape_terms(exact1_results[:hits]) }
+		e2 = { total: exact2_results[:total], hits: scrape_terms(exact2_results[:hits]) }
+		s0 = { total: stemmed0_results[:total], hits: scrape_terms(stemmed0_results[:hits]) }
+		s1 = { total: stemmed1_results[:total], hits: scrape_terms(stemmed1_results[:hits]) }
+		s2 = { total: stemmed2_results[:total], hits: scrape_terms(stemmed2_results[:hits]) }
+		d0 = { total: no_diacriticals0_results[:total], hits: scrape_terms(no_diacriticals0_results[:hits]) }
+		d1 = { total: no_diacriticals1_results[:total], hits: scrape_terms(no_diacriticals1_results[:hits]) }
+		d2 = { total: no_diacriticals2_results[:total], hits: scrape_terms(no_diacriticals2_results[:hits]) }
+		results = { exact: [ e0, e1, e2 ],
+			stemmed: [ s0, s1, s2 ],
+			no_diacriticals: [ d0, d1, d2 ]
 		}
 		respond_to do |format|
 			format.json { render json: results }
