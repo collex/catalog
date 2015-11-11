@@ -57,6 +57,17 @@ table.results td {
 	}
 }
 
+#search-compare {
+	.label {
+		position: absolute;
+	}
+	div {
+		margin-bottom: 8px;
+	}
+	input[type=text], select {
+		margin-left: 120px;
+	}
+}
 #progress-message {
 	color: red;
 }

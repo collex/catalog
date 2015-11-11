@@ -227,18 +227,22 @@ class SearchController < ApplicationController
 
 	def compare
 		term = params[:q]
+		federation = params[:fed]
 		options_base = { 'fq' => [], 'start' => 0, 'rows' => 300, 'hl.fl' => 'text', 'hl.fragsize' => 600, 'hl.maxAnalyzedChars' => 512000, 'hl' => true, 'hl.useFastVectorHighlighter' => true }
+
+		fed_q = federation.length > 0 ? "+federation:#{Federation.find_by({id: federation}).name} +" : ''
+
 		overrides = { no_facets: true, field_list: ['uri'] }
 
-		options_exact0 = { 'q' => "content_auto:#{term}"}.merge(options_base)
-		options_exact1 = { 'q' => "content_auto:#{term}~1"}.merge(options_base)
-		options_exact2 = { 'q' => "content_auto:#{term}~2"}.merge(options_base)
-		options_stemmed0 = { 'q' => "content:#{term}"}.merge(options_base)
-		options_stemmed1 = { 'q' => "content:#{term}~1"}.merge(options_base)
-		options_stemmed2 = { 'q' => "content:#{term}~2"}.merge(options_base)
-		options_no_diacriticals0 = { 'q' => "content_ascii:#{term}"}.merge(options_base)
-		options_no_diacriticals1 = { 'q' => "content_ascii:#{term}~1"}.merge(options_base)
-		options_no_diacriticals2 = { 'q' => "content_ascii:#{term}~2"}.merge(options_base)
+		options_exact0 = { 'q' => "#{fed_q}content_auto:#{term}"}.merge(options_base)
+		options_exact1 = { 'q' => "#{fed_q}content_auto:#{term}~1"}.merge(options_base)
+		options_exact2 = { 'q' => "#{fed_q}content_auto:#{term}~2"}.merge(options_base)
+		options_stemmed0 = { 'q' => "#{fed_q}content:#{term}"}.merge(options_base)
+		options_stemmed1 = { 'q' => "#{fed_q}content:#{term}~1"}.merge(options_base)
+		options_stemmed2 = { 'q' => "#{fed_q}content:#{term}~2"}.merge(options_base)
+		options_no_diacriticals0 = { 'q' => "#{fed_q}content_ascii:#{term}"}.merge(options_base)
+		options_no_diacriticals1 = { 'q' => "#{fed_q}content_ascii:#{term}~1"}.merge(options_base)
+		options_no_diacriticals2 = { 'q' => "#{fed_q}content_ascii:#{term}~2"}.merge(options_base)
 
 		solr = Solr.factory_create(:live)
 		exact0_results = solr.search(options_exact0, overrides)

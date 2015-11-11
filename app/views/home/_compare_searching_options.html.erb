@@ -1,9 +1,12 @@
 <p>This compares searches using different indexes and different Levenshtein distances.</p>
 <p>The Indexes used are: Exact, Stemmed, and Stemmed w/diacriticals removed.</p>
 <p>The three Levenshtein distances supported are: 0, 1, and 2.</p>
-<p>(The result list are the terms found in the first 300 results.)</p>
+<p>(The result list are the unique terms found in the TEXT field for the first 300 results.)</p>
 <%= form_tag "/search/compare.json", method: 'get', id: 'search-compare', remote: true do %>
-	<div>Search Term:
+	<div><span class="label">Federation:</span>
+		<%= select_tag("fed", options_from_collection_for_select(Federation.all, "id", "name"), include_blank: "All") %>
+	</div>
+	<div><span class="label">Search Term:</span>
 	<input name="q" type="text" />
 	<input type="submit" value="Search" />
 	</div>
