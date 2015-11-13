@@ -213,14 +213,16 @@ class SearchController < ApplicationController
 				arr.each { |frag|
 					arr2 = frag.split("</em>")
 					if arr2.length == 2
-						terms[arr2[0]] = true
+						term = arr2[0]
+						terms[term] = 0 if terms[term].blank?
+						terms[term] += 1
 					end
 				}
 			end
 		}
 		ret = []
-		terms.each_key { |term|
-			ret.push(term)
+		terms.each { |term,size|
+			ret.push([term,size])
 		}
 		return ret
 	end
@@ -228,7 +230,8 @@ class SearchController < ApplicationController
 	def compare
 		term = params[:q]
 		federation = params[:fed]
-		options_base = { 'fq' => [], 'start' => 0, 'rows' => 300, 'hl.fl' => 'text', 'hl.fragsize' => 600, 'hl.maxAnalyzedChars' => 512000, 'hl' => true, 'hl.useFastVectorHighlighter' => true }
+		page_size = params[:page_size]
+		options_base = { 'fq' => [], 'start' => 0, 'rows' => page_size, 'hl.fl' => 'text', 'hl.fragsize' => 60, 'hl.maxAnalyzedChars' => 512000, 'hl' => true, 'hl.useFastVectorHighlighter' => true }
 
 		fed_q = federation.length > 0 ? "+federation:#{Federation.find_by({id: federation}).name} +" : ''
 

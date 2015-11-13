@@ -31,31 +31,31 @@ $(function() {
 			for (var i = 0; i < biggest; i++) {
 				html += "<tr><td>";
 				if (data.exact[0].hits.length > i)
-					html += data.exact[0].hits[i];
+					html += data.exact[0].hits[i][0] + ' (' + data.exact[0].hits[i][1] + ')';
 				html += "</td><td>";
 				if (data.stemmed[0].hits.length > i)
-					html += data.stemmed[0].hits[i];
+					html += data.stemmed[0].hits[i][0] + ' (' + data.stemmed[0].hits[i][1] + ')';
 				html += "</td><td>";
 				if (data.no_diacriticals[0].hits.length > i)
-					html += data.no_diacriticals[0].hits[i];
+					html += data.no_diacriticals[0].hits[i][0] + ' (' + data.no_diacriticals[0].hits[i][1] + ')';
 				html += "</td><td>";
 				if (data.exact[1].hits.length > i)
-					html += data.exact[1].hits[i];
+					html += data.exact[1].hits[i][0] + ' (' + data.exact[1].hits[i][1] + ')';
 				html += "</td><td>";
 				if (data.stemmed[1].hits.length > i)
-					html += data.stemmed[1].hits[i];
+					html += data.stemmed[1].hits[i][0] + ' (' + data.stemmed[1].hits[i][1] + ')';
 				html += "</td><td>";
 				if (data.no_diacriticals[1].hits.length > i)
-					html += data.no_diacriticals[1].hits[i];
+					html += data.no_diacriticals[1].hits[i][0] + ' (' + data.no_diacriticals[1].hits[i][1] + ')';
 				html += "</td><td>";
 				if (data.exact[2].hits.length > i)
-					html += data.exact[2].hits[i];
+					html += data.exact[2].hits[i][0] + ' (' + data.exact[2].hits[i][1] + ')';
 				html += "</td><td>";
 				if (data.stemmed[2].hits.length > i)
-					html += data.stemmed[2].hits[i];
+					html += data.stemmed[2].hits[i][0] + ' (' + data.stemmed[2].hits[i][1] + ')';
 				html += "</td><td>";
 				if (data.no_diacriticals[2].hits.length > i)
-					html += data.no_diacriticals[2].hits[i];
+					html += data.no_diacriticals[2].hits[i][0] + ' (' + data.no_diacriticals[2].hits[i][1] + ')';
 				html += "</td></tr>";
 			}
 			html += "</table>";
